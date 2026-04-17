@@ -33,10 +33,52 @@ class VirtualCamera:
         scale = r_s / np.maximum(r, 1e-5)
         self.map_x = (self.width / 2.0 + x_c * scale).astype(np.float32)
         self.map_y = (self.height / 2.0 + y_c * scale).astype(np.float32)
+        
+    def _project_entity(self, observer, entity, color_bgr, shape_type="circle", base_size=12.0):
+        """Calcula las coordenadas y métricas visuales para una entidad."""
+        if shape_type == "rect" and hasattr(entity, 'width') and hasattr(entity, 'height'):
+            # En la vista 2D del Motor, la altura representa el ancho desde la perspectiva interior.
+            ex = entity.x + entity.width / 2.0
+            ey = entity.y + entity.height / 2.0
+        else:
+            ex = entity.x
+            ey = entity.y
 
-    def render(self, observer_x, observer_y, observer_angle, ball_entity, other_robots):
+        dx = ex - observer.x
+        dy = ey - observer.y
+        dist = math.hypot(dx, dy)
+        angle = math.atan2(dy, dx)
+        diff_angle = (angle - observer.rangle + math.pi) % (2 * math.pi) - math.pi
+        
+        if abs(diff_angle) < (self.fov / 2) + math.radians(20):
+            pixels_per_radian = self.width / self.fov
+            img_x = int(self.width / 2 + diff_angle * pixels_per_radian)
+            dist_safe = max(1.0, dist)
+            
+            # Proporción física para perspectiva 2.5D
+            r_calc = (base_size / 12.0) * 1500 / dist_safe
+            screen_size = int(min(400.0, r_calc))
+            
+            # Altura tridimensional teórica (Z) de las entidades
+            z_phys = getattr(entity, 'z_height', base_size)
+            h_calc = (z_phys / 12.0) * 1500 / dist_safe
+            screen_h_size = int(min(400.0, h_calc))
+            
+            if screen_size > 0:
+                return {
+                    'dist': dist,
+                    'x': img_x,
+                    'size': screen_size,
+                    'h_size': screen_h_size,
+                    'color': color_bgr,
+                    'shape': shape_type
+                }
+        return None
+
+    def render(self, observer, state):
         """
         Calcula una imagen RGB representando lo que el agente ve físicamente.
+        Soporta Polimorfismo Geométrico: círculos se dibujan esféricos y porterías rectangulares como muros.
         """
         frame = np.zeros((self.height, self.width, 3), dtype=np.uint8)
         
@@ -51,67 +93,43 @@ class VirtualCamera:
 
         objects_to_draw = []
         
-        # 1. Añadir la Pelota a la lista de renderizado
-        if ball_entity:
-            dx = ball_entity.x - observer_x
-            dy = ball_entity.y - observer_y
-            dist = math.hypot(dx, dy)
-            angle = math.atan2(dy, dx)
-            diff_angle = (angle - observer_angle + math.pi) % (2 * math.pi) - math.pi
+        if state.ball:
+            proj = self._project_entity(observer, state.ball, (0, 100, 255), "circle", state.ball.radius)
+            if proj: objects_to_draw.append(proj)
             
-            # Evaluamos el fov completo. Damos math.radians(15) de gracia en los bordes para que la distorsión barril los pueda atrapar.
-            if abs(diff_angle) < (self.fov / 2) + math.radians(15):
-                pixels_per_radian = self.width / self.fov
-                img_x = int(self.width / 2 + diff_angle * pixels_per_radian)
-                dist_safe = max(1.0, dist)
-                r_calc = 1500 / dist_safe
-                radius = int(min(120.0, r_calc))
-                
-                if radius > 0:
-                    objects_to_draw.append({
-                        'dist': dist,
-                        'x': img_x,
-                        'radius': radius,
-                        'color': (0, 100, 255) # Naranja en OpenCV BGR
-                    })
-
-        # 2. Añadir los demás Robots (enemigos u otros aliados) para oclusión
-        for other_r in other_robots:
-            dx = other_r.x - observer_x
-            dy = other_r.y - observer_y
-            dist = math.hypot(dx, dy)
-            angle = math.atan2(dy, dx)
-            diff_angle = (angle - observer_angle + math.pi) % (2 * math.pi) - math.pi
+        for r in state.robots:
+            v = 0.15
+            color_bgr = (r.team_color[2] * v, r.team_color[1] * v, r.team_color[0] * v)
+            proj = self._project_entity(observer, r, color_bgr, "rect", r.z_height)
+            if proj: objects_to_draw.append(proj)
             
-            if abs(diff_angle) < (self.fov / 2) + math.radians(15):
-                pixels_per_radian = self.width / self.fov
-                img_x = int(self.width / 2 + diff_angle * pixels_per_radian)
-                dist_safe = max(1.0, dist)
-                
-                # Relación física aprox: bola 12px, robot 23px
-                ball_radius_ref = 12.0
-                r_calc = (other_r.radius / ball_radius_ref) * 1500 / dist_safe
-                radius = int(min(240.0, r_calc))
-                
-                if radius > 0:
-                    # Invertir color RGB a BGR para OpenCV y oscurecer
-                    v = 0.1
-                    bgr_color = (other_r.team_color[2] * v, other_r.team_color[1] * v, other_r.team_color[0] * v)
-                    objects_to_draw.append({
-                        'dist': dist,
-                        'x': img_x,
-                        'radius': radius,
-                        'color': bgr_color
-                    })
+        for g in state.goals:
+            color_bgr = (g.team_color[2], g.team_color[1], g.team_color[0])
+            # La altura (height) de la portería en 2D representa su ancho en la perspectiva 3D
+            proj = self._project_entity(observer, g, color_bgr, "rect", g.height)
+            if proj: objects_to_draw.append(proj)
 
-        # 3. Painter's Algorithm: Ordenar de más lejos a más cerca
+        # 4. Painter's Algorithm: Ordenar de más lejos a más cerca
         objects_to_draw.sort(key=lambda obj: obj['dist'], reverse=True)
         
-        # 4. Dibujarlo todo en orden
+        # 5. Dibujar en orden de fondo a frente
         for obj in objects_to_draw:
-            cv2.circle(frame, (obj['x'], self.height // 2), obj['radius'], obj['color'], -1)
+            if obj['shape'] == "circle":
+                cv2.circle(frame, (obj['x'], self.height // 2), obj['size'], obj['color'], -1)
+            elif obj['shape'] == "rect":
+                # Prisma/Muro en 2.5D
+                w = obj['size']
+                h = obj['h_size']
+                
+                # Limitar el tamaño para que no desborde inmensamente
+                w = min(w, self.width * 2)
+                h = min(h, self.height * 2)
 
-        # 5. ¡Aplica la lente Fisheye distorsionando la imagen entera antes de entregarla!
+                top_left = (obj['x'] - w // 2, self.height // 2 - h // 2)
+                bottom_right = (obj['x'] + w // 2, self.height // 2 + h // 2)
+                cv2.rectangle(frame, top_left, bottom_right, obj['color'], -1)
+
+        # 6. Aplica la lente Fisheye distorsionando la imagen entera antes de entregarla
         frame = cv2.remap(frame, self.map_x, self.map_y, cv2.INTER_LINEAR, 
                           borderMode=cv2.BORDER_CONSTANT, borderValue=(0,0,0))
                           

@@ -1,6 +1,7 @@
 from pygame.color import Color
 import math
 import pygame
+from sandbox.sim_cache import SimState
 
 class Entity:
     def __init__(self, x, y):
@@ -18,6 +19,7 @@ class Goal(Entity):
         super().__init__(x, y)
         self.width = width
         self.height = height
+        self.z_height = 60.0  # Altura tridimensional de la portería
         self.team_color = team_color  # Color de equipo (ej. (0,0,255) Azul)
         self.rect = pygame.Rect(x, y, width, height)
 
@@ -30,6 +32,7 @@ class Ball(Entity):
     def __init__(self, x, y):
         super().__init__(x, y)
         self.radius = 12
+        self.z_height = 12.0  # Pelota esférica, altura tridimensional == radio
         self.vx = 0.0
         self.vy = 0.0
         self.dragging = False
@@ -68,6 +71,7 @@ class RobotEntity(Entity):
     def __init__(self, x, y, team_color):
         super().__init__(x, y)
         self.radius = 23
+        self.z_height = 40.0  # Altura tridimensional del robot
         self.rangle = 0.0
         self.team_color = team_color  # Atributo del color de equipo al que pertenece
         
@@ -83,7 +87,12 @@ class RobotEntity(Entity):
     def update(self, game, robots=None):
         # 1. Ejecutar Lógica de Agente FSM (Autonomía)
         if self.machine and self.context:
-            self.context.compute(game.ball, robots or [])
+            sim_state = SimState(
+                ball=game.ball, 
+                robots=robots or [], 
+                goals=[game.ally_goal, game.enemy_goal]
+            )
+            self.context.compute(sim_state)
             self.machine.run(self.context)
         
         # 2. Cinematica / Física (usar actuador proveniente de Contexto)

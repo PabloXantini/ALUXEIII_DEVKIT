@@ -10,15 +10,28 @@ CAMERA_SOURCE  = 0
 CAP_BACKEND    = cv2.CAP_V4L2
 SCALE_PERCENT  = 0.50
 FLIP_FRAME     = True
- 
+
+# BALL
 # Rango HSV de la pelota (naranja/rojo)
-LOWER_BALL = np.array([0,   120,   0], dtype=np.uint8)
-UPPER_BALL = np.array([20,  255, 255], dtype=np.uint8)
-KERNEL     = np.ones((5, 5), np.uint8)
-AREA_MIN   = 50
- 
+LOWER_BALL = np.array([0, 120, 0], dtype=np.uint8)
+UPPER_BALL = np.array([20, 255, 255], dtype=np.uint8)
+BALL_AREA_MIN   = 50
+
+# GOALS
+# Rango HSV de la portería (azul)
+LOWER_GOAL1 = np.array([90, 50, 50], dtype=np.uint8)
+UPPER_GOAL1 = np.array([130, 255, 255], dtype=np.uint8)
+# Rango HSV de la portería (amarillo)
+LOWER_GOAL2 = np.array([20, 100, 100], dtype=np.uint8)
+UPPER_GOAL2 = np.array([30, 255, 255], dtype=np.uint8)
+GOAL_AREA_MIN = 80
+
+# KERNELS
+KERNEL5 = np.ones((5, 5), np.uint8)
+KERNEL3 = np.ones((3, 3), np.uint8)
+
 # ── Parámetros de comportamiento ──────────────────────────────────────────────
- 
+
 FRANJA_CENTRAL = 40   # píxeles de tolerancia lateral
 RADIO_OBJETIVO = 30   # radio mínimo para considerar la pelota "cerca"
  
@@ -26,13 +39,14 @@ RADIO_OBJETIVO = 30   # radio mínimo para considerar la pelota "cerca"
 class RobotContext(MContext):
     """
     Contexto compartido entre todos los estados.
-    Captura el frame, detecta la pelota y expone los datos
-    (offset_x, radius, ball_detected) + acceso a los motores.
+    Captura el frame, detecta la pelota, las porterías y expone los datos
+    (offset_x, radius, etc.) + acceso a los motores.
     """
  
-    def __init__(self, debug: bool = False):
+    def __init__(self, debug: bool = False, team_color: str = "blue"):
         super().__init__()
         self.debug = debug
+        self.team_color = team_color.lower()
         self.motors = MotorController()
         self.cap    = cv2.VideoCapture(CAMERA_SOURCE, CAP_BACKEND)
  
@@ -40,12 +54,34 @@ class RobotContext(MContext):
         self.ball_detected: bool  = False
         self.offset_x: int | None = None
         self.radius: int          = 0
+        
+        # Detección de porterías
+        self.ally_goal_detected: bool  = False
+        self.ally_goal_offset_x: int | None = None
+        self.ally_goal_radius: int = 0
+        
+        self.enemy_goal_detected: bool  = False
+        self.enemy_goal_offset_x: int | None = None
+        self.enemy_goal_radius: int = 0
+
         self.frame_debug          = None
         self.frame_width: int     = 0
         self.frame_height: int    = 0
  
         # Estado legible para overlay
         self.estado_label: str    = "Iniciando..."
+        
+        # Configurar colores de portería según el equipo
+        if self.team_color == "blue":
+            self.ally_goal_lower = LOWER_GOAL1
+            self.ally_goal_upper = UPPER_GOAL1
+            self.enemy_goal_lower = LOWER_GOAL2
+            self.enemy_goal_upper = UPPER_GOAL2
+        else: # yellow
+            self.ally_goal_lower = LOWER_GOAL2
+            self.ally_goal_upper = UPPER_GOAL2
+            self.enemy_goal_lower = LOWER_GOAL1
+            self.enemy_goal_upper = UPPER_GOAL1
  
     # ── Implementación MContext ───────────────────────────────────────────────
  
@@ -64,45 +100,77 @@ class RobotContext(MContext):
  
         self.frame_width  = w
         self.frame_height = h
-        self._detectar_pelota(frame)
+        
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        self._detect_objects(frame, hsv)
         return True
  
     # ── Detección ─────────────────────────────────────────────────────────────
  
-    def _detectar_pelota(self, frame):
-        hsv  = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(hsv, LOWER_BALL, UPPER_BALL)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, KERNEL, iterations=2)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN,  KERNEL, iterations=1)
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
-                                       cv2.CHAIN_APPROX_SIMPLE)
- 
-        debug = frame.copy() if self.debug else None
-        img_cx = frame.shape[1] // 2
-        self.ball_detected = False
-        self.offset_x      = None
-        self.radius        = 0
- 
+    def _detect_color(self, hsv, lower, upper, min_area):
+        """Método unificado para detectar un color específico usando HSV."""
+        mask = cv2.inRange(hsv, lower, upper)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, KERNEL5, iterations=2)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN,  KERNEL5, iterations=1)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        detected = False
+        offset_x = None
+        radius = 0
+        best_contour = None
+        
         if contours:
-            c    = max(contours, key=cv2.contourArea)
+            c = max(contours, key=cv2.contourArea)
             area = cv2.contourArea(c)
-            if area > AREA_MIN:
-                self.ball_detected = True
+            if area > min_area:
+                detected = True
                 M = cv2.moments(c)
                 if M["m00"] != 0:
                     cx = int(M["m10"] / M["m00"])
-                    cy = int(M["m01"] / M["m00"])
-                    self.offset_x = cx - img_cx
-                    (x, y), rf   = cv2.minEnclosingCircle(c)
-                    self.radius  = int(rf)
+                    offset_x = cx - (self.frame_width // 2)
+                    (_, _), rf = cv2.minEnclosingCircle(c)
+                    radius = int(rf)
+                    best_contour = c
                     
-                    if self.debug:
-                        cv2.drawContours(debug, [c], -1, (255, 0, 0), 2)
-                        cv2.circle(debug, (cx, cy), 5, (0, 255, 0), -1)
-                        cv2.circle(debug, (int(x), int(y)), self.radius,
-                                   (0, 0, 255), 2)
+        return detected, offset_x, radius, best_contour
+
+    def _detect_objects(self, frame, hsv):
+        debug = frame.copy() if self.debug else None
+        
+        # 1. Detección de la pelota (Naranja/Rojo)
+        self.ball_detected, self.offset_x, self.radius, ball_contour = \
+            self._detect_color(hsv, LOWER_BALL, UPPER_BALL, BALL_AREA_MIN)
+            
+        # 2. Detección de Portería Aliada
+        self.ally_goal_detected, self.ally_goal_offset_x, self.ally_goal_radius, ally_contour = \
+            self._detect_color(hsv, self.ally_goal_lower, self.ally_goal_upper, GOAL_AREA_MIN)
+            
+        # 3. Detección de Portería Enemiga
+        self.enemy_goal_detected, self.enemy_goal_offset_x, self.enemy_goal_radius, enemy_contour = \
+            self._detect_color(hsv, self.enemy_goal_lower, self.enemy_goal_upper, GOAL_AREA_MIN)
+        
+        if self.debug:
+            img_cx = self.frame_width // 2
+            # Dibujar la pelota
+            if self.ball_detected and ball_contour is not None:
+                cv2.drawContours(debug, [ball_contour], -1, (255, 0, 0), 2)
+                cx = img_cx + self.offset_x
+                cv2.circle(debug, (cx, self.frame_height // 2), 5, (0, 255, 0), -1)
+                
+            # Dibujar portería aliada (verde para diferenciar en debug)
+            if self.ally_goal_detected and ally_contour is not None:
+                cv2.drawContours(debug, [ally_contour], -1, (0, 255, 0), 2)
+                cx = img_cx + self.ally_goal_offset_x
+                cv2.putText(debug, "ALLY GOAL", (cx - 30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                
+            # Dibujar portería enemiga (rojo para diferenciar en debug)
+            if self.enemy_goal_detected and enemy_contour is not None:
+                cv2.drawContours(debug, [enemy_contour], -1, (0, 0, 255), 2)
+                cx = img_cx + self.enemy_goal_offset_x
+                cv2.putText(debug, "ENEMY GOAL", (cx - 40, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
  
         if self.debug:
+            img_cx = self.frame_width // 2
             # Franja central de referencia
             lx = img_cx - FRANJA_CENTRAL
             rx = img_cx + FRANJA_CENTRAL
@@ -110,7 +178,9 @@ class RobotContext(MContext):
             cv2.line(debug, (rx, 0), (rx, frame.shape[0]), (255, 255, 255), 1)
  
         self.frame_debug = debug
- 
+
+    
+
     # ── Debug visual ──────────────────────────────────────────────────────────
  
     def show_debug(self, window_name="Robot Vision"):

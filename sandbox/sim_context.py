@@ -12,18 +12,13 @@ class SimContext(RobotContext):
     Actúa únicamente como puente (MVC) entre el Robot físico simulado en 'game.py' y 
     los estados mentales del FSM (fsm.py).
     """
-    def __init__(self, debug: bool = True):
-        self.debug = debug
+    def __init__(self, debug: bool = True, team_color: str = "blue"):
+        super().__init__(debug=debug, team_color=team_color)
         self.motors = MockMotorController()
         
         class DummyCap:
             def release(self): pass
         self.cap = DummyCap() # Mock de cámara física
-        
-        # Variables públicas de MContext / Perception
-        self.ball_detected: bool  = False
-        self.offset_x: int | None = None
-        self.radius: int          = 0
         
         self.estado_label: str    = "Iniciando Simulación..."
         self.frame_width: int     = 320
@@ -39,24 +34,22 @@ class SimContext(RobotContext):
     def link_robot(self, robot_entity):
         self.robot = robot_entity
 
-    def compute(self, ball_entity=None, robots=None):
-        if not self.robot or not ball_entity: return False
-        if robots is None: robots = []
+    def compute(self, state=None):
+        if not self.robot or not state or not state.ball: return False
         
         # Excluir a sí mismo de los objetos a dibujar
-        other_robots = [r for r in robots if r is not self.robot]
+        other_robots = [r for r in state.robots if r is not self.robot]
         
-        # Encargar la renderización 3D/FishEye a la VirtualCamera
-        frame = self.camera.render(
-            observer_x=self.robot.x,
-            observer_y=self.robot.y,
-            observer_angle=self.robot.rangle,
-            ball_entity=ball_entity,
-            other_robots=other_robots
-        )
+        # Construir state filtrado conservando todos los elementos en la cache
+        from sandbox.sim_cache import SimState
+        filtered_state = SimState(ball=state.ball, robots=other_robots, goals=state.goals)
+        
+        # Encargar la renderización a la VirtualCamera pasándole la cache de estado
+        frame = self.camera.render(observer=self.robot, state=filtered_state)
 
         # Evaluar la visión sobre la imagen resultante (con distorsión inyectada)
-        self._detectar_pelota(frame)
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        self._detect_objects(frame, hsv)
         return True
 
     def show_debug(self):
