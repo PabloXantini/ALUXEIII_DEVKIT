@@ -116,14 +116,18 @@ class MotorController:
     def lateral_derecha(self, vel=None):
         v = vel or self.FORWARD_SLOW
         c = self.calib["right"]
-        # TODO: Ajustar cinemática omnidireccional para derecha
-        pass
+        self._bwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
+        self._fwd(M2_IN1, M2_IN2, self.pwm2, v * c[1])
+        self._bwd(M3_IN1, M3_IN2, self.pwm3, v * c[2])
+        self._fwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
     def lateral_izquierda(self, vel=None):
         v = vel or self.FORWARD_SLOW
         c = self.calib["left"]
-        # TODO: Ajustar cinemática omnidireccional para izquierda
-        pass
+        self._bwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
+        self._fwd(M2_IN1, M2_IN2, self.pwm2, v * c[1])
+        self._bwd(M3_IN1, M3_IN2, self.pwm3, v * c[2])
+        self._fwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
     def girar_derecha(self, vel=None):
         v = vel or self.TURN_VEL
