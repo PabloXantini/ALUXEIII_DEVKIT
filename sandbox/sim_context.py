@@ -32,6 +32,27 @@ class SimContext(RobotContext):
         # Enlace a la entidad cinemática
         self.robot = None
 
+        # Precomputar mapas de remapeo para Ojo de Pescado (Fisheye Barrel Distortion)
+        x, y = np.meshgrid(np.arange(self.frame_width), np.arange(self.frame_height))
+        x_c = x - self.frame_width / 2.0
+        y_c = y - self.frame_height / 2.0
+        r = np.sqrt(x_c**2 + y_c**2)
+        
+        # Factor de compresión (k)
+        k = 0.000015 
+        
+        # Calcular el radio máximo en las esquinas para estirar (hacer zoom) y tapar bordes negros
+        max_r = np.sqrt((self.frame_width / 2.0)**2 + (self.frame_height / 2.0)**2)
+        zoom_factor = 1 + k * max_r**2
+        
+        r_s = r * (1 + k * r**2)
+        # Zoom-in dividiendo según cuánto se encogieron las orillas
+        r_s = r_s / zoom_factor
+        
+        scale = r_s / np.maximum(r, 1e-5)
+        self.map_x = (self.frame_width / 2.0 + x_c * scale).astype(np.float32)
+        self.map_y = (self.frame_height / 2.0 + y_c * scale).astype(np.float32)
+
     def link_robot(self, robot_entity):
         self.robot = robot_entity
 
@@ -40,9 +61,15 @@ class SimContext(RobotContext):
         if robots is None: robots = []
         
         frame = np.zeros((self.frame_height, self.frame_width, 3), dtype=np.uint8)
-        frame[:] = (50, 100, 30) # Fondo de cancha
+        # Renderizado 2.5D: Cielo oscuro arriba (o paredes de la cancha) y Pasto abajo
+        frame[:self.frame_height // 2, :] = (30, 30, 30)
+        frame[self.frame_height // 2:, :] = (50, 100, 30)
         
-        fov = math.radians(60) 
+        # Para dar textura al pasto y que la distorsión sea muy visible, dibujemos un suelo rústico ajedrezado
+        for i in range(0, self.frame_width, 40):
+            cv2.line(frame, (i, self.frame_height // 2), (self.frame_width//2 + (i - self.frame_width//2)*3, self.frame_height), (40, 80, 20), 1)
+
+        fov = math.radians(100) # Ángulo abierto a 100 grados (Gran Angular)
         objects_to_draw = []
         
         # 1. Añadir la Pelota a la lista de renderizado
@@ -52,7 +79,8 @@ class SimContext(RobotContext):
         angle = math.atan2(dy, dx)
         diff_angle = (angle - self.robot.rangle + math.pi) % (2 * math.pi) - math.pi
         
-        if abs(diff_angle) < math.radians(90):
+        # Evaluamos el fov completo. Damos math.radians(15) de gracia en los bordes para que la distorsión barril los pueda atrapar.
+        if abs(diff_angle) < (fov / 2) + math.radians(15):
             pixels_per_radian = self.frame_width / fov
             img_x = int(self.frame_width / 2 + diff_angle * pixels_per_radian)
             dist_safe = max(1.0, dist)
@@ -76,7 +104,7 @@ class SimContext(RobotContext):
             angle = math.atan2(dy, dx)
             diff_angle = (angle - self.robot.rangle + math.pi) % (2 * math.pi) - math.pi
             
-            if abs(diff_angle) < math.radians(90):
+            if abs(diff_angle) < (fov / 2) + math.radians(15):
                 pixels_per_radian = self.frame_width / fov
                 img_x = int(self.frame_width / 2 + diff_angle * pixels_per_radian)
                 dist_safe = max(1.0, dist)
@@ -102,7 +130,10 @@ class SimContext(RobotContext):
         for obj in objects_to_draw:
             cv2.circle(frame, (obj['x'], self.frame_height // 2), obj['radius'], obj['color'], -1)
 
-        # Evaluar la visión sobre la imagen resultante
+        # 5. ¡Aplica la lente Fisheye distorsionando la imagen entera antes de dársela al FSM!
+        frame = cv2.remap(frame, self.map_x, self.map_y, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=(0,0,0))
+
+        # Evaluar la visión sobre la imagen resultante (con distorsión inyectada)
         self._detectar_pelota(frame)
         return True
 

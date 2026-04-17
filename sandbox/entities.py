@@ -136,7 +136,7 @@ class RobotEntity(Entity):
     def draw(self, screen, debug=False):
         # Dibujar cono de visión si estamos en debug
         if debug:
-            fov = math.radians(60)
+            fov = math.radians(100) # Apertura visual abierta al igual que en la cámara sintética
             max_dist = 600
             p1 = (self.x, self.y)
             p2 = (self.x + math.cos(self.rangle - fov/2) * max_dist, 

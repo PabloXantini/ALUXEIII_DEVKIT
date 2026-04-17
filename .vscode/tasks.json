@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run",
+            "type": "shell",
+            "command": "python alux.py",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Debug",
+            "type": "shell",
+            "command": "python alux.py --debug",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Sandbox",
+            "type": "shell",
+            "command": "python alux.py --sandbox --debug",
+            "problemMatcher": []
+        }
+    ]
+}
