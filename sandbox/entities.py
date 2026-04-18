@@ -31,8 +31,8 @@ class Goal(Entity):
 class Ball(Entity):
     def __init__(self, x, y):
         super().__init__(x, y)
-        self.radius = 12
-        self.z_height = 12.0  # Pelota esférica, altura tridimensional == radio
+        self.radius = 8
+        self.z_height = 8.0  # Pelota esférica, altura tridimensional == radio
         self.vx = 0.0
         self.vy = 0.0
         self.dragging = False

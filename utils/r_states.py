@@ -4,12 +4,11 @@ from fsm import State
 from utils.r_context import RobotContext
  
  
-class SearchState(State):
+class Search(State):
     """
-    Sin pelota visible → gira en círculo buscando.
-    Estado inicial del robot.
-    """
- 
+    Ball Detected -> Align
+    Action: Spin to right
+    """ 
     def on_init(self, ctx: RobotContext):
         ctx.estado_label = "Buscando..."
  
@@ -19,22 +18,22 @@ class SearchState(State):
     def execute(self, ctx: RobotContext):
         ctx.motors.girar_derecha()
  
- 
-class AlignState(State):
+class LookBall(State):
     """
-    Pelota visible pero descentrada → gira despacio para centrarla.
+    Ball and Goal Aligned -> AproachToGoal
+    Action: compute and align 
     """
- 
     def on_init(self, ctx: RobotContext):
-        ctx.estado_label = "Alineando..."
+        ctx.estado_label = "Alineando a pelota..."
  
     def on_exit(self, ctx: RobotContext):
         ctx.motors.stop()
  
     def execute(self, ctx: RobotContext):
-        if ctx.offset_x is None:
+        self.align = ctx.offset_x
+        if self.align is None:
             return
-        if ctx.offset_x > 0:
+        if self.align > 0:
             # Pelota a la derecha en imagen → corregir girando a la derecha
             ctx.estado_label = "Giro -> DER (Ajustando)"
             ctx.motors.girar_lento_izquierda()
@@ -43,12 +42,11 @@ class AlignState(State):
             ctx.estado_label = "Giro <- IZQ (Ajustando)"
             ctx.motors.girar_lento_derecha()
  
- 
-class ApproachState(State):
+# REVISAR
+class GotoBall(State):
     """
-    Pelota centrada pero lejos → avanza hacia ella.
+    Action: Forward
     """
- 
     def on_init(self, ctx: RobotContext):
         ctx.estado_label = "Avanzando..."
  
@@ -56,23 +54,33 @@ class ApproachState(State):
         ctx.motors.stop()
  
     def execute(self, ctx: RobotContext):
-        ctx.estado_label = f"Centrada: Avanzando (R:{ctx.radius})"
+        ctx.estado_label = f"Enfocando: Avanzando (R:{ctx.radius})"
         ctx.motors.adelante_lento()
- 
- 
-class StopState(State):
+
+class LookForShot(State):
     """
-    Pelota muy cerca → robot detenido listo para chutar.
-    Aquí puedes añadir la lógica de chute en el futuro.
+    Action: Think.
     """
- 
     def on_init(self, ctx: RobotContext):
-        ctx.estado_label = "¡CERCA! Detenido"
-        ctx.motors.stop()
+        ctx.estado_label = "¡CERCA! Alineando a porteria"
  
     def on_exit(self, ctx: RobotContext):
-        pass
+        ctx.motors.stop()
  
     def execute(self, ctx: RobotContext):
-        # Placeholder: aquí iría la lógica de chute
         ctx.estado_label = "¡CERCA! Detenido"
+
+class GotoGoal(State):
+    """
+    Domain the ball
+    Action: Forward
+    """
+    def on_init(self, ctx: RobotContext):
+        ctx.estado_label = "Avanzando con balon..."
+ 
+    def on_exit(self, ctx: RobotContext):
+        ctx.motors.stop()
+
+    def execute(self, ctx: RobotContext):
+        ctx.estado_label = f"CentradaMeta: Avanzando (R:{ctx.radius})"
+        ctx.motors.adelante_lento()

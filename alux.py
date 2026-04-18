@@ -13,13 +13,21 @@ import cv2
 import argparse
 from fsm import Machine
 from utils.r_context import RobotContext
-from utils.r_states import SearchState, AlignState, ApproachState, StopState
+from utils.r_states import (
+    Search, 
+    LookBall, 
+    GotoBall, 
+    LookForShot,
+    GotoGoal
+)
 from utils.r_rules import (
-    BallDetectedRule,
-    BallLostRule,
-    BallOffCenterRule,
-    BallCenteredRule,
-    BallCloseRule,
+    BallDetected,
+    BallLost,
+    BallOffCenter,
+    BallCentered,
+    BallClose,
+    BallGoalAligned,
+    NotBallGoalAligned
 )
 
 def build_machine(debug: bool = False, sandbox: bool = True, team_color: str = "blue") -> tuple[Machine, object]:
@@ -31,16 +39,35 @@ def build_machine(debug: bool = False, sandbox: bool = True, team_color: str = "
         ctx = RobotContext(debug=debug, team_color=team_color)
 
     # ── Instanciar estados ────────────────────────────────────────────────────
-    search   = SearchState()
-    align    = AlignState()
-    approach = ApproachState()
-    stop_st  = StopState()
+    search = Search()
+    l_ball = LookBall()
+    g_ball = GotoBall()
+    l_shot  = LookForShot()
+    g_goal = GotoGoal()
 
     # ── Máquina (estado inicial: búsqueda) ────────────────────────────────────
     machine = Machine(search)
 
     # ── Transiciones ──────────────────────────────────────────────────────────
     #  Desde       → Hacia        Cuando
+    # SEARCH
+    machine.add(search, l_ball, BallDetected())
+    # LOOKBALL
+    machine.add(l_ball, g_ball, BallCentered())
+    machine.add(l_ball, search, BallLost())
+    machine.add(l_ball, l_shot, BallClose())
+    # GOTOBALL
+    machine.add(g_ball, l_ball, BallOffCenter())
+    machine.add(g_ball, search, BallLost())
+    machine.add(g_ball, l_shot, BallClose())
+    # WAITFORSHOT
+    machine.add(l_shot, g_goal, BallGoalAligned())
+    machine.add(l_shot, l_ball, NotBallGoalAligned())
+    machine.add(l_shot, l_ball, BallOffCenter())
+    # GOTOGOAL
+    machine.add(g_goal, l_ball, BallOffCenter())
+    machine.add(g_goal, search, BallLost())
+    """
     machine.add(search,   align,    BallDetectedRule())   # ve la pelota
     machine.add(align,    search,   BallLostRule())       # pierde la pelota
     machine.add(align,    approach, BallCenteredRule())   # centrada y lejos
@@ -50,6 +77,8 @@ def build_machine(debug: bool = False, sandbox: bool = True, team_color: str = "
     machine.add(approach, stop_st,  BallCloseRule())      # llegó cerca
     machine.add(stop_st,  search,   BallLostRule())       # perdió la pelota
     machine.add(stop_st,  align,    BallOffCenterRule())  # se movió
+    """
+
 
     return machine, ctx
 
@@ -111,4 +140,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
