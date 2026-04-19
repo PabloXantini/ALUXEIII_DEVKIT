@@ -1,20 +1,20 @@
-# FUT ALUX - Autonomous Soccer Robot 🤖⚽
+# ALUXE III Development Kit - Autonomous Soccer Robot 🤖⚽
 
-FUT ALUX is an autonomous robotics project designed to create an omnidirectional vehicle capable of playing soccer, powered by a Finite State Machine (FSM). 
+ALUXE III is an autonomous robotics project designed to create an omnidirectional vehicle capable of playing soccer, powered by a Finite State Machine (FSM). 
 
-This repository hosts the complete logic of the "Brain" and features an **Advanced 2.5D Simulation Environment (Sandbox)** that allows you to test and polish the robot's autonomous responses using synthetic Computer Vision without the need to have the physical hardware connected.
+This repository hosts the complete logic of the "brain" and features an **Advanced 2.5D Simulation Environment (Sandbox)** that allows you to test and polish the robot's autonomous responses using synthetic Computer Vision without the need to have the physical hardware connected.
 
 ---
 
 ## 🚀 Features
 
 - **Omnidirectional Kinematics**: Factored mathematics for forward, backward, and lateral sweeping movements using force vectors.
-- **FSM Intelligence**: Fully modularized cognitive structure (`Search`, `Align`, `Approach`, `Stop`).
-- **Integrated Computer Vision**: Morphology, HSV masking, and contour tracking via OpenCV.
-- **100% Native Sandbox Environment**:
-  - Physics simulator supporting friction, wall bouncing, and rigid body occlusion between multiple agents.
-  - 2.5D "Virtual Camera" Engine featuring *Painter's Algorithm* to recreate physical blind-spot visual occlusions.
-  - Computationally generated Fisheye Lens Barrel Distortion using `cv2.remap` to maximize the realism of the physical sensors.
+- **FSM Implementation**: Fully modularized cognitive stateful structure eg. (`Search`, `LookBall`, `GotoBall`, `Stop`).
+- **Computer Vision Integrated**: Morphology, HSV masking, and contour tracking via OpenCV.
+- **100% Sandbox Environment**:
+  - Physics simulator supporting friction, wall bouncing, and occlusion between multiple agents.
+  - 2.5D "Virtual Camera Engine" to recreate the physical camera and render object inside the simulation.
+  - Computationally generated Fisheye Lens Barrel Distortion to maximize the realism of the physical sensors.
 
 ## 📦 Requirements and Installation
 
@@ -40,16 +40,16 @@ python alux.py
 ```
 
 ### 2. Cross-Testing Sandbox Environment
-Boots the Pygame window simulation where **Two Independent Artificial Intelligence Instances** (Blue Robot vs Yellow Robot) will fight for the ball.
+Boots the Pygame window simulation where shows **the robot agents simulation instances** (currently blue and yellow robots) that they will fight for the ball.
 ```bash
 python alux.py --sandbox
 ```
-* **Physical Interactivity**: You can use your mouse cursor to grab the ball, drag it, and throw it to simulate physical variables. Goals scored by an artificial mouse push will be smartly ignored by the referee system.*
+* **Interactivity**: You can use your mouse cursor to grab the ball, drag it, and throw it to simulate physical variables.
 
 ### 3. Visual Debugging Mode
-Append the `--debug` flag to transparently reveal the system's OpenCV "visual neurons". 
+Append the `--debug` flag to transparently reveal the robots' visual field of view.
 
-If executed in Sandbox mode, it will simultaneously open two *Synthetic Virtual Camera* frames. Here you can mathematically evaluate the robots' blindness by occluding their field of view with the opponent and admire their panoramic *Fisheye* geometric deformation:
+If executed in Sandbox mode, it will simultaneously open the *synthetic virtual cameras* frames. Here you can mathematically evaluate the robots' blindness by occluding their field of view with the opponent and admire their panoramic *Fisheye* geometric deformation:
 
 ```bash
 # Hardware/Real Camera Debug
