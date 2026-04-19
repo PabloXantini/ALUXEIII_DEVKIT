@@ -63,14 +63,13 @@ class Pitch(Entity):
         pygame.draw.line(screen, (255, 255, 255), (self.width // 2, 0), (self.width // 2, self.height), 2)
         pygame.draw.circle(screen, (255, 255, 255), (self.width // 2, self.height // 2), 60, 2)
         
-        # Áreas de Penalti
-        
+        # PENAL AREAS
         # Área Izquierda
         pygame.draw.rect(screen, (255, 255, 255), self.ally_penalty_zone, 2)
         # Área Derecha
         pygame.draw.rect(screen, (255, 255, 255), self.enemy_penalty_zone, 2)
         
-        # Guías de la Zona Segura (Línea de gol al ras)
+        # SAFE ZONE
         pygame.draw.rect(screen, (200, 200, 200), self.safe_zone, 1)
 
 class Ball(Entity):
