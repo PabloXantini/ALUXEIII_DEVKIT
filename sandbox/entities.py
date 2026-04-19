@@ -28,6 +28,51 @@ class Goal(Entity):
         pygame.draw.rect(screen, self.team_color, self.rect, 0) # Relleno
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 2) # Borde blanco
 
+class Pitch(Entity):
+    """
+    Entidad que representa el campo de juego y sus reglas espaciales.
+    """
+    def __init__(self, width, height, padding=40):
+        super().__init__(width / 2, height / 2)
+        self.width = width
+        self.height = height
+        self.padding = padding # Distancia al frente de las porterías
+        self.penalty_h = 260
+        self.penalty_w = 80
+        self.ally_penalty_zone = pygame.Rect(self.padding, self.height//2 - self.penalty_h//2, self.penalty_w, self.penalty_h)
+        self.enemy_penalty_zone = pygame.Rect(self.width - (self.padding + self.penalty_w), self.height//2 - self.penalty_h//2, self.penalty_w, self.penalty_h)
+        self.safe_zone = pygame.Rect(self.padding, self.padding, self.width - self.padding * 2, self.height - self.padding * 2)
+
+    def check_bounds(self, ball, goals):
+        """Verifica si la pelota ha salido de la zona segura."""
+        if ball.dragging: return False
+        
+        # Si cruza la línea frontal de las porterías
+        if not self.safe_zone.collidepoint(ball.x, ball.y):
+            # Si no es un gol (no colisiona con el área de la portería), es fuera
+            is_goal = any(g.rect.collidepoint(ball.x, ball.y) for g in goals)
+            if not is_goal:
+                return True # Debe resetearse
+        return False
+
+    def draw(self, screen):
+        # Campo verde oscuro
+        screen.fill((30, 100, 40))
+        
+        # Línea Central y Círculo
+        pygame.draw.line(screen, (255, 255, 255), (self.width // 2, 0), (self.width // 2, self.height), 2)
+        pygame.draw.circle(screen, (255, 255, 255), (self.width // 2, self.height // 2), 60, 2)
+        
+        # Áreas de Penalti
+        
+        # Área Izquierda
+        pygame.draw.rect(screen, (255, 255, 255), self.ally_penalty_zone, 2)
+        # Área Derecha
+        pygame.draw.rect(screen, (255, 255, 255), self.enemy_penalty_zone, 2)
+        
+        # Guías de la Zona Segura (Línea de gol al ras)
+        pygame.draw.rect(screen, (200, 200, 200), self.safe_zone, 1)
+
 class Ball(Entity):
     def __init__(self, x, y):
         super().__init__(x, y)
