@@ -92,20 +92,19 @@ def main():
         # Robot 1 (Aliado - Azul) - Empieza en la izquierda mirando a la derecha
         brain1 = build_machine(debug=args.debug, sandbox=True, name='Cuau', team_color="blue")
         robot1 = Robot(x=200, y=150, color=team_colors['blue'], brain=brain1)
-        # robot1.attach_agent(machine1, ctx1)
+
         brain2 = build_machine(debug=args.debug, sandbox=True, name='Delgado', team_color="blue")
         robot2 = Robot(x=200, y=450, color=team_colors['blue'], brain=brain2)
-        # robot2.attach_agent(machine2, ctx2)
+
         # TEAM YELLOW
         # Robot 2 (Enemigo - Amarillo) - Empieza en la derecha mirando a la izquierda
         brain3 = build_machine(debug=args.debug, sandbox=True, name='Messi', team_color="yellow")
         robot3 = Robot(x=600, y=150, color=team_colors['yellow'], brain=brain3)
         robot3.rangle = math.pi # Rotar 180 grados inicial
-        # robot3.attach_agent(machine3, ctx3)
+
         brain4 = build_machine(debug=args.debug, sandbox=True, name='Cristiano', team_color="yellow")
         robot4 = Robot(x=600, y=450, color=team_colors['yellow'], brain=brain4)
         robot4.rangle = math.pi # Rotar 180 grados inicial
-        # robot4.attach_agent(machine4, ctx4)
 
         robots = [robot1, robot2, robot3, robot4]
 
