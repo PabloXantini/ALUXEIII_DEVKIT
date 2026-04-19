@@ -9,7 +9,7 @@ class VirtualCamera:
     de lente estilo Ojo de Pescado (Barrel Distortion).
     """
     def __init__(self, width=320, height=240, fov_degrees=100, 
-                 pitch=15.0, yaw=0.0, roll=0.0, camera_height=20.0):
+                 pitch=0.0, yaw=0.0, roll=0.0, camera_height=20.0):
         self.width = width
         self.height = height
         self.fov = math.radians(fov_degrees)

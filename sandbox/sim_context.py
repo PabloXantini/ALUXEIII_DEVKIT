@@ -32,7 +32,8 @@ class SimContext(RobotContext):
         self.camera = VirtualCamera(
             width=self.frame_width, 
             height=self.frame_height, 
-            fov_degrees=100
+            fov_degrees=100,
+            pitch=30.0
         )
 
     def link_robot(self, robot_entity):
