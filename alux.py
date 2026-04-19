@@ -2,9 +2,9 @@
 main.py – Robot de fútbol con FSM
 ==================================
 Para añadir un nuevo comportamiento:
-  1. Crea un State en states.py
-  2. Crea las Rule(s) en rules.py
-  3. Agrega transiciones en build_machine() abajo
+  1. Crea un State en utils/r_states.py
+  2. Crea las Rule(s) en utils/r_rules.py
+  3. Construye tu FSM en build_machine() abajo
 """
 
 from __future__ import annotations
