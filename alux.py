@@ -18,7 +18,9 @@ from utils.r_states import (
     LookBall, 
     GotoBall, 
     LookForShot,
-    GotoGoal
+    GotoEnemyGoal,
+    RedirectBall,
+    AvoidAllyGoal
 )
 from utils.r_rules import (
     BallDetected,
@@ -27,7 +29,9 @@ from utils.r_rules import (
     BallCentered,
     BallClose,
     BallEnemyGoalAligned,
-    NotBallEnemyGoalAligned
+    NotBallEnemyGoalAligned,
+    NotBallAllyGoalAligned,
+    NoGoals
 )
 
 def build_machine(debug: bool = False, sandbox: bool = False, name: str = "aluxe", team_color: str = "blue") -> tuple[Machine, object]:
@@ -43,7 +47,9 @@ def build_machine(debug: bool = False, sandbox: bool = False, name: str = "aluxe
     l_ball = LookBall()
     g_ball = GotoBall()
     l_shot  = LookForShot()
-    g_goal = GotoGoal()
+    g_goal = GotoEnemyGoal()
+    r_ball = RedirectBall()
+    a_goal = AvoidAllyGoal()
 
     # ── Máquina (estado inicial: búsqueda) ────────────────────────────────────
     machine = Machine(search)
@@ -63,11 +69,20 @@ def build_machine(debug: bool = False, sandbox: bool = False, name: str = "aluxe
     # WAITFORSHOT
     machine.add(l_shot, g_goal, BallEnemyGoalAligned())
     machine.add(l_shot, l_ball, NotBallEnemyGoalAligned())
+    machine.add(l_shot, a_goal, NotBallAllyGoalAligned())
+    machine.add(l_shot, r_ball, NoGoals())
     machine.add(l_shot, g_goal, BallClose())
     machine.add(l_shot, l_ball, BallOffCenter())
+    machine.add(l_shot, search, BallLost())
     # GOTOGOAL
     machine.add(g_goal, l_ball, BallOffCenter())
     machine.add(g_goal, search, BallLost())
+    # REDIRECTBALL
+    machine.add(r_ball, l_ball, BallOffCenter())
+    machine.add(r_ball, search, BallLost())
+    # AVOIDALLYGOAL
+    machine.add(a_goal, l_ball, BallOffCenter())
+    machine.add(a_goal, search, BallLost())
 
     return machine, ctx
 

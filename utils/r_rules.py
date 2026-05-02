@@ -64,3 +64,21 @@ class NotBallEnemyGoalAligned(Rule):
                 and enemy_goal['offset_x'] is not None
                 and (abs(ball['offset_x']) > FRANJA_CENTRAL
                 or abs(enemy_goal['offset_x']) > FRANJA_CENTRAL))
+
+class NotBallAllyGoalAligned(Rule):
+    def applies(self, ctx: RobotContext) -> bool:
+        ball = ctx.info['ball']
+        ally_goal = ctx.info['ally_goal']
+        return (ball['detected']
+                and ally_goal['detected']
+                and ally_goal['offset_x'] is not None
+                and (abs(ball['offset_x']) > FRANJA_CENTRAL
+                or abs(ally_goal['offset_x']) > FRANJA_CENTRAL))
+
+class NoGoals(Rule):
+    def applies(self, ctx: RobotContext) -> bool:
+        return not ctx.info['ally_goal']['detected'] and not ctx.info['enemy_goal']['detected']
+
+class ToMuchTimeToGoal(Rule):
+    def applies(self, ctx: RobotContext) -> bool:
+        return ctx.info['time'] > 10

@@ -123,11 +123,13 @@ class CVDetector:
             # Dibujar Ally Goal
             if ag_centroid:
                 cv2.drawContours(img_debug, [ag_contour], -1, (0, 255, 0), 2)
+                cv2.circle(img_debug, ag_centroid, 5, (0, 100, 0), -1)
                 cv2.putText(img_debug, "ALLY", (ag_centroid[0] - 20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             # Dibujar Enemy Goal
             if eg_centroid:
                 cv2.drawContours(img_debug, [eg_contour], -1, (0, 0, 255), 2)
+                cv2.circle(img_debug, eg_centroid, 5, (0, 0, 100), -1)
                 cv2.putText(img_debug, "ENEMY", (eg_centroid[0] - 25, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                 
             # Franja central

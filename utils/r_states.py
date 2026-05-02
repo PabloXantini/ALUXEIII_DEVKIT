@@ -81,7 +81,7 @@ class LookForShot(State):
             ctx.estado_label = f"Enfocando Meta: Izquierda (A={self.align})"
             ctx.motors.lateral_izquierda()
  
-class GotoGoal(State):
+class GotoEnemyGoal(State):
     """
     Domain the ball
     Action: Forward
@@ -96,3 +96,42 @@ class GotoGoal(State):
         radius = ctx.info['ball']['radius']
         ctx.estado_label = f"CentradaMeta: Avanzando (R:{radius})"
         ctx.motors.adelante()
+
+class RedirectBall(State):
+    def on_init(self, ctx: RobotContext):
+        ctx.estado_label = "Redirigiendo pelota..."
+
+    def on_exit(self, ctx: RobotContext):
+        ctx.motors.stop()
+    
+    def execute(self, ctx: RobotContext):
+        o_ball = ctx.info['ball']['offset_x']
+        if o_ball is None:
+            return
+        if o_ball > 0:
+            ctx.estado_label = "Giro -> DER (Redirigiendo)"
+            ctx.motors.lateral_izquierda()
+        else:
+            ctx.estado_label = "Giro <- IZQ (Redirigiendo)"
+            ctx.motors.lateral_derecha()
+
+class AvoidAllyGoal(State):
+    def on_init(self, ctx: RobotContext):
+        ctx.estado_label = "Evitando a porteria aliada..."
+
+    def on_exit(self, ctx: RobotContext):
+        ctx.motors.stop()
+    
+    def execute(self, ctx: RobotContext):
+        o_ball = ctx.info['ball']['offset_x']
+        o_goal = ctx.info['ally_goal']['offset_x']
+        if o_goal is None or o_ball is None:
+            return
+        self.align = o_goal - o_ball
+        if self.align > 0:
+            ctx.estado_label = "Giro -> DER (Evitando)"
+            ctx.motors.lateral_derecha()
+        else:
+            ctx.estado_label = "Giro <- IZQ (Evitando)"
+            ctx.motors.lateral_izquierda()
+    
