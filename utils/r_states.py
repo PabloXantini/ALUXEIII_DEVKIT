@@ -56,7 +56,7 @@ class GotoBall(State):
     def execute(self, ctx: RobotContext):
         radius = ctx.info['ball']['radius']
         ctx.estado_label = f"Enfocando: Avanzando (R:{radius})"
-        ctx.motors.adelante_lento()
+        ctx.motors.adelante(vel=ctx.motors.HIGH)
  
 class LookForShot(State):
     """

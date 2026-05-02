@@ -12,18 +12,19 @@ CAP_BACKEND    = cv2.CAP_V4L2
 SCALE_PERCENT  = 0.50
 FLIP_FRAME     = True
  
-# BALL
-LOWER_BALL = np.array([0, 120, 0], dtype=np.uint8)
-UPPER_BALL = np.array([20, 255, 255], dtype=np.uint8)
+# ORANGE BALL
+LOWER_BALL = np.array([0, 20, 0], dtype=np.uint8)
+UPPER_BALL = np.array([27, 255, 255], dtype=np.uint8)
 BALL_AREA_MIN   = 50
 BALL_AREA_MINT  = 1
  
 # GOALS
-LOWER_GOAL1 = np.array([90, 50, 50], dtype=np.uint8)
-UPPER_GOAL1 = np.array([130, 255, 255], dtype=np.uint8)
-
-LOWER_GOAL2 = np.array([20, 100, 100], dtype=np.uint8)
-UPPER_GOAL2 = np.array([30, 255, 255], dtype=np.uint8)
+# BLUE COLOR
+LOWER_GOAL1 = np.array([77, 123, 50], dtype=np.uint8)
+UPPER_GOAL1 = np.array([120, 255, 200], dtype=np.uint8)
+# YELLOW COLOR
+LOWER_GOAL2 = np.array([28, 171, 139], dtype=np.uint8)
+UPPER_GOAL2 = np.array([41, 255, 255], dtype=np.uint8)
 GOAL_AREA_MIN = 80
  
 # ── Parámetros de comportamiento ──────────────────────────────────────────────
@@ -87,7 +88,7 @@ class RobotContext(MContext):
  
         w = int(frame.shape[1] * SCALE_PERCENT)
         h = int(frame.shape[0] * SCALE_PERCENT)
-        frame = cv2.resize(frame, (w, h), interpolation=cv2.INTER_AREA)
+        frame = cv2.resize(frame, (w, h), interpolation=cv2.INTER_NEAREST)
  
         self.frame_width  = w
         self.frame_height = h

@@ -5,11 +5,13 @@ class ColorSegmentator:
     """
     Componente modular responsable de segmentar un color específico utilizando HSV.
     """
-    def __init__(self, lower, upper, min_area, kernel_size=5):
+    def __init__(self, lower, upper, min_area):
         self.lower = lower
         self.upper = upper
         self.min_area = min_area
-        self.kernel = np.ones((kernel_size, kernel_size), np.uint8)
+        self.kernel2 = np.ones((2, 2), np.uint8)
+        self.kernel3 = np.ones((3, 3), np.uint8)
+        self.kernel5 = np.ones((5, 5), np.uint8)
 
     def segment(self, hsv):
         """
@@ -20,8 +22,12 @@ class ColorSegmentator:
         mask = cv2.inRange(hsv, self.lower, self.upper)
         
         # 2. Operaciones morfológicas
-        cv2.morphologyEx(mask, cv2.MORPH_CLOSE, self.kernel, iterations=2, dst=mask)
-        cv2.morphologyEx(mask, cv2.MORPH_OPEN,  self.kernel, iterations=1, dst=mask)
+        # Configuracion de lo que uno espera en la imagen, los parametros pueden variar 
+        # Segun el entorno en el que se encuentre el robot
+        cv2.erode(mask, self.kernel2, iterations=1, dst=mask)
+        cv2.dilate(mask, self.kernel5, iterations=1, dst=mask)
+        cv2.morphologyEx(mask, cv2.MORPH_CLOSE, self.kernel5, iterations=2, dst=mask)
+        cv2.morphologyEx(mask, cv2.MORPH_OPEN,  self.kernel5, iterations=1, dst=mask)
         
         # 3. Extraer contornos
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -91,17 +97,20 @@ class CVDetector:
         img_debug = frame.copy() if debug else None
         
         # 1. Ball Detection
-        b_centroid, b_contour, _ = self.ball_seg.segment(hsv)
+        b_centroid, b_contour, b_mask = self.ball_seg.segment(hsv)
         ball_data = self.detect_proximity(b_contour, b_centroid, frame_width)
             
         # 2. Ally Goal Detection
-        ag_centroid, ag_contour, _ = self.ally_seg.segment(hsv)
+        ag_centroid, ag_contour, ag_mask = self.ally_seg.segment(hsv)
         ally_data = self.detect_proximity(ag_contour, ag_centroid, frame_width)
             
         # 3. Enemy Goal Detection
-        eg_centroid, eg_contour, _ = self.enemy_seg.segment(hsv)
+        eg_centroid, eg_contour, eg_mask = self.enemy_seg.segment(hsv)
         enemy_data = self.detect_proximity(eg_contour, eg_centroid, frame_width)
-
+        
+        img_debug = cv2.cvtColor(b_mask, cv2.COLOR_GRAY2BGR)
+        img_debug = cv2.add(img_debug, cv2.cvtColor(ag_mask, cv2.COLOR_GRAY2BGR))
+        img_debug = cv2.add(img_debug, cv2.cvtColor(eg_mask, cv2.COLOR_GRAY2BGR))
         # 4. Debug Overlays
         if debug and img_debug is not None:
             img_cx = frame_width >> 1
@@ -129,8 +138,11 @@ class CVDetector:
 
         result = {
             'ball': ball_data,
+            'ball_mask': b_mask,
             'ally_goal': ally_data,
-            'enemy_goal': enemy_data
+            'ally_goal_mask': ag_mask,
+            'enemy_goal': enemy_data,
+            'enemy_goal_mask': eg_mask
         }
         
         return result, img_debug
