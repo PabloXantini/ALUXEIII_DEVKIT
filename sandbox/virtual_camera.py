@@ -140,6 +140,36 @@ class VirtualCamera:
             }
         return None
 
+    def _project_quad(self, observer, v_world, color_in, color_out=None):
+        """ Proyecta un quad 3D (4 vértices) y determina color según su normal """
+        v_world = np.array(v_world)
+        center = np.mean(v_world, axis=0)
+        vec_to_cam = np.array([observer.x, observer.y, self.camera_height]) - center
+        
+        v10 = v_world[1] - v_world[0]
+        v20 = v_world[2] - v_world[0]
+        normal = np.cross(v10, v20)
+        norm_len = np.linalg.norm(normal)
+        if norm_len > 0:
+            normal = normal / norm_len
+            
+        dot = np.dot(normal, vec_to_cam)
+        color = color_in if dot >= 0 else (color_out if color_out else color_in)
+        
+        res_v = self.project_3d_vectorized(v_world, observer)
+        mask_visible = res_v[:, 2] > 0
+        
+        if np.sum(mask_visible) >= 3:
+            valid_pts = res_v[mask_visible, :2].astype(np.int32)
+            z_avg = np.mean(res_v[mask_visible, 2])
+            return {
+                'dist': z_avg,
+                'pts': valid_pts,
+                'color': color,
+                'shape': 'poly'
+            }
+        return None
+
     def render(self, observer, state):
         """
         Calcula una imagen RGB representando lo que el agente ve físicamente.
@@ -234,6 +264,9 @@ class VirtualCamera:
             if proj: objects_to_draw.append(proj)
             
         for r in state.robots:
+            if r.ban_timer > 0:
+                continue
+            
             v_mult = 0.10
             color_bgr = (int(r.color[2] * v_mult), 
                          int(r.color[1] * v_mult), 
@@ -241,34 +274,67 @@ class VirtualCamera:
             proj = self._project_entity(observer, r, color_bgr, "rect", r.radius)
             if proj: objects_to_draw.append(proj)
             
+        # Paredes del Campo (Pitch Walls)
+        if hasattr(state, 'pitch') and state.pitch is not None:
+            pw_z = 40.0
+            w = state.pitch.width
+            h = state.pitch.height
+            wall_color = (10, 10, 10) # Negro/Gris oscuro
+            # Top Wall
+            proj = self._project_quad(observer, [[0, 0, 0], [w, 0, 0], [w, 0, pw_z], [0, 0, pw_z]], wall_color)
+            if proj: objects_to_draw.append(proj)
+            # Bottom Wall
+            proj = self._project_quad(observer, [[w, h, 0], [0, h, 0], [0, h, pw_z], [w, h, pw_z]], wall_color)
+            if proj: objects_to_draw.append(proj)
+            # Left Wall
+            proj = self._project_quad(observer, [[0, h, 0], [0, 0, 0], [0, 0, pw_z], [0, h, pw_z]], wall_color)
+            if proj: objects_to_draw.append(proj)
+            # Right Wall
+            proj = self._project_quad(observer, [[w, 0, 0], [w, h, 0], [w, h, pw_z], [w, 0, pw_z]], wall_color)
+            if proj: objects_to_draw.append(proj)
+
         for g in state.goals:
-            color_bgr = (int(g.team_color[2]), int(g.team_color[1]), int(g.team_color[0]))
+            color_in = (int(g.team_color[2]), int(g.team_color[1]), int(g.team_color[0]))
+            color_out = (10, 10, 10) # Negro para el exterior
             
-            mouth_x = g.x + g.width if g.x < 80 else g.x
-            mouth_y_center = g.y + g.height / 2.0
-            w_mouth, h_mouth = g.height, g.z_height
+            front_x = g.x + g.width if g.x < 80 else g.x
+            back_x = g.x if g.x < 80 else g.x + g.width
+            min_y = g.y
+            max_y = g.y + g.height
+            z0 = 0
+            z1 = g.z_height
             
-            # Vértices en bloque: Base Izq, Base Der, Tope Der, Tope Izq
-            v_world = np.array([
-                [mouth_x, mouth_y_center - w_mouth/2, 0],
-                [mouth_x, mouth_y_center + w_mouth/2, 0],
-                [mouth_x, mouth_y_center + w_mouth/2, h_mouth],
-                [mouth_x, mouth_y_center - w_mouth/2, h_mouth]
-            ])
+            v0 = [back_x, min_y, z0]
+            v1 = [front_x, min_y, z0]
+            v2 = [front_x, max_y, z0]
+            v3 = [back_x, max_y, z0]
+            v4 = [back_x, min_y, z1]
+            v5 = [front_x, min_y, z1]
+            v6 = [front_x, max_y, z1]
+            v7 = [back_x, max_y, z1]
+
+            if g.x < 80: # Left Goal
+                face_top = [v7, v6, v5, v4]
+                face_back = [v0, v3, v7, v4]
+                face_side1 = [v1, v0, v4, v5]
+                face_side2 = [v3, v2, v6, v7]
+            else: # Right Goal
+                face_top = [v4, v5, v6, v7]
+                face_back = [v3, v0, v4, v7]
+                face_side1 = [v0, v1, v5, v4]
+                face_side2 = [v2, v3, v7, v6]
+
+            proj = self._project_quad(observer, face_top, color_in, color_out)
+            if proj: objects_to_draw.append(proj)
             
-            res_v = self.project_3d_vectorized(v_world, observer)
-            mask_visible = res_v[:, 2] > 0
+            proj = self._project_quad(observer, face_back, color_in, color_out)
+            if proj: objects_to_draw.append(proj)
             
-            if np.any(mask_visible):
-                valid_pts = res_v[mask_visible, :2].astype(np.int32)
-                if len(valid_pts) >= 3:
-                    z_avg = np.mean(res_v[mask_visible, 2])
-                    objects_to_draw.append({
-                        'dist': z_avg,
-                        'pts': valid_pts,
-                        'color': color_bgr,
-                        'shape': 'poly'
-                    })
+            proj = self._project_quad(observer, face_side1, color_in, color_out)
+            if proj: objects_to_draw.append(proj)
+            
+            proj = self._project_quad(observer, face_side2, color_in, color_out)
+            if proj: objects_to_draw.append(proj)
 
         # 4. Painter's Algorithm: Ordenar por distancia (Z)
         objects_to_draw.sort(key=lambda obj: obj['dist'], reverse=True)
