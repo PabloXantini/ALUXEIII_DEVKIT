@@ -19,6 +19,7 @@ class MatchRules:
         self.current_half = 1
 
         self.ball_untouched_timer = 0.0
+        self.MAX_GOAL_DIFF = 10
         self.BALL_UNTOUCHED_LIMIT = 10.0
 
         self.missing_team_timer = {"blue": 0.0, "yellow": 0.0}
@@ -92,16 +93,19 @@ class MatchRules:
                         dir_y = (r.y - ball.y) / dist
                     r.x = ball.x + dir_x * (min_dist + 5)
                     r.y = ball.y + dir_y * (min_dist + 5)
-
+    def count_goals(self, team):
+        if abs(self.score["blue"] - self.score["yellow"]) >= self.MAX_GOAL_DIFF:
+            return 
+        self.score[team] += 1
     def check_goals(self, ball, robots):
         if ball.dragging: return
         tolerance = 5.0
         if ((ball.x <= ball.radius + tolerance) and (self.ally_goal.rect.top <= ball.y <= self.ally_goal.rect.bottom)):
-            self.score["yellow"] += 1
+            self.count_goals("blue")
             self.kickoff_team = "blue"
             self.setup_kickoff(robots, ball)
         elif ((ball.x >= self.width - ball.radius - tolerance) and (self.enemy_goal.rect.top <= ball.y <= self.enemy_goal.rect.bottom)):
-            self.score["blue"] += 1
+            self.count_goals("yellow")
             self.kickoff_team = "yellow"
             self.setup_kickoff(robots, ball)
 

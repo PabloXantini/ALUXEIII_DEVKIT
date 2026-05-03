@@ -83,12 +83,12 @@ class GameController:
         if self.rules.match_over:
             font_large = pygame.font.SysFont(None, 72)
             if self.rules.score["blue"] > self.rules.score["yellow"]:
-                winner = "GANA AZUL"
+                result = "GANA AZUL"
             elif self.rules.score["blue"] < self.rules.score["yellow"]:
-                winner = "GANA AMARILLO"
+                result = "GANA AMARILLO"
             else:
-                winner = "EMPATE"
-            over_txt = font_large.render(f"FIN DEL JUEGO\n{winner}", True, (255, 255, 255))
+                result = "EMPATE"
+            over_txt = font_large.render(f"FIN DEL JUEGO\n{result}", True, (255, 255, 255))
             self.screen.blit(over_txt, (self.width / 2 - over_txt.get_width() // 2, self.height / 2 - 30))
             
             font_small2 = pygame.font.SysFont(None, 36)
