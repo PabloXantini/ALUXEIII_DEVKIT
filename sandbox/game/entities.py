@@ -105,6 +105,12 @@ class Ball(Entity):
         self.vy = 0.0
         self.dragging = False
         self.last_kicked_by = None
+        
+        # Propiedades físicas ajustables
+        self.mass = 0.05              # Masa en kg (aprox)
+        self.friction = 0.1          # Fricción con el suelo (0.0 a 1.0)
+        self.restitution = 0.8       # Rebote / Restitución (0.0 a 1.0)
+        self.air_resistance = 0.01   # Resistencia al aire / Damping (0.0 a 1.0)
 
     def update(self, game):
         # La lógica de arrastre y cinemática básica ahora se maneja en physics.py
@@ -125,6 +131,12 @@ class Robot(Entity):
         self.rangle = 0.0
         self.color = color  # Atributo del color de equipo al que pertenece
         self.ban_timer = 0.0
+        
+        # Propiedades físicas ajustables
+        self.mass = 0.75             # Masa en kg (más pesado que la pelota)
+        self.friction = 0.3          # Fricción (0.0 a 1.0)
+        self.restitution = 0.5       # Rebote / Restitución (0.0 a 1.0)
+        
         self.attach_agent(brain)
 
     def attach_agent(self, brain):

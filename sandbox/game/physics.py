@@ -50,14 +50,17 @@ class PhysicsEngine:
         if not ball.dragging:
             ball.x += ball.vx
             ball.y += ball.vy
-            ball.vx *= 0.90
-            ball.vy *= 0.90
+            
+            # Aplicar fricción (suelo) y resistencia al aire
+            damping = (1.0 - ball.friction) * (1.0 - ball.air_resistance)
+            ball.vx *= damping
+            ball.vy *= damping
             
             # Rebotes en paredes del campo
-            if ball.x < ball.radius: ball.x = ball.radius; ball.vx *= -0.8
-            if ball.x > self.width - ball.radius: ball.x = self.width - ball.radius; ball.vx *= -0.8
-            if ball.y < ball.radius: ball.y = ball.radius; ball.vy *= -0.8
-            if ball.y > self.height - ball.radius: ball.y = self.height - ball.radius; ball.vy *= -0.8
+            if ball.x < ball.radius: ball.x = ball.radius; ball.vx *= -ball.restitution
+            if ball.x > self.width - ball.radius: ball.x = self.width - ball.radius; ball.vx *= -ball.restitution
+            if ball.y < ball.radius: ball.y = ball.radius; ball.vy *= -ball.restitution
+            if ball.y > self.height - ball.radius: ball.y = self.height - ball.radius; ball.vy *= -ball.restitution
 
     def resolve_collisions(self, ball, robots, goals):
         # Robot-Goal walls
@@ -90,8 +93,8 @@ class PhysicsEngine:
                         ball.y += ny * overlap
                         dot = ball.vx * nx + ball.vy * ny
                         if dot < 0:
-                            ball.vx -= 1.6 * dot * nx
-                            ball.vy -= 1.6 * dot * ny
+                            ball.vx -= (1 + ball.restitution) * dot * nx
+                            ball.vy -= (1 + ball.restitution) * dot * ny
 
         # Robot-Robot
         for i in range(len(robots)):
@@ -134,8 +137,9 @@ class PhysicsEngine:
                     vel_along_normal = rel_vx * nx + rel_vy * ny
                     
                     if vel_along_normal < 0:
-                        restitution = 0.8
-                        impulse = -(1 + restitution) * vel_along_normal
+                        # Combinar restituciones de ambos cuerpos
+                        combined_restitution = (r.restitution + ball.restitution) / 2.0
+                        impulse = -(1 + combined_restitution) * vel_along_normal
                         ball.vx += impulse * nx
                         ball.vy += impulse * ny
                     else:
