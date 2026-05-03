@@ -12,7 +12,7 @@ from __future__ import annotations
 import cv2
 import argparse
 from tests.builder import build_machine
-from tests.matchs import prepare_2v2, prepare_1v1
+import tests.matchs as matchs
 
 def main():
     parser = argparse.ArgumentParser(description="Robot Agent Alpha 1")
@@ -28,7 +28,7 @@ def main():
         
         game = GameController(debug=args.debug, mosaic=not args.split_cams)
         
-        robots = prepare_2v2(debug=args.debug, sandbox=args.sandbox) 
+        robots = matchs.prepare_2v2(debug=args.debug, sandbox=args.sandbox) 
 
         try:
             while game.running:

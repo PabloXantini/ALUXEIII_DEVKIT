@@ -58,3 +58,21 @@ def prepare_1v1(debug: bool = False, sandbox: bool = False, name: str = "aluxe",
 
     robots = [robot1, robot2]
     return robots
+
+def prepare_solo(debug: bool = False, sandbox: bool = False) -> list:
+    robots = []
+    if not sandbox:
+        return robots
+    from sandbox.entities import Robot
+
+    team_colors = {
+        'blue': (0, 0, 255),
+        'yellow': (255, 255, 0)
+    }
+    # TEAM BLUE
+    # Robot 1 (Aliado - Azul) - Empieza en la izquierda mirando a la derecha
+    brain1 = build_machine(debug=debug, sandbox=sandbox, name='Cuau', team_color="blue")
+    robot1 = Robot(kickoff_x=200, kickoff_y=300, color=team_colors['blue'], brain=brain1)
+
+    robots = [robot1]
+    return robots
