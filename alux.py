@@ -23,8 +23,8 @@ def main():
 
     if args.sandbox:
         import math
-        from sandbox.game import GameController
-        from sandbox.entities import Robot
+        from sandbox.game.game import GameController
+        from sandbox.game.entities import Robot
         
         game = GameController(debug=args.debug, mosaic=not args.split_cams)
         
