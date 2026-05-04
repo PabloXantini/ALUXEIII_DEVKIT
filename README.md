@@ -85,7 +85,22 @@ This repository comes with a pre-configured `.vscode/tasks.json` file. You can e
 ---
 
 ## 🛠 Scaling the Intelligence
-To add a new skill to the robot, simply follow the project's standard recipe:
-1. Design a State in `utils/r_states.py`.
-2. Invent the reacting condition in `utils/r_rules.py`.
-3. Hook the transition wiring under `build_machine()` inside `alux.py`.
+You could create a folder for new robots behaviors in the `utils` folder
+1. Put it a atractive name: eg. `aluxe3`
+2. Create the Python modules for rules and state inside in
+3. Use the `fsm` module for create new states, rules, context
+4. Optionally can create another folder (eg. v1, v2, etc.) for differentiate behavior implementations.
+
+### How to create an State
+1. Import the `fsm` module in project root
+2. Implement the class `State`
+
+### How to create an Rule
+1. Import the `fsm` module in project root
+2. Implement the class `Rule`
+
+### How hook my states and rules
+1. Import the `fsm` module in project root
+2. Implement the class `MachineBuilder`
+3. Use the `build_machine` method for build you own machine
+ 
