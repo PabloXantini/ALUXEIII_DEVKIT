@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 from fsm import MContext
-from utils.r_actuators import MotorController
-from utils.r_cv import CVDetector, ColorSegmentator
+from utils.actuators import MotorController
+from utils.aluxe3.cv import CVDetector, ColorSegmentator
  
  
 # ── Parámetros de visión ──────────────────────────────────────────────────────

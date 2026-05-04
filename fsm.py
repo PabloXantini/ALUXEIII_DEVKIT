@@ -51,3 +51,8 @@ class Machine:
         self.cstate.execute(context)
     def add(self, s_from:State, s_to:State, rule: Rule):
         s_from.add_transition(rule, s_to)
+
+class MachineBuilder(ABC):
+    @abstractmethod
+    def build_machine(self) -> tuple[Machine, MContext]:
+        pass

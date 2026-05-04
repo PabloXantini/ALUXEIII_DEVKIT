@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import cv2
 import argparse
-from tests.builder import build_machine
 import tests.matchs as matchs
+from utils.aluxe3.v1.builder import Aluxe3v1aBuilder
 
 def main():
     parser = argparse.ArgumentParser(description="Robot Agent Alpha 1")
@@ -46,7 +46,8 @@ def main():
             game.cleanup()
             cv2.destroyAllWindows()
     else:
-        machine, ctx = build_machine(debug=args.debug, sandbox=False)
+        b = Aluxe3v1aBuilder()
+        machine, ctx = b.build_machine(debug=args.debug, sandbox=False)
         try:
             while True:
                 if not ctx.compute():
