@@ -12,18 +12,24 @@ class get_pybind_include(object):
 
 ext_modules = [
     Extension(
-        'fast_math',
-        ['fast_math.cpp'],
+        'rvision',
+        sources=[
+            'rvision.cpp',
+            'renderer.cpp',
+            'shader.cpp',
+            'gl_loader.cpp'
+        ],
         include_dirs=[
             get_pybind_include(),
             get_pybind_include(user=True)
         ],
+        libraries=['gdi32', 'user32', 'opengl32'],
         language='c++'
     ),
 ]
 
 setup(
-    name='fast_math',
+    name='rvision',
     version='0.0.1',
     author='PabloXantini',
     description='Fast 3D Projection using pybind11',

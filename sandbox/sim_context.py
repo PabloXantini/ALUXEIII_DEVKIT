@@ -31,10 +31,17 @@ class SimContext(RobotContext):
         self.camera = VirtualCamera(
             width=self.frame_width, 
             height=self.frame_height, 
-            fov_degrees=100,
+            fov_degrees=120,
             pitch=30.0,
             camera_height=18.0
         )
+        # Iluminación
+        self.camera.set_light_level(
+            ambient=0.4,
+            diffuse=0.8,
+            x=320, y=240, z=500 # Luz cenital simulada
+        )
+        self.camera.set_fisheye_params(k=1.4, zoom=1.7)
 
     def link_robot(self, robot_entity):
         self.robot = robot_entity

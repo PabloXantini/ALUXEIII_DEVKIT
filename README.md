@@ -25,13 +25,16 @@ Install the main graphics and matrix computation libraries by running:
 pip install numpy opencv-python pygame pybind11
 ```
 
-### 🛠 Building C++ Extensions
-To ensure maximum performance in the simulation, some mathematical components are written in C++. If you modify `fast_math.cpp`, you must recompile the module:
+### 🛠 Building C++ Extensions (OpenGL Renderer)
+To ensure maximum performance in the simulation, the vision engine and mathematical components are written in C++ using OpenGL. If you modify any file in the C++ renderer (like `renderer.cpp` or `fast_math.cpp`), you must recompile the module:
+
+1. **Close the simulation** (the `.pyd` file must be unlocked to be overwritten).
+2. Run the compilation command:
 ```bash
-cd sandbox/cpp_vision
+cd sandbox/vision_cpp
 python setup.py build_ext --inplace
 ```
-*(Note: This requires a C++ compiler like MSVC on Windows or GCC on Linux).*
+*(Note: This requires a C++ compiler. On Windows, ensure you have **Visual Studio Build Tools (MSVC)** installed).*
 
 ---
 *(Note: The engine automatically injects a mock simulation for the `RPi.GPIO` library to prevent dependency crashes when coding from environments like Windows or Mac).*

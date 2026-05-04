@@ -1,4 +1,5 @@
-sandbox/cpp_vision/build/
-sandbox/cpp_vision/*.pyd
-sandbox/cpp_vision/*.txt
+sandbox/vision_cpp/build/
+sandbox/vision_cpp/*.pyd
+sandbox/vision_cpp/*.pyd.old*
+sandbox/vision_cpp/*.txt
 __pycache__/
