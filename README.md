@@ -2,76 +2,108 @@
 
 ALUXE III is an autonomous robotics project designed to create an omnidirectional vehicle capable of playing soccer, powered by a Finite State Machine (FSM). 
 
-This repository hosts the complete logic of the "brain" and features an **Advanced 2.5D Simulation Environment (Sandbox)** that allows you to test and polish the robot's autonomous responses using synthetic Computer Vision without the need to have the physical hardware connected.
+This repository serves as the "brain" of the robot, integrating physics, complex game rules, and a high-fidelity **2.5D/3D Simulation Environment (Sandbox)**. The sandbox allows for testing autonomous behaviors using synthetic Computer Vision, eliminating the need for physical hardware during the development and tuning phases.
 
 ---
 
 ## 🚀 Features
 
-- **Omnidirectional Kinematics**: Factored mathematics for forward, backward, and lateral sweeping movements using force vectors.
-- **FSM Implementation**: Fully modularized cognitive stateful structure eg. (`Search`, `LookBall`, `GotoBall`, `Stop`).
-- **Computer Vision Integrated**: Morphology, HSV masking, and contour tracking via OpenCV.
-- **100% Sandbox Environment**:
-  - Physics simulator supporting friction, wall bouncing, and occlusion between multiple agents.
-  - 2.5D "Virtual Camera Engine" to recreate the physical camera and render object inside the simulation.
-  - Computationally generated Fisheye Lens Barrel Distortion to maximize the realism of the physical sensors.
+### Agent Behavior (FSM)
+- **FSM Implementation**: Stateful machine architecture allowing complex behaviors like `Search`, `LookBall`, `GotoBall`, and `Stop`.
+- **Context-Aware Decisions**: Robots evaluate the field, opponent positions, and ball trajectory in real-time.
+
+### Kinematics & Physics
+- **Omnidirectional Movement**: Optimized vector math for 360° fluid motion, including lateral sweeping and diagonal charging.
+- **Physical Realism**: Simulation of friction, restitution (bounciness), wall collisions, and multi-agent occlusions. 
+
+### Vision & Rendering Engine
+- **Hybrid Rendering Pipeline**: Choose between a lightweight **OpenCV (Python)** renderer or a high-performance **OpenGL (C++)** engine.
+- **GPU-Accelerated Effects**:
+    - **Fisheye Distortion**: Real-time barrel deformation to mimic wide-angle physical lenses.
+    - **Motion Blur**: Temporal accumulation for realistic high-speed movement visualization.
+- **3D Geometry**: Advanced primitives (cylinders, complex goal meshes) for accurate visual occlusion and perspective.
+
+>  **Note**: Motion Blur is only available in the OpenGL render implementation. 
+
+### Competitive Match Rules
+- **Official Ruleset**: Implementation of halves, scoring, and time limits.
+- **Penalties & Banishing**: Automatic handling of "Out of Bounds", "Illegal Defense", and "Ball Inactivity" penalties.
+- **Dynamic Kickoffs**: Intelligent positioning for initial and neutral kickoffs based on team possession and previous penalties.
+
+---
+
+## Project Structure
+
+The project is divided into three main layers:
+
+1.  **`sandbox/game`**: The core simulation logic.
+    -   `physics.py`: Collision resolution and movement integration.
+    -   `match_rules.py`: Game states, scoring, and robot penalties.
+    -   `entities.py`: Data models for Robots, Balls, and the Pitch.
+2.  **`sandbox/vision_cpp`**: High-performance C++ rendering engine.
+    -   Compiled via `pybind11` for seamless Python integration.
+    -   Uses modern OpenGL for GPU-based image processing.
+3.  **`utils/`**: Behavioral implementation.
+    -   Location for custom FSM states and robot-specific logic.
+
+---
 
 ## 📦 Requirements and Installation
 
-The repository is built on **Python 3.10+**. 
-Install the main graphics and matrix computation libraries by running:
+**Python 3.10+** is required. Install dependencies via:
 
 ```bash
 pip install numpy opencv-python pygame pybind11
 ```
 
-### 🛠 Building C++ Extensions (OpenGL Renderer)
-To ensure maximum performance in the simulation, the vision engine and mathematical components are written in C++ using OpenGL. If you modify any file in the C++ renderer (like `renderer.cpp` or `fast_math.cpp`), you must recompile the module:
+### 🛠 Building C++ Extensions
+To enable the high-performance OpenGL renderer, you must compile the C++ module:
 
-1. **Close the simulation** (the `.pyd` file must be unlocked to be overwritten).
-2. Run the compilation command:
+1.  **Close the simulation** to unlock the binary files.
+2.  Run the compilation command:
 ```bash
 cd sandbox/vision_cpp
 python setup.py build_ext --inplace
 ```
-*(Note: This requires a C++ compiler. On Windows, ensure you have **Visual Studio Build Tools (MSVC)** installed).*
-
----
-*(Note: The engine automatically injects a mock simulation for the `RPi.GPIO` library to prevent dependency crashes when coding from environments like Windows or Mac).*
+*(Requires **MSVC** on Windows or **GCC/Clang** on Linux/Mac).*
 
 ---
 
 ## 🎮 Execution Modes
 
-The core of the project is orchestrated from the `alux.py` file. It features console arguments ready to be used:
+Run the project using `alux.py` with the following arguments:
 
-### 1. Hardware Deployment (Real Mode)
-Ideal for use inside the Raspberry Pi once physical tests are cleared. It will execute the code straight to the `L298N` motor drivers utilizing the physical camera.
+### 1. Hardware Mode (Real-World)
+For deployment on a Raspberry Pi with physical motors and camera.
 ```bash
 python alux.py
 ```
 
-### 2. Cross-Testing Sandbox Environment
-Boots the Pygame window simulation where shows **the robot agents simulation instances** (currently blue and yellow robots) that they will fight for the ball.
+### 2. Sandbox Mode (Full Simulation)
+Launches the Pygame 2D environment and the autonomous agents.
 ```bash
 python alux.py --sandbox
 ```
-* **Interactivity**: You can use your mouse cursor to grab the ball, drag it, and throw it to simulate physical variables.
 
-### 3. Visual Debugging Mode
-Append the `--debug` flag to transparently reveal the robots' visual field of view.
-
-If executed in Sandbox mode, it will simultaneously open the *synthetic virtual cameras* frames. Here you can mathematically evaluate the robots' blindness by occluding their field of view with the opponent and admire their panoramic *Fisheye* geometric deformation:
-
+### 3. Debug Mode (Visual Insights)
+Reveals the "eyes" of the robots and their internal states.
 ```bash
-# Hardware/Real Camera Debug
-python alux.py --debug
-
-# Complete Simulator (Pygame + Multiple Computer Vision Cameras)
+# Combine with sandbox for full experience
 python alux.py --sandbox --debug
 ```
+- **Mosaic View**: Shows all virtual cameras in a single grid (Default).
+- **Split View**: Use `--split-cams` to open individual windows for each camera.
 
-*(To gracefully terminate any of the visual processes, simply press the `Q` key while focusing the debugging screen).*
+---
+
+## ⌨️ Sandbox Controls
+
+-   **Mouse Left-Click**: Grab and drag the ball.
+-   **Mouse Release**: Throw the ball to simulate impacts.
+-   **`Q` Key**: Gracefully terminate the simulation.
+-   **`Enter` Key**: Restart the match after "Game Over".
+
+---
 
 ### 4. VSCode Integration
 This repository comes with a pre-configured `.vscode/tasks.json` file. You can effortlessly run the simulation commands directly from the IDE Tasks menu:
@@ -82,25 +114,35 @@ This repository comes with a pre-configured `.vscode/tasks.json` file. You can e
   - `Run Debug` (Hardware mode with Virtual Camera)
   - `Run Sandbox` (Full 2D Simulation with Virtual Cameras)
 
----
-
 ## 🛠 Scaling the Intelligence
-You could create a folder for new robots behaviors in the `utils` folder
-1. Put it a atractive name: eg. `aluxe3`
-2. Create the Python modules for rules and state inside in
-3. Use the `fsm` module for create new states, rules, context
-4. Optionally can create another folder (eg. v1, v2, etc.) for differentiate behavior implementations.
 
-### How to create an State
-1. Import the `fsm` module in project root
-2. Implement the class `State`
+To create new robot behaviors:
 
-### How to create an Rule
-1. Import the `fsm` module in project root
-2. Implement the class `Rule`
+1.  **Define States**: Create a class inheriting from `fsm.State`.
+2.  **Define Rules**: Create logic inheriting from `fsm.Rule` to trigger transitions.
+3.  **Build Machine**: Use `fsm.MachineBuilder` to connect states and rules.
+4.  **Register**: Update `alux.py` to use your new builder.
 
-### How hook my states and rules
-1. Import the `fsm` module in project root
-2. Implement the class `MachineBuilder`
-3. Use the `build_machine` method for build you own machine
- 
+Example state structure:
+```python
+from fsm import State
+
+class MyCustomState(State):
+    def on_init(self, ctx:RobotContext):
+        print("Entering behavior...")
+
+    def on_exit(self, ctx:RobotContext):
+        print("Exiting behavior...")
+
+    def execute(self, ctx:RobotContext):
+        # Move forward using context actuators
+```
+
+Example rule structure:
+```python
+from fsm import Rule
+
+class MyCustomRule(Rule):
+    def applies(self, ctx:RobotContext) -> bool:
+        return True
+```
