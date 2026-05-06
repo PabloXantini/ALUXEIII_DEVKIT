@@ -1,12 +1,8 @@
 import cv2
-import sys
-import os
-import numpy as np
 
-# Importar rvision desde el directorio vision_cpp
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "vision_cpp"))
+# Importar rvision (C++ Backend)
 try:
-    import rvision as rv
+    from ..vision_cpp import rvision as rv
 except ImportError:
     rv = None
 
