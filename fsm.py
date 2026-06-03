@@ -30,6 +30,18 @@ class State(ABC):
     def add_transition(self, rule:Rule, new_state:State):
         self.transitions[rule] = new_state
 
+class HState(State):
+    def __init__(self, machine:Machine):
+        super().__init__()
+        self.machine = machine
+    def on_init(self, context:MContext):
+        self.machine.reset()
+        self.machine.cstate.on_init(context)
+    def on_exit(self, context:MContext):
+        self.machine.cstate.on_exit(context)
+    def execute(self, context:MContext):
+        self.machine.run(context)
+
 class Rule(ABC):
     @abstractmethod
     def applies(self, context:MContext) -> bool:
