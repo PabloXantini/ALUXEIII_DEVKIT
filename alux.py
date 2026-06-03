@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import cv2
 import argparse
-import tests.matchs as matchs
 from utils.aluxe3.v1.builder import Aluxe3v1aBuilder
 
 def main():
@@ -23,6 +22,7 @@ def main():
 
     if args.sandbox:
         import math
+        import tests.matchs as matchs
         from sandbox.game.game import GameController
         from sandbox.game.entities import Robot
         

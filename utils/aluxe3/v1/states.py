@@ -2,20 +2,31 @@ from __future__ import annotations
 
 from fsm import State
 from utils.aluxe3.context import RobotContext
-  
+import random
+
+# states for Aluxe3v1a
+
 class Search(State):
     """
     Ball Detected -> Align
-    Action: Spin to right
-    """ 
+    Action: Spin to right or left
+    """
+    def __init__(self):
+        super().__init__()
+        self.dir = random.uniform(0,1)
+
     def on_init(self, ctx: RobotContext):
         ctx.estado_label = "Buscando..."
+        self.dir = random.uniform(0,1)
  
     def on_exit(self, ctx: RobotContext):
         ctx.motors.stop()
  
     def execute(self, ctx: RobotContext):
-        ctx.motors.girar_derecha()
+        if self.dir > 0.5:
+            ctx.motors.girar_derecha()
+        else:
+            ctx.motors.girar_izquierda()
  
 class LookBall(State):
     """
@@ -133,4 +144,38 @@ class AvoidAllyGoal(State):
         else:
             ctx.estado_label = "Giro <- IZQ (Evitando)"
             ctx.motors.lateral_izquierda(vel=ctx.motors.HIGH)
+
+# states for Aluxe3v1b
+class SideMoveForShot(State):
+    """
+    Action: Move for shot.
+    """
+    def on_init(self, ctx: RobotContext):
+        ctx.estado_label = "CERCA! Alineando a porteria"
+ 
+    def on_exit(self, ctx: RobotContext):
+        ctx.motors.stop()
+ 
+    def execute(self, ctx: RobotContext):
+        o_ball = ctx.info['ball']['offset_x']
+        if o_ball is None:
+            return
+        self.align = o_ball
+        if self.align > 0:
+            ctx.estado_label = f"Enfocando Meta: Derecha (A={self.align})"
+            ctx.motors.lateral_derecha()
+        else:
+            ctx.estado_label = f"Enfocando Meta: Izquierda (A={self.align})"
+            ctx.motors.lateral_izquierda()
+
+class Backwards(State):
+    def on_init(self, ctx: RobotContext):
+        ctx.estado_label = "Atras!"
+
+    def on_exit(self, ctx: RobotContext):
+        ctx.motors.stop()
+
+    def execute(self, ctx: RobotContext):
+        ctx.motors.atras()
+   
     

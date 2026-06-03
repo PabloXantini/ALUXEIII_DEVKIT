@@ -25,7 +25,7 @@ class BallOffCenter(Rule):
                 and ball['offset_x'] is not None
                 and abs(ball['offset_x']) > FRANJA_CENTRAL)
 
-class BallCentered(Rule):
+class BallCenteredAway(Rule):
     """Pelota en medio pero lejos."""
     def applies(self, ctx: RobotContext) -> bool:
         ball = ctx.info['ball']
@@ -34,7 +34,7 @@ class BallCentered(Rule):
                 and abs(ball['offset_x']) <= FRANJA_CENTRAL
                 and ball['radius'] < RADIO_OBJETIVO)
 
-class BallClose(Rule):
+class BallCenteredClose(Rule):
     """Pelota centrada Y suficientemente cerca para detenerse/chutar."""
     def applies(self, ctx: RobotContext) -> bool:
         ball = ctx.info['ball']
@@ -93,3 +93,15 @@ class NoGoals(Rule):
 class TooMuchTimeToGoal(Rule):
     def applies(self, ctx: RobotContext) -> bool:
         return ctx.info['time'] > 10
+
+# rules for Aluxe3v1b
+class BallCentered(Rule):
+    def applies(self, ctx: RobotContext) -> bool:
+        ball = ctx.info['ball']
+        return (ball['detected']
+                and ball['offset_x'] is not None
+                and abs(ball['offset_x']) <= FRANJA_CENTRAL)
+
+class BallClose(Rule):
+    def applies(self, ctx: RobotContext) -> bool:
+        return ctx.info['ball']['radius'] >= RADIO_OBJETIVO

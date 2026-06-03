@@ -1,7 +1,9 @@
 from utils.aluxe3.v1.builder import Aluxe3v1aBuilder
+from utils.aluxe3.v1.builder import Aluxe3v1bBuilder
 
 def prepare_2v2(debug: bool = False, sandbox: bool = False) -> list:
     a3v1a = Aluxe3v1aBuilder()
+    a3v1b = Aluxe3v1bBuilder()
     robots = []
     if not sandbox:
         return robots
@@ -15,10 +17,10 @@ def prepare_2v2(debug: bool = False, sandbox: bool = False) -> list:
 
     # TEAM BLUE
     # Robot 1 (Aliado - Azul) - Empieza en la izquierda mirando a la derecha
-    brain1 = a3v1a.build_machine(debug=debug, sandbox=sandbox, name='Cuau', team_color="blue")
+    brain1 = a3v1b.build_machine(debug=debug, sandbox=sandbox, name='Cuau', team_color="blue")
     robot1 = Robot(color=team_colors['blue'], brain=brain1)
 
-    brain2 = a3v1a.build_machine(debug=debug, sandbox=sandbox, name='Sanchez', team_color="blue")
+    brain2 = a3v1b.build_machine(debug=debug, sandbox=sandbox, name='Sanchez', team_color="blue")
     robot2 = Robot(color=team_colors['blue'], brain=brain2)
 
     # TEAM YELLOW

@@ -107,9 +107,12 @@ class Ball(Entity):
         self.last_kicked_by = None
         
         # Propiedades físicas ajustables
+        # Defaults
+        # Mass => 0.05, Friction => 0.1
+        # Res  => 0.8,  Ar => 0.01
         self.mass = 0.05              # Masa en kg (aprox)
-        self.friction = 0.1          # Fricción con el suelo (0.0 a 1.0)
-        self.restitution = 0.8       # Rebote / Restitución (0.0 a 1.0)
+        self.friction = 0.05          # Fricción con el suelo (0.0 a 1.0)
+        self.restitution = 1.6       # Rebote / Restitución (0.0 a 1.0)
         self.air_resistance = 0.01   # Resistencia al aire / Damping (0.0 a 1.0)
 
     def update(self, game):
