@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from fsm import MContext
-from utils.actuators import MotorController
+from utils.actuators import MotorController, ActuatorController
 from utils.aluxe3.cv import CVDetector, ColorSegmentator
  
  
@@ -29,14 +29,14 @@ GOAL_AREA_MIN = 80
  
 # ── Parámetros de comportamiento ──────────────────────────────────────────────
  
-FRANJA_CENTRAL = 30   # píxeles de tolerancia lateral
+FRANJA_CENTRAL = 40   # píxeles de tolerancia lateral
 RADIO_OBJETIVO = 18   # radio mínimo para considerar la pelota "cerca"
  
  
 class RobotContext(MContext):
     """
     Contexto compartido entre todos los estados.
-    Almacena el estado de percepción en self.info y expone motores.
+    Almacena el estado de percepción en self.info y expone motores y sensores unificados.
     """
  
     def __init__(self, debug: bool = False, name: str = 'robot', team_color: str = "blue"):
@@ -45,7 +45,8 @@ class RobotContext(MContext):
         self.name = name
         self.team_color = team_color.lower()
         self.team_color_rgb = (255, 0, 0) if self.team_color == "blue" else (0, 255, 255)
-        self.motors = MotorController()
+        self.actuators = ActuatorController()
+
         self.cap    = cv2.VideoCapture(CAMERA_SOURCE, CAP_BACKEND)
  
         # Diccionario central de percepción
@@ -106,6 +107,9 @@ class RobotContext(MContext):
             # Combina el nombre de la ventana y el estado para mostrar en el mosaico/ventana
             cv2.putText(frame, f"{self.name} ({window_name})", (10, 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.team_color_rgb, 2)
+            cv2.putText(frame, f"Orientation: {self.actuators.psensor.get_heading()}",
+                        (10, 40),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
             cv2.putText(frame, f"E: {self.estado_label}",
                         (10, self.frame_height - 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
@@ -120,6 +124,6 @@ class RobotContext(MContext):
     # ── Limpieza ──────────────────────────────────────────────────────────────
  
     def cleanup(self):
-        self.motors.cleanup()
+        self.actuators.cleanup()
         self.cap.release()
         cv2.destroyAllWindows()

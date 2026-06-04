@@ -20,13 +20,13 @@ class Search(State):
         self.dir = random.uniform(0,1)
  
     def on_exit(self, ctx: RobotContext):
-        ctx.motors.stop()
+        ctx.actuators.motors.stop()
  
     def execute(self, ctx: RobotContext):
         if self.dir > 0.5:
-            ctx.motors.girar_derecha()
+            ctx.actuators.motors.girar_derecha()
         else:
-            ctx.motors.girar_izquierda()
+            ctx.actuators.motors.girar_izquierda()
  
 class LookBall(State):
     """
@@ -37,7 +37,7 @@ class LookBall(State):
         ctx.estado_label = "Alineando a pelota..."
  
     def on_exit(self, ctx: RobotContext):
-        ctx.motors.stop()
+        ctx.actuators.motors.stop()
  
     def execute(self, ctx: RobotContext):
         self.align = ctx.info['ball']['offset_x']
@@ -46,11 +46,11 @@ class LookBall(State):
         if self.align > 0:
             # Pelota a la derecha en imagen → corregir girando a la derecha
             ctx.estado_label = "Giro -> DER (Ajustando)"
-            ctx.motors.girar_lento_izquierda()
+            ctx.actuators.motors.girar_lento_izquierda()
         else:
             # Pelota a la izquierda en imagen → corregir girando a la izquierda
             ctx.estado_label = "Giro <- IZQ (Ajustando)"
-            ctx.motors.girar_lento_derecha()
+            ctx.actuators.motors.girar_lento_derecha()
  
 # REVISAR
 class GotoBall(State):
@@ -61,12 +61,12 @@ class GotoBall(State):
         ctx.estado_label = "Avanzando..."
  
     def on_exit(self, ctx: RobotContext):
-        ctx.motors.stop()
+        ctx.actuators.motors.stop()
  
     def execute(self, ctx: RobotContext):
         radius = ctx.info['ball']['radius']
         ctx.estado_label = f"Enfocando: Avanzando (R:{radius})"
-        ctx.motors.adelante(vel=ctx.motors.HIGH)
+        ctx.actuators.motors.adelante(vel=ctx.actuators.motors.HIGH)
  
 class LookForShot(State):
     """
@@ -76,7 +76,7 @@ class LookForShot(State):
         ctx.estado_label = "CERCA! Alineando a porteria"
  
     def on_exit(self, ctx: RobotContext):
-        ctx.motors.stop()
+        ctx.actuators.motors.stop()
  
     def execute(self, ctx: RobotContext):
         o_ball = ctx.info['ball']['offset_x']
@@ -86,10 +86,10 @@ class LookForShot(State):
         self.align = o_ball - o_goal
         if self.align > 0:
             ctx.estado_label = f"Enfocando Meta: Derecha (A={self.align})"
-            ctx.motors.lateral_derecha()
+            ctx.actuators.motors.lateral_derecha()
         else:
             ctx.estado_label = f"Enfocando Meta: Izquierda (A={self.align})"
-            ctx.motors.lateral_izquierda()
+            ctx.actuators.motors.lateral_izquierda()
  
 class GotoEnemyGoal(State):
     """
@@ -100,19 +100,19 @@ class GotoEnemyGoal(State):
         ctx.estado_label = "Avanzando con balon..."
  
     def on_exit(self, ctx: RobotContext):
-        ctx.motors.stop()
+        ctx.actuators.motors.stop()
  
     def execute(self, ctx: RobotContext):
         radius = ctx.info['ball']['radius']
         ctx.estado_label = f"CentradaMeta: Avanzando (R:{radius})"
-        ctx.motors.adelante()
-
+        ctx.actuators.motors.adelante()
+ 
 class RedirectBall(State):
     def on_init(self, ctx: RobotContext):
         ctx.estado_label = "Redirigiendo pelota..."
-
+ 
     def on_exit(self, ctx: RobotContext):
-        ctx.motors.stop()
+        ctx.actuators.motors.stop()
     
     def execute(self, ctx: RobotContext):
         o_ball = ctx.info['ball']['offset_x']
@@ -120,17 +120,17 @@ class RedirectBall(State):
             return
         if o_ball > 0:
             ctx.estado_label = "Giro -> DER (Redirigiendo)"
-            ctx.motors.lateral_izquierda(vel=ctx.motors.HIGH)
+            ctx.actuators.motors.lateral_izquierda(vel=ctx.actuators.motors.HIGH)
         else:
             ctx.estado_label = "Giro <- IZQ (Redirigiendo)"
-            ctx.motors.lateral_derecha(vel=ctx.motors.HIGH)
+            ctx.actuators.motors.lateral_derecha(vel=ctx.actuators.motors.HIGH)
 
 class AvoidAllyGoal(State):
     def on_init(self, ctx: RobotContext):
         ctx.estado_label = "Evitando a porteria aliada..."
 
     def on_exit(self, ctx: RobotContext):
-        ctx.motors.stop()
+        ctx.actuators.motors.stop()
     
     def execute(self, ctx: RobotContext):
         o_ball = ctx.info['ball']['offset_x']
@@ -140,10 +140,10 @@ class AvoidAllyGoal(State):
         self.align = o_goal - o_ball
         if self.align > 0:
             ctx.estado_label = "Giro -> DER (Evitando)"
-            ctx.motors.lateral_derecha(vel=ctx.motors.HIGH)
+            ctx.actuators.motors.lateral_derecha(vel=ctx.actuators.motors.HIGH)
         else:
             ctx.estado_label = "Giro <- IZQ (Evitando)"
-            ctx.motors.lateral_izquierda(vel=ctx.motors.HIGH)
+            ctx.actuators.motors.lateral_izquierda(vel=ctx.actuators.motors.HIGH)
 
 # states for Aluxe3v1b
 class SideMoveForShot(State):
@@ -154,7 +154,7 @@ class SideMoveForShot(State):
         ctx.estado_label = "CERCA! Alineando a porteria"
  
     def on_exit(self, ctx: RobotContext):
-        ctx.motors.stop()
+        ctx.actuators.motors.stop()
  
     def execute(self, ctx: RobotContext):
         o_ball = ctx.info['ball']['offset_x']
@@ -163,19 +163,19 @@ class SideMoveForShot(State):
         self.align = o_ball
         if self.align > 0:
             ctx.estado_label = f"Enfocando Meta: Derecha (A={self.align})"
-            ctx.motors.lateral_derecha()
+            ctx.actuators.motors.lateral_derecha()
         else:
             ctx.estado_label = f"Enfocando Meta: Izquierda (A={self.align})"
-            ctx.motors.lateral_izquierda()
+            ctx.actuators.motors.lateral_izquierda()
 
 class Backwards(State):
     def on_init(self, ctx: RobotContext):
         ctx.estado_label = "Atras!"
 
     def on_exit(self, ctx: RobotContext):
-        ctx.motors.stop()
+        ctx.actuators.motors.stop()
 
     def execute(self, ctx: RobotContext):
-        ctx.motors.atras()
+        ctx.actuators.motors.atras()
    
     

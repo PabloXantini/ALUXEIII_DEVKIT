@@ -121,25 +121,5 @@ class Aluxe3v1bBuilder(MachineBuilder):
         machine.add(g_ball, m_shot, BallCenteredClose())
 
         # BACKWARDS
-
-        """
-        # WAITFORSHOT
-        machine.add(l_shot, g_goal, BallEnemyGoalAligned())
-        machine.add(l_shot, l_ball, NotBallEnemyGoalAligned())
-        machine.add(l_shot, a_goal, NotBallAllyGoalAligned())
-        machine.add(l_shot, a_goal, BallAllyGoalAligned())
-        machine.add(l_shot, r_ball, NoGoals())
-        machine.add(l_shot, g_goal, BallClose())
-        machine.add(l_shot, l_ball, BallOffCenter())
-        machine.add(l_shot, search, BallLost())
-        # GOTOGOAL
-        machine.add(g_goal, l_ball, BallOffCenter())
-        machine.add(g_goal, search, BallLost())
-        # REDIRECTBALL
-        machine.add(r_ball, l_ball, BallOffCenter())
-        machine.add(r_ball, search, BallLost())
-        # AVOIDALLYGOAL
-        machine.add(a_goal, l_ball, BallOffCenter())
-        machine.add(a_goal, search, BallLost())
-        """
+        machine.add(m_shot, search, BallLost())
         return machine, ctx
