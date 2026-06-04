@@ -1,4 +1,5 @@
 import cv2
+import time
 import numpy as np
 from fsm import MContext
 from utils.actuators import MotorController, ActuatorController
@@ -59,6 +60,8 @@ class RobotContext(MContext):
         self.frame_debug          = None
         self.frame_width: int     = 0
         self.frame_height: int    = 0
+        self.fps: float           = 0.0
+        self._last_time: float    = time.time()
  
         # Estado legible para overlay
         self.estado_label: str    = "Iniciando..."
@@ -83,6 +86,10 @@ class RobotContext(MContext):
         """Captura y procesa un frame."""
         ret, frame = self.cap.read()
         if not ret: return False
+
+        current_time = time.time()
+        self.fps = 1.0 / (current_time - self._last_time + 1e-6)
+        self._last_time = current_time
  
         if FLIP_FRAME:
             frame = cv2.flip(frame, 0)
@@ -113,6 +120,9 @@ class RobotContext(MContext):
             cv2.putText(frame, f"E: {self.estado_label}",
                         (10, self.frame_height - 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            cv2.putText(frame, f"FPS: {int(self.fps)}",
+                        (10, self.frame_height - 40),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             return frame
         return None
 

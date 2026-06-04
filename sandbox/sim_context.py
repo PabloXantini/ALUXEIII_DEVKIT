@@ -1,5 +1,5 @@
 import cv2
-
+import time
 from utils.aluxe3.context import RobotContext
 from sandbox.sim_actuators import ActuatorController
 from sandbox.virtual_camera import VirtualCamera
@@ -50,6 +50,10 @@ class SimContext(RobotContext):
     def compute(self, state=None):
         if not self.robot or not state or not state.ball: return False
         
+        current_time = time.time()
+        self.fps = 1.0 / (current_time - self._last_time + 1e-6)
+        self._last_time = current_time
+
         # Excluir a sí mismo de los objetos a dibujar
         other_robots = [r for r in state.robots if r is not self.robot]
         
