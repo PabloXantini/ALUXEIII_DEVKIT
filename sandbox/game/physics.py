@@ -12,9 +12,11 @@ class PhysicsEngine:
                 continue
 
             if r.context:
-                v_turn = r.context.motors.v_turn
-                v_fwd = r.context.motors.v_forward
-                v_lat = r.context.motors.v_lateral
+                v_turn = r.context.actuators.motors.v_turn
+                v_fwd = r.context.actuators.motors.v_forward
+                v_lat = r.context.actuators.motors.v_lateral
+                # Sync current robot orientation into the physical sensor for heading readout
+                r.context.actuators.psensor.set_rangle(r.rangle)
             else:
                 v_turn = v_fwd = v_lat = 0.0
 

@@ -1,7 +1,7 @@
 import cv2
 
 from utils.aluxe3.context import RobotContext
-from sandbox.sim_actuators import MockMotorController
+from sandbox.sim_actuators import ActuatorController
 from sandbox.virtual_camera import VirtualCamera
 from sandbox.sim_cache import SimState
 
@@ -13,7 +13,7 @@ class SimContext(RobotContext):
     """
     def __init__(self, debug: bool = True, name: str = 'robot', team_color: str = "blue"):
         super().__init__(debug=debug, name=name ,team_color=team_color)
-        self.motors = MockMotorController()
+        self.actuators = ActuatorController()
         
         class DummyCap:
             def release(self): pass
