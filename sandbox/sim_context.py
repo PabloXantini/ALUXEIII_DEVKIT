@@ -1,5 +1,5 @@
 import cv2
-import time
+import utils.aluxe3.context as aluxe3
 from utils.aluxe3.context import RobotContext
 from sandbox.sim_actuators import ActuatorController
 from sandbox.virtual_camera import VirtualCamera
@@ -20,8 +20,8 @@ class SimContext(RobotContext):
         self.cap = DummyCap() # Mock de cámara física
         
         self.estado_label: str    = "Iniciando Simulación..."
-        self.frame_width: int     = 320
-        self.frame_height: int    = 240
+        self.frame_width: int     = int(aluxe3.CAMERA_W * aluxe3.SCALE_NORM)
+        self.frame_height: int    = int(aluxe3.CAMERA_H * aluxe3.SCALE_NORM)
         self.frame_debug          = None
         
         # Enlace a la entidad cinemática
@@ -50,9 +50,7 @@ class SimContext(RobotContext):
     def compute(self, state=None):
         if not self.robot or not state or not state.ball: return False
         
-        current_time = time.time()
-        self.fps = 1.0 / (current_time - self._last_time + 1e-6)
-        self._last_time = current_time
+        self.track_fps()
 
         # Excluir a sí mismo de los objetos a dibujar
         other_robots = [r for r in state.robots if r is not self.robot]

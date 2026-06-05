@@ -4,36 +4,42 @@ import numpy as np
 from fsm import MContext
 from utils.actuators import MotorController, ActuatorController
 from utils.aluxe3.cv import CVDetector, ColorSegmentator
- 
- 
-# ── Parámetros de visión ──────────────────────────────────────────────────────
- 
-CAMERA_SOURCE  = 0
-CAP_BACKEND    = cv2.CAP_V4L2
-SCALE_PERCENT  = 0.50
+
+# CAMERA
+CAMERA_W = 640
+CAMERA_H = 480
+SCALE_PERCENT  = 40
 FLIP_FRAME     = True
- 
-# ORANGE BALL
+
+# ROBOT BEHAVIOR PARAMETERS
+CENTER_TOLERANCE = 40   # píxeles de tolerancia lateral
+BALL_RADIUS_CLOSE_MIN = 18   # radio mínimo para considerar la pelota "cerca"
+
+# BALL
+#> ORANGE MASK
 LOWER_BALL = np.array([0, 20, 0], dtype=np.uint8)
 UPPER_BALL = np.array([27, 255, 255], dtype=np.uint8)
+#> BALL PROXIMITY
 BALL_AREA_MIN   = 50
 BALL_AREA_MINT  = 1
- 
+
 # GOALS
-# BLUE COLOR
+#> GOAL PROXIMITY
+GOAL_AREA_MIN = 80
+#> BLUE MASK
 LOWER_GOAL1 = np.array([77, 123, 50], dtype=np.uint8)
 UPPER_GOAL1 = np.array([120, 255, 200], dtype=np.uint8)
-# YELLOW COLOR
+#> YELLOW MASK
 LOWER_GOAL2 = np.array([28, 171, 139], dtype=np.uint8)
 UPPER_GOAL2 = np.array([41, 255, 255], dtype=np.uint8)
-GOAL_AREA_MIN = 80
- 
-# ── Parámetros de comportamiento ──────────────────────────────────────────────
- 
-FRANJA_CENTRAL = 40   # píxeles de tolerancia lateral
-RADIO_OBJETIVO = 18   # radio mínimo para considerar la pelota "cerca"
- 
- 
+
+# CAMERA SOURCE
+CAMERA_SOURCE  = 0
+CAP_BACKEND    = cv2.CAP_V4L2
+
+# Derived parameters
+SCALE_NORM = SCALE_PERCENT / 100
+
 class RobotContext(MContext):
     """
     Contexto compartido entre todos los estados.
@@ -48,7 +54,7 @@ class RobotContext(MContext):
         self.team_color_rgb = (255, 0, 0) if self.team_color == "blue" else (0, 255, 255)
         self.actuators = ActuatorController()
 
-        self.cap    = cv2.VideoCapture(CAMERA_SOURCE, CAP_BACKEND)
+        self.cap = self._initialize_camera()
  
         # Diccionario central de percepción
         self.info = {
@@ -80,23 +86,39 @@ class RobotContext(MContext):
         enemy_seg = ColorSegmentator(enemy_l, enemy_u, GOAL_AREA_MIN)
  
         # Orquestador
-        self.vision = CVDetector(ball_seg, ally_seg, enemy_seg, franja_central=FRANJA_CENTRAL)
+        self.vision = CVDetector(ball_seg, ally_seg, enemy_seg, franja_central=CENTER_TOLERANCE)
+
+    def _initialize_camera(self):
+        cap = cv2.VideoCapture(CAMERA_SOURCE, CAP_BACKEND)
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+        r_w = int(CAMERA_W * SCALE_NORM)
+        r_h = int(CAMERA_H * SCALE_NORM)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, r_w)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, r_h)
+        return cap
+
+    def track_fps(self):
+        current_time = time.time()
+        dt = current_time - self._last_time
+        dt = max(dt, 1e-6)
+        self.fps = 1.0 / dt
+        self._last_time = current_time
+        return self.fps
  
     def compute(self):
         """Captura y procesa un frame."""
+        # Read camera current frame
         ret, frame = self.cap.read()
         if not ret: return False
+        # track FPS
+        self.track_fps()
 
-        current_time = time.time()
-        self.fps = 1.0 / (current_time - self._last_time + 1e-6)
-        self._last_time = current_time
- 
+        w = frame.shape[1]
+        h = frame.shape[0]
+        # frame = cv2.resize(frame, (w, h), interpolation=cv2.INTER_NEAREST)
+
         if FLIP_FRAME:
             frame = cv2.flip(frame, 0)
- 
-        w = int(frame.shape[1] * SCALE_PERCENT)
-        h = int(frame.shape[0] * SCALE_PERCENT)
-        frame = cv2.resize(frame, (w, h), interpolation=cv2.INTER_NEAREST)
  
         self.frame_width  = w
         self.frame_height = h

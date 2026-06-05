@@ -35,15 +35,6 @@ class ColorSegmentator:
         if not contours:
             return None, None, mask
             
-        best_contour = None
-        max_area = 0.0
-        """
-        for c in contours:
-            area = cv2.contourArea(c)
-            if area > max_area:
-                max_area = area
-                best_contour = c
-        """
         best_contour = max(contours, key=cv2.contourArea)
         max_area = cv2.contourArea(best_contour)
                 

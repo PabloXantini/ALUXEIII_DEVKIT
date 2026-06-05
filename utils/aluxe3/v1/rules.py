@@ -3,8 +3,8 @@ from __future__ import annotations
 from fsm import Rule
 from utils.aluxe3.context import (
     RobotContext, 
-    FRANJA_CENTRAL, 
-    RADIO_OBJETIVO
+    CENTER_TOLERANCE, 
+    BALL_RADIUS_CLOSE_MIN
 )
 
 class BallLost(Rule):
@@ -23,7 +23,7 @@ class BallOffCenter(Rule):
         ball = ctx.info['ball']
         return (ball['detected']
                 and ball['offset_x'] is not None
-                and abs(ball['offset_x']) > FRANJA_CENTRAL)
+                and abs(ball['offset_x']) > CENTER_TOLERANCE)
 
 class BallCenteredAway(Rule):
     """Pelota en medio pero lejos."""
@@ -31,8 +31,8 @@ class BallCenteredAway(Rule):
         ball = ctx.info['ball']
         return (ball['detected']
                 and ball['offset_x'] is not None
-                and abs(ball['offset_x']) <= FRANJA_CENTRAL
-                and ball['radius'] < RADIO_OBJETIVO)
+                and abs(ball['offset_x']) <= CENTER_TOLERANCE
+                and ball['radius'] < BALL_RADIUS_CLOSE_MIN)
 
 class BallCenteredClose(Rule):
     """Pelota centrada Y suficientemente cerca para detenerse/chutar."""
@@ -40,8 +40,8 @@ class BallCenteredClose(Rule):
         ball = ctx.info['ball']
         return (ball['detected']
                 and ball['offset_x'] is not None
-                and abs(ball['offset_x']) <= FRANJA_CENTRAL
-                and ball['radius'] >= RADIO_OBJETIVO)
+                and abs(ball['offset_x']) <= CENTER_TOLERANCE
+                and ball['radius'] >= BALL_RADIUS_CLOSE_MIN)
 
 class BallEnemyGoalAligned(Rule):
     """Pelota esta alineada a la porteria"""
@@ -51,8 +51,8 @@ class BallEnemyGoalAligned(Rule):
         return (ball['detected']
                 and enemy_goal['detected']
                 and enemy_goal['offset_x'] is not None
-                and abs(ball['offset_x']) <= FRANJA_CENTRAL
-                and abs(enemy_goal['offset_x']) <= FRANJA_CENTRAL)
+                and abs(ball['offset_x']) <= CENTER_TOLERANCE
+                and abs(enemy_goal['offset_x']) <= CENTER_TOLERANCE)
 
 class BallAllyGoalAligned(Rule):
     def applies(self, ctx: RobotContext) -> bool:
@@ -61,8 +61,8 @@ class BallAllyGoalAligned(Rule):
         return (ball['detected']
                 and ally_goal['detected']
                 and ally_goal['offset_x'] is not None
-                and abs(ball['offset_x']) <= FRANJA_CENTRAL
-                and abs(ally_goal['offset_x']) <= FRANJA_CENTRAL)
+                and abs(ball['offset_x']) <= CENTER_TOLERANCE
+                and abs(ally_goal['offset_x']) <= CENTER_TOLERANCE)
     
 class NotBallEnemyGoalAligned(Rule):
     """Pelota esta alineada a la porteria"""
@@ -72,8 +72,8 @@ class NotBallEnemyGoalAligned(Rule):
         return (ball['detected']
                 and enemy_goal['detected']
                 and enemy_goal['offset_x'] is not None
-                and (abs(ball['offset_x']) > FRANJA_CENTRAL
-                or abs(enemy_goal['offset_x']) > FRANJA_CENTRAL))
+                and (abs(ball['offset_x']) > CENTER_TOLERANCE
+                or abs(enemy_goal['offset_x']) > CENTER_TOLERANCE))
 
 class NotBallAllyGoalAligned(Rule):
     def applies(self, ctx: RobotContext) -> bool:
@@ -82,8 +82,8 @@ class NotBallAllyGoalAligned(Rule):
         return (ball['detected']
                 and ally_goal['detected']
                 and ally_goal['offset_x'] is not None
-                and (abs(ball['offset_x']) > FRANJA_CENTRAL
-                or abs(ally_goal['offset_x']) > FRANJA_CENTRAL))
+                and (abs(ball['offset_x']) > CENTER_TOLERANCE
+                or abs(ally_goal['offset_x']) > CENTER_TOLERANCE))
 
 class NoGoals(Rule):
     def applies(self, ctx: RobotContext) -> bool:
@@ -100,8 +100,8 @@ class BallCentered(Rule):
         ball = ctx.info['ball']
         return (ball['detected']
                 and ball['offset_x'] is not None
-                and abs(ball['offset_x']) <= FRANJA_CENTRAL)
+                and abs(ball['offset_x']) <= CENTER_TOLERANCE)
 
 class BallClose(Rule):
     def applies(self, ctx: RobotContext) -> bool:
-        return ctx.info['ball']['radius'] >= RADIO_OBJETIVO
+        return ctx.info['ball']['radius'] >= BALL_RADIUS_CLOSE_MIN
