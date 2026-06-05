@@ -24,9 +24,9 @@ class Search(State):
  
     def execute(self, ctx: RobotContext):
         if self.dir > 0.5:
-            ctx.actuators.motors.girar_derecha()
+            ctx.actuators.motors.spin_right()
         else:
-            ctx.actuators.motors.girar_izquierda()
+            ctx.actuators.motors.spin_left()
  
 class LookBall(State):
     """
@@ -46,11 +46,11 @@ class LookBall(State):
         if self.align > 0:
             # Pelota a la derecha en imagen → corregir girando a la derecha
             ctx.estado_label = "Giro -> DER (Ajustando)"
-            ctx.actuators.motors.girar_lento_izquierda()
+            ctx.actuators.motors.spin_slow_left()
         else:
             # Pelota a la izquierda en imagen → corregir girando a la izquierda
             ctx.estado_label = "Giro <- IZQ (Ajustando)"
-            ctx.actuators.motors.girar_lento_derecha()
+            ctx.actuators.motors.spin_slow_right()
  
 # REVISAR
 class GotoBall(State):
@@ -66,7 +66,7 @@ class GotoBall(State):
     def execute(self, ctx: RobotContext):
         radius = ctx.info['ball']['radius']
         ctx.estado_label = f"Enfocando: Avanzando (R:{radius})"
-        ctx.actuators.motors.adelante(vel=ctx.actuators.motors.HIGH)
+        ctx.actuators.motors.go_forward(vel=ctx.actuators.motors.HIGH)
  
 class LookForShot(State):
     """
@@ -86,10 +86,10 @@ class LookForShot(State):
         self.align = o_ball - o_goal
         if self.align > 0:
             ctx.estado_label = f"Enfocando Meta: Derecha (A={self.align})"
-            ctx.actuators.motors.lateral_derecha()
+            ctx.actuators.motors.go_right()
         else:
             ctx.estado_label = f"Enfocando Meta: Izquierda (A={self.align})"
-            ctx.actuators.motors.lateral_izquierda()
+            ctx.actuators.motors.go_left()
  
 class GotoEnemyGoal(State):
     """
@@ -105,7 +105,7 @@ class GotoEnemyGoal(State):
     def execute(self, ctx: RobotContext):
         radius = ctx.info['ball']['radius']
         ctx.estado_label = f"CentradaMeta: Avanzando (R:{radius})"
-        ctx.actuators.motors.adelante()
+        ctx.actuators.motors.go_forward()
  
 class RedirectBall(State):
     def on_init(self, ctx: RobotContext):
@@ -120,10 +120,10 @@ class RedirectBall(State):
             return
         if o_ball > 0:
             ctx.estado_label = "Giro -> DER (Redirigiendo)"
-            ctx.actuators.motors.lateral_izquierda(vel=ctx.actuators.motors.HIGH)
+            ctx.actuators.motors.go_left(vel=ctx.actuators.motors.HIGH)
         else:
             ctx.estado_label = "Giro <- IZQ (Redirigiendo)"
-            ctx.actuators.motors.lateral_derecha(vel=ctx.actuators.motors.HIGH)
+            ctx.actuators.motors.go_right(vel=ctx.actuators.motors.HIGH)
 
 class AvoidAllyGoal(State):
     def on_init(self, ctx: RobotContext):
@@ -140,10 +140,10 @@ class AvoidAllyGoal(State):
         self.align = o_goal - o_ball
         if self.align > 0:
             ctx.estado_label = "Giro -> DER (Evitando)"
-            ctx.actuators.motors.lateral_derecha(vel=ctx.actuators.motors.HIGH)
+            ctx.actuators.motors.go_right(vel=ctx.actuators.motors.HIGH)
         else:
             ctx.estado_label = "Giro <- IZQ (Evitando)"
-            ctx.actuators.motors.lateral_izquierda(vel=ctx.actuators.motors.HIGH)
+            ctx.actuators.motors.go_left(vel=ctx.actuators.motors.HIGH)
 
 # states for Aluxe3v1b
 class SideMoveForShot(State):
@@ -163,10 +163,10 @@ class SideMoveForShot(State):
         self.align = o_ball
         if self.align > 0:
             ctx.estado_label = f"Enfocando Meta: Derecha (A={self.align})"
-            ctx.actuators.motors.lateral_derecha()
+            ctx.actuators.motors.go_right()
         else:
             ctx.estado_label = f"Enfocando Meta: Izquierda (A={self.align})"
-            ctx.actuators.motors.lateral_izquierda()
+            ctx.actuators.motors.go_left()
 
 class Backwards(State):
     def on_init(self, ctx: RobotContext):
@@ -176,6 +176,6 @@ class Backwards(State):
         ctx.actuators.motors.stop()
 
     def execute(self, ctx: RobotContext):
-        ctx.actuators.motors.atras()
+        ctx.actuators.motors.go_backward()
    
     

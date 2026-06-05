@@ -99,7 +99,7 @@ class MotorController:
         for pwm in (self.pwm1, self.pwm2, self.pwm3, self.pwm4):
             pwm.ChangeDutyCycle(0)
 
-    def adelante(self, vel=None):
+    def go_forward(self, vel=None):
         v = vel or self.HIGH
         c = self.calib["fwd"]
         self._bwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
@@ -107,7 +107,7 @@ class MotorController:
         self._bwd(M3_IN1, M3_IN2, self.pwm3, v * c[2])
         self._fwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
-    def atras(self, vel=None):
+    def go_backward(self, vel=None):
         v = vel or self.HIGH
         c = self.calib["bwd"]
         self._fwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
@@ -115,7 +115,7 @@ class MotorController:
         self._fwd(M3_IN1, M3_IN2, self.pwm3, v * c[2])
         self._bwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
-    def lateral_derecha(self, vel=None):
+    def go_right(self, vel=None):
         v = vel or self.MEDIUM
         c = self.calib["right"]
         self._fwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
@@ -123,7 +123,7 @@ class MotorController:
         self._fwd(M3_IN1, M3_IN2, self.pwm3, v * c[2])
         self._fwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
-    def lateral_izquierda(self, vel=None):
+    def go_left(self, vel=None):
         v = vel or self.MEDIUM
         c = self.calib["left"]
         self._bwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
@@ -131,7 +131,7 @@ class MotorController:
         self._bwd(M3_IN1, M3_IN2, self.pwm3, v * c[2])
         self._bwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
-    def girar_derecha(self, vel=None):
+    def spin_right(self, vel=None):
         v = vel or self.MEDIUM
         c = self.calib["turn_r"]
         self._fwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
@@ -139,7 +139,7 @@ class MotorController:
         self._bwd(M3_IN1, M3_IN2, self.pwm3, v * c[2])
         self._bwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
-    def girar_izquierda(self, vel=None):
+    def spin_left(self, vel=None):
         v = vel or self.MEDIUM
         c = self.calib["turn_l"]
         self._bwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
@@ -147,11 +147,11 @@ class MotorController:
         self._fwd(M3_IN1, M3_IN2, self.pwm3, v * c[2])
         self._fwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
-    def girar_lento_derecha(self):
-        self.girar_derecha(vel=self.MID_LOW)
+    def spin_slow_right(self):
+        self.spin_right(vel=self.MID_LOW)
 
-    def girar_lento_izquierda(self):
-        self.girar_izquierda(vel=self.MID_LOW)
+    def spin_slow_left(self):
+        self.spin_left(vel=self.MID_LOW)
 
     # ── Limpieza ──────────────────────────────────────────────────────────────
 

@@ -25,41 +25,41 @@ class MockMotorController:
     def stop(self):
         self._reset_speeds()
 
-    def adelante(self, vel=None):
+    def go_forward(self, vel=None):
         v = vel or self.HIGH
         self._reset_speeds()
         self.v_forward = v
 
-    def atras(self, vel=None):
+    def go_backward(self, vel=None):
         v = vel or self.HIGH
         self._reset_speeds()
         self.v_forward = -v
 
-    def lateral_derecha(self, vel=None):
+    def go_right(self, vel=None):
         v = vel or self.MEDIUM
         self._reset_speeds()
         self.v_lateral = v
 
-    def lateral_izquierda(self, vel=None):
+    def go_left(self, vel=None):
         v = vel or self.MEDIUM
         self._reset_speeds()
         self.v_lateral = -v
 
-    def girar_derecha(self, vel=None):
+    def spin_right(self, vel=None):
         v = vel or self.MEDIUM/40
         self._reset_speeds()
         self.v_turn = -v
 
-    def girar_izquierda(self, vel=None):
+    def spin_left(self, vel=None):
         v = vel or self.MEDIUM/40
         self._reset_speeds()
         self.v_turn = v
 
-    def girar_lento_derecha(self):
+    def spin_slow_right(self):
         self._reset_speeds()
         self.v_turn = -self.MID_LOW/40
 
-    def girar_lento_izquierda(self):
+    def spin_slow_left(self):
         self._reset_speeds()
         self.v_turn = self.MID_LOW/40
 
