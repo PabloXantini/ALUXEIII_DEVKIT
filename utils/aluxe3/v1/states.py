@@ -3,6 +3,7 @@ from __future__ import annotations
 from fsm import State
 from utils.aluxe3.context import RobotContext
 import random
+import time
 
 # states for Aluxe3v1a
 
@@ -27,6 +28,17 @@ class Search(State):
             ctx.actuators.motors.spin_right()
         else:
             ctx.actuators.motors.spin_left()
+
+class Wait(State):
+    def on_init(self, ctx: RobotContext):
+        ctx.estado_label = "Esperando..."
+ 
+    def on_exit(self, ctx: RobotContext):
+        ctx.actuators.motors.stop()
+ 
+    def execute(self, ctx: RobotContext):
+        ctx.actuators.motors.stop()
+        time.sleep(0.3)
  
 class LookBall(State):
     """

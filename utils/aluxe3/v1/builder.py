@@ -1,6 +1,7 @@
 from __future__ import annotations
 from fsm import HState, Machine, MachineBuilder
 from utils.aluxe3.v1.states import (
+    Wait,
     Search, 
     LookBall, 
     GotoBall, 
@@ -92,6 +93,7 @@ class Aluxe3v1bBuilder(MachineBuilder):
         # ===== Instanciar máquinas y estados ===== #
         
         # Máquina Final
+        wait = Wait()
         search = Search()
         l_ball = LookBall()
         g_ball = GotoBall()
@@ -111,7 +113,8 @@ class Aluxe3v1bBuilder(MachineBuilder):
         # Tabla de estados
         #  Desde       → Hacia        Cuando
         # SEARCH
-        machine.add(search, l_ball, BallDetected())
+        machine.add(search, wait, BallDetected())
+        machine.add(wait, l_ball, BallDetected())
         # LOOKBALL
         machine.add(l_ball, g_ball, BallCenteredAway())
         machine.add(l_ball, search, BallLost())
