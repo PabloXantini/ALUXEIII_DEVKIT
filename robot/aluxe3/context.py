@@ -1,9 +1,9 @@
 import cv2
 import time
 import numpy as np
-from fsm import MContext
-from utils.actuators import MotorController, ActuatorController
-from utils.aluxe3.cv import CVDetector, ColorSegmentator
+from utils.fsm import MContext
+from .actuators import ActuatorController
+from aluxe3.cv import CVDetector, ColorSegmentator
 
 # CAMERA
 CAMERA_W = 640
@@ -72,6 +72,11 @@ class RobotContext(MContext):
         # Estado legible para overlay
         self.estado_label: str    = "Iniciando..."
         
+        # Ultrasonic distances (read from actuators facade)
+        self.us_back_dist = 0.0
+        self.us_left_dist = 0.0
+        self.us_right_dist = 0.0
+        
         # Configurar colores según equipo
         if self.team_color == "blue":
             ally_l, ally_u = LOWER_GOAL1, UPPER_GOAL1
@@ -113,9 +118,12 @@ class RobotContext(MContext):
         # track FPS
         self.track_fps()
 
+        self.us_back_dist = self.actuators.us_back.get_distance()
+        self.us_left_dist = self.actuators.us_left.get_distance()
+        self.us_right_dist = self.actuators.us_right.get_distance()
+
         w = frame.shape[1]
         h = frame.shape[0]
-        # frame = cv2.resize(frame, (w, h), interpolation=cv2.INTER_NEAREST)
 
         if FLIP_FRAME:
             frame = cv2.flip(frame, 0)
@@ -139,6 +147,9 @@ class RobotContext(MContext):
             cv2.putText(frame, f"Orientation: {self.actuators.psensor.get_heading()}",
                         (10, 40),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            cv2.putText(frame, f"US (L/F/R): {self.us_left_dist:.1f} | {self.us_front_dist:.1f} | {self.us_right_dist:.1f}",
+                        (10, 60),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
             cv2.putText(frame, f"E: {self.estado_label}",
                         (10, self.frame_height - 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)

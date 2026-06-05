@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from fsm import Rule
-from utils.aluxe3.context import (
+from utils.fsm import Rule
+from robot.aluxe3.context import (
     RobotContext, 
     CENTER_TOLERANCE, 
     BALL_RADIUS_CLOSE_MIN

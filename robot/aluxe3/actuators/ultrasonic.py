@@ -2,7 +2,9 @@ from __future__ import annotations
 import RPi.GPIO as GPIO
 import time
 
-class UltrasonicSensor:
+from utils.actuators import IUltrasonicSensor
+
+class UltrasonicSensor(IUltrasonicSensor):
     """
     Class encapsulating the functionality of an ultrasonic sensor.
     """

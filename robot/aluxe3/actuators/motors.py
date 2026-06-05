@@ -32,7 +32,9 @@ M3_IN1, M3_IN2, M3_EN = 5,  6,  12   # Motor 3 – izquierda
 M4_IN1, M4_IN2, M4_EN = 16, 20, 13   # Motor 4 – abajo
 
 
-class MotorController:
+from utils.actuators import IMotorController
+
+class MotorController(IMotorController):
     """Gestiona los cuatro motores del robot vía GPIO/PWM."""
 
     # Velocidades por defecto (duty-cycle %)

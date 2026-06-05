@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from fsm import State
-from utils.aluxe3.context import RobotContext
+from utils.fsm import State
+from robot.aluxe3.context import RobotContext
 import random
 import time
 

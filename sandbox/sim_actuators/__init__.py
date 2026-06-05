@@ -1,6 +1,7 @@
 from __future__ import annotations
 from .motors import MockMotorController
-from .gy87 import MockGY87Bridge, GY87Bridge
+from .compass import MockCompass, Compass
+from .ultrasonic import MockUltrasonicSensor
 
 class MockActuatorController:
     """
@@ -10,10 +11,14 @@ class MockActuatorController:
     Author: PabloXantini (Placeholder as per guidelines)
     """
 
-    def __init__(self, motors: MockMotorController = None, psensor: MockGY87Bridge = None, calib=None, bus_id=1):
+    def __init__(self, motors: MockMotorController = None, psensor: MockCompass = None, calib=None, bus_id=1):
         # Allow injection of custom or mock instances for extensibility
         self.motors: MockMotorController = motors if motors is not None else MockMotorController(calib=calib)
-        self.psensor: MockGY87Bridge = psensor if psensor is not None else GY87Bridge(bus_id=bus_id)
+        self.psensor: MockCompass = psensor if psensor is not None else Compass(bus_id=bus_id)
+        
+        self.us_back = MockUltrasonicSensor(9, 11)
+        self.us_left = MockUltrasonicSensor(4, 10)
+        self.us_right = MockUltrasonicSensor(2, 3)
 
     def get_orientation(self) -> float:
         """Returns the current absolute heading of the robot."""
@@ -22,6 +27,9 @@ class MockActuatorController:
     def cleanup(self):
         """Clean up resources for all child components."""
         self.motors.cleanup()
+        self.us_back.cleanup()
+        self.us_left.cleanup()
+        self.us_right.cleanup()
 
 
 # Abstract names matching the real actuator package structure

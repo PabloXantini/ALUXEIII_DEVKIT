@@ -1,6 +1,6 @@
 from __future__ import annotations
-from fsm import HState, Machine, MachineBuilder
-from utils.aluxe3.v1.states import (
+from utils.fsm import HState, Machine, MachineBuilder
+from states import (
     Wait,
     Search, 
     LookBall, 
@@ -12,7 +12,7 @@ from utils.aluxe3.v1.states import (
     SideMoveForShot,
     Backwards
 )
-from utils.aluxe3.v1.rules import (
+from rules import (
     BallDetected,
     BallLost,
     BallOffCenter,
@@ -33,7 +33,7 @@ class Aluxe3v1aBuilder(MachineBuilder):
             from sandbox.sim_context import SimContext
             ctx = SimContext(debug=debug, name=name, team_color=team_color)
         else:
-            from utils.aluxe3.context import RobotContext
+            from context import RobotContext
             ctx = RobotContext(debug=debug, name=name, team_color=team_color)
 
         # ── Instanciar estados ────────────────────────────────────────────────────
@@ -87,7 +87,7 @@ class Aluxe3v1bBuilder(MachineBuilder):
             from sandbox.sim_context import SimContext
             ctx = SimContext(debug=debug, name=name, team_color=team_color)
         else:
-            from utils.aluxe3.context import RobotContext
+            from context import RobotContext
             ctx = RobotContext(debug=debug, name=name, team_color=team_color)
 
         # ===== Instanciar máquinas y estados ===== #

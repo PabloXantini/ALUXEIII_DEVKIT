@@ -1,6 +1,6 @@
 import math
 
-class MockGY87Bridge:
+class MockCompass:
     """
     Simulated/Mock communication bridge for the GY-87 multi-sensor module.
     Reads orientation directly from the simulator's robot angle (rangle),
@@ -72,4 +72,4 @@ class MockGY87Bridge:
 
 
 # Abstract name matching the real bridge
-GY87Bridge = MockGY87Bridge
+Compass = MockCompass

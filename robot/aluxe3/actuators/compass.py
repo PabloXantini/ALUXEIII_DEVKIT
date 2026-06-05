@@ -36,7 +36,9 @@ HMC_MODE      = 0x02
 HMC_DATA_X_H  = 0x03
 
 
-class GY87Bridge:
+from utils.actuators import ICompass
+
+class Compass(ICompass):
     """
     Communication bridge for the GY-87 multi-sensor module.
     Integrates MPU6050 (Accelerometer & Gyroscope) and enables bypass

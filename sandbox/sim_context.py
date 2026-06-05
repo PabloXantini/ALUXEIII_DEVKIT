@@ -1,6 +1,6 @@
 import cv2
-import utils.aluxe3.context as aluxe3
-from utils.aluxe3.context import RobotContext
+import robot.aluxe3.context as aluxe3
+from robot.aluxe3.context import RobotContext
 from sandbox.sim_actuators import ActuatorController
 from sandbox.virtual_camera import VirtualCamera
 from sandbox.sim_cache import SimState
