@@ -33,7 +33,7 @@ class Aluxe3v1aBuilder(MachineBuilder):
             from sandbox.sim_context import SimContext
             ctx = SimContext(debug=debug, name=name, team_color=team_color)
         else:
-            from context import RobotContext
+            from robot.aluxe3.context import RobotContext
             ctx = RobotContext(debug=debug, name=name, team_color=team_color)
 
         # ── Instanciar estados ────────────────────────────────────────────────────
@@ -87,7 +87,7 @@ class Aluxe3v1bBuilder(MachineBuilder):
             from sandbox.sim_context import SimContext
             ctx = SimContext(debug=debug, name=name, team_color=team_color)
         else:
-            from context import RobotContext
+            from robot.aluxe3.context import RobotContext
             ctx = RobotContext(debug=debug, name=name, team_color=team_color)
 
         # ===== Instanciar máquinas y estados ===== #
