@@ -26,6 +26,7 @@ class UltrasonicSensor(IUltrasonicSensor):
     def get_distance(self) -> float:
         """
         Calculates and returns the distance based on the speed of sound (34300 cm/s).
+        Returns -1.0 if there is a timeout.
         """
         # Send a short pulse to the trigger pin
         GPIO.output(self._trig_pin, GPIO.HIGH)
@@ -35,12 +36,17 @@ class UltrasonicSensor(IUltrasonicSensor):
         # Measure the duration for the echo pulse
         pulse_start = time.time()
         pulse_end = time.time()
+        timeout = pulse_start + 0.04 # 40ms timeout ~ 6.8m max distance
         
         while GPIO.input(self._echo_pin) == 0:
             pulse_start = time.time()
+            if pulse_start > timeout:
+                return -1.0
 
         while GPIO.input(self._echo_pin) == 1:
             pulse_end = time.time()
+            if pulse_end > timeout:
+                return -1.0
 
         pulse_duration = pulse_end - pulse_start
 
