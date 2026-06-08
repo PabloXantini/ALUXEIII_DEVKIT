@@ -3,7 +3,6 @@ from __future__ import annotations
 from utils.fsm import State
 from robot.aluxe3.context import RobotContext
 import random
-import time
 
 # states for Aluxe3v1a
 
@@ -38,7 +37,6 @@ class Wait(State):
  
     def execute(self, ctx: RobotContext):
         ctx.actuators.motors.stop()
-        time.sleep(0.3)
  
 class LookBall(State):
     """

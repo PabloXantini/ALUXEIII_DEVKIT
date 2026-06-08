@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import cv2
 import argparse
-from utils.aluxe3.v1.builder import Aluxe3v1aBuilder
+from robot.aluxe3.v1.builder import Aluxe3v1aBuilder
 
 def main():
     parser = argparse.ArgumentParser(description="Robot Agent Alpha 1")

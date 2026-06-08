@@ -1,5 +1,5 @@
-from utils.aluxe3.v1.builder import Aluxe3v1aBuilder
-from utils.aluxe3.v1.builder import Aluxe3v1bBuilder
+from robot.aluxe3.v1.builder import Aluxe3v1aBuilder
+from robot.aluxe3.v1.builder import Aluxe3v1bBuilder
 
 def prepare_2v2(debug: bool = False, sandbox: bool = False) -> list:
     a3v1a = Aluxe3v1aBuilder()

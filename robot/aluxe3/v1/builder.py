@@ -1,6 +1,6 @@
 from __future__ import annotations
 from utils.fsm import HState, Machine, MachineBuilder
-from states import (
+from robot.aluxe3.v1.states import (
     Wait,
     Search, 
     LookBall, 
@@ -12,7 +12,7 @@ from states import (
     SideMoveForShot,
     Backwards
 )
-from rules import (
+from robot.aluxe3.v1.rules import (
     BallDetected,
     BallLost,
     BallOffCenter,

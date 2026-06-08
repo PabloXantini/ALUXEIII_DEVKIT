@@ -3,7 +3,7 @@ import time
 import numpy as np
 from utils.fsm import MContext
 from .actuators import ActuatorController
-from aluxe3.cv import CVDetector, ColorSegmentator
+from .cv import CVDetector, ColorSegmentator
 
 # CAMERA
 CAMERA_W = 640
@@ -147,7 +147,7 @@ class RobotContext(MContext):
             cv2.putText(frame, f"Orientation: {self.actuators.psensor.get_heading()}",
                         (10, 40),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            cv2.putText(frame, f"US (L/F/R): {self.us_left_dist:.1f} | {self.us_front_dist:.1f} | {self.us_right_dist:.1f}",
+            cv2.putText(frame, f"US (L/B/R): {self.us_left_dist:.1f} | {self.us_back_dist:.1f} | {self.us_right_dist:.1f}",
                         (10, 60),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
             cv2.putText(frame, f"E: {self.estado_label}",
