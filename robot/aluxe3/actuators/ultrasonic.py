@@ -1,6 +1,11 @@
 from __future__ import annotations
-import RPi.GPIO as GPIO
 import time
+
+try:
+    import RPi.GPIO as GPIO
+except ImportError:
+    from utils.mock import MockGPIO
+    GPIO = MockGPIO()
 
 from utils.actuators import IUltrasonicSensor
 

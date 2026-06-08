@@ -2,9 +2,20 @@ from abc import ABC, abstractmethod
 
 class IMotorController(ABC):
     """Abstract interface for motor controllers."""
+    
+    HIGH      = 80
+    MID_HIGH  = 60
+    MEDIUM    = 40
+    MID_LOW   = 30
+    LOW       = 20
 
     @abstractmethod
     def stop(self) -> None:
+        pass
+
+    @abstractmethod
+    def go_from_angle(self, angle: float, vel: float = None) -> None:
+        """Move in an arbitrary direction given a heading angle in degrees (0=forward, 90=right)."""
         pass
 
     @abstractmethod

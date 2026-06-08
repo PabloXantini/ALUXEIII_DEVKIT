@@ -1,5 +1,6 @@
 from __future__ import annotations
-from .motors import MockMotorController
+from .motors4 import MockMotorController4W as MockMotorController
+from .motors3 import MockMotorController3W
 from .compass import MockCompass, Compass
 from .ultrasonic import MockUltrasonicSensor
 
@@ -18,7 +19,7 @@ class MockActuatorController:
         
         self.us_back = MockUltrasonicSensor(9, 11)
         self.us_left = MockUltrasonicSensor(4, 10)
-        self.us_right = MockUltrasonicSensor(2, 3)
+        self.us_right = MockUltrasonicSensor(7, 8)
 
     def get_orientation(self) -> float:
         """Returns the current absolute heading of the robot."""

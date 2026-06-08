@@ -1,5 +1,6 @@
 from __future__ import annotations
-from .motors import MotorController
+from .motors4 import MotorController4W
+from .motors3 import MotorController3W
 from .compass import Compass
 from .ultrasonic import UltrasonicSensor
 
@@ -11,14 +12,14 @@ class ActuatorController:
     Author: PabloXantini (Placeholder as per guidelines)
     """
 
-    def __init__(self, motors: MotorController = None, psensor: Compass = None, calib=None, bus_id=1):
+    def __init__(self, motors: MotorController4W = None, psensor: Compass = None, calib=None, bus_id=1):
         # Allow injection of custom or mock instances for extensibility
-        self.motors: MotorController = motors if motors is not None else MotorController(calib=calib)
+        self.motors: MotorController4W = motors if motors is not None else MotorController4W(calib=calib)
         self.psensor: Compass = psensor if psensor is not None else Compass(bus_id=bus_id)
         
         self.us_back = UltrasonicSensor(9, 11)
-        self.us_left = UltrasonicSensor(4, 10)
-        self.us_right = UltrasonicSensor(2, 3)
+        self.us_left = UltrasonicSensor(26, 21)
+        self.us_right = UltrasonicSensor(8, 7)
 
     def get_orientation(self) -> float:
         """Returns the current absolute heading of the robot."""

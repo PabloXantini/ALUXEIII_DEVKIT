@@ -3,19 +3,7 @@ import math
 try:
     import smbus
 except ImportError:
-    # Support for running on Windows/Mac (Simulator) without crashing due to missing smbus library
-    class MockSMBus:
-        def __init__(self, bus=1):
-            pass
-        @staticmethod
-        def SMBus(bus):
-            return MockSMBus(bus)
-        def write_byte_data(self, addr, cmd, val):
-            pass
-        def read_byte_data(self, addr, cmd):
-            return 0
-        def read_i2c_block_data(self, addr, cmd, length):
-            return [0] * length
+    from utils.mock import MockSMBus
     smbus = MockSMBus
 
 

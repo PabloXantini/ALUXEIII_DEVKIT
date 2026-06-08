@@ -1,29 +1,10 @@
 try:
     import RPi.GPIO as GPIO
 except ImportError:
-    # Soporte para ejecutar en Windows/Mac (Simulador) sin crashear por falta de la librería RPi
-    class MockGPIO:
-        BCM = 'BCM'
-        OUT = 'OUT'
-        HIGH = 1
-        LOW = 0
-        @staticmethod
-        def setmode(mode): pass
-        @staticmethod
-        def setwarnings(flag): pass
-        @staticmethod
-        def setup(pin, mode): pass
-        @staticmethod
-        def output(pin, state): pass
-        @staticmethod
-        def cleanup(): pass
-        class PWM:
-            def __init__(self, pin, freq): pass
-            def start(self, dc): pass
-            def ChangeDutyCycle(self, dc): pass
-            def stop(self): pass
+    from utils.mock import MockGPIO
     GPIO = MockGPIO()
 
+import math
 
 # ── Pines ────────────────────────────────────────────────────────────────────
 M1_IN1, M1_IN2, M1_EN = 17, 27, 18   # Motor 1 – derecha
@@ -31,18 +12,10 @@ M2_IN1, M2_IN2, M2_EN = 22, 23, 19   # Motor 2 – arriba
 M3_IN1, M3_IN2, M3_EN = 5,  6,  12   # Motor 3 – izquierda
 M4_IN1, M4_IN2, M4_EN = 16, 20, 13   # Motor 4 – abajo
 
-
 from utils.actuators import IMotorController
 
-class MotorController(IMotorController):
-    """Gestiona los cuatro motores del robot vía GPIO/PWM."""
-
-    # Velocidades por defecto (duty-cycle %)
-    HIGH      = 80
-    MID_HIGH  = 60
-    MEDIUM    = 40
-    MID_LOW   = 30
-    LOW       = 20
+class MotorController4W(IMotorController):
+    """Gestiona los cuatro motores omnidireccionales del robot vía GPIO/PWM."""
 
     def __init__(self, calib=None):
         """
@@ -50,10 +23,10 @@ class MotorController(IMotorController):
         Ejemplo: {"fwd": (1.0, 0.95, 1.0, 0.95), "turn_r": (0.8, 1.0, 0.8, 1.0)}
         """
         self.calib = {
-            "fwd": (1.0, 1.0, 1.0, 1.0),
-            "bwd": (1.0, 1.0, 1.0, 1.0),
-            "left": (1.0, 1.0, 1.0, 1.0),
-            "right": (1.0, 1.0, 1.0, 1.0),
+            "fwd":    (1.0, 1.0, 1.0, 1.0),
+            "bwd":    (1.0, 1.0, 1.0, 1.0),
+            "left":   (1.0, 1.0, 1.0, 1.0),
+            "right":  (1.0, 1.0, 1.0, 1.0),
             "turn_l": (1.0, 1.0, 1.0, 1.0),
             "turn_r": (1.0, 1.0, 1.0, 1.0)
         }
@@ -100,6 +73,34 @@ class MotorController(IMotorController):
             GPIO.output(pin, GPIO.LOW)
         for pwm in (self.pwm1, self.pwm2, self.pwm3, self.pwm4):
             pwm.ChangeDutyCycle(0)
+
+    def go_from_angle(self, angle: float, vel: float = None):
+        """
+        Move in an arbitrary direction using 4-wheel omnidirectional kinematics.
+        angle: heading in degrees (0=forward, 90=right, 180=backward, 270=left).
+        """
+        v = vel or self.HIGH
+        rad = math.radians(angle)
+        vx = math.sin(rad)   # lateral component
+        vy = math.cos(rad)   # forward component
+
+        # Standard 4-Omni wheel speed matrix (wheels at 45°, 135°, 225°, 315°)
+        w1 = vy - vx   # front-right
+        w2 = vy + vx   # front-left
+        w3 = vy - vx   # back-left
+        w4 = vy + vx   # back-right
+
+        def _apply(in1, in2, pwm, w):
+            speed = abs(w) * v
+            if w >= 0:
+                self._fwd(in1, in2, pwm, speed)
+            else:
+                self._bwd(in1, in2, pwm, speed)
+
+        _apply(M1_IN1, M1_IN2, self.pwm1, w1)
+        _apply(M2_IN1, M2_IN2, self.pwm2, w2)
+        _apply(M3_IN1, M3_IN2, self.pwm3, w3)
+        _apply(M4_IN1, M4_IN2, self.pwm4, w4)
 
     def go_forward(self, vel=None):
         v = vel or self.HIGH
