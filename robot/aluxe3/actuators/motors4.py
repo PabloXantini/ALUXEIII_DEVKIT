@@ -49,9 +49,11 @@ class MotorController4W(IMotorController):
         self.pwm2 = GPIO.PWM(M2_EN, 1000)
         self.pwm3 = GPIO.PWM(M3_EN, 1000)
         self.pwm4 = GPIO.PWM(M4_EN, 1000)
-
-        for pwm in (self.pwm1, self.pwm2, self.pwm3, self.pwm4):
-            pwm.start(0)
+        
+        self.pwm1.start(0)
+        self.pwm2.start(0)
+        self.pwm3.start(0)
+        self.pwm4.start(0)
 
     # ── Primitivas ────────────────────────────────────────────────────────────
 
