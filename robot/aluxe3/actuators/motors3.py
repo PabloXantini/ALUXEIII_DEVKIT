@@ -96,14 +96,14 @@ class MotorController3W(IMotorController):
         # self.go_from_angle(0, vel)
         v = vel or self.HIGH
         self._fwd(M1_IN1, M1_IN2, self.pwm1, v)
-        self._fwd(M3_IN1, M3_IN2, self.pwm2, v)
+        self._bwd(M3_IN1, M3_IN2, self.pwm2, v)
         # self._fwd(M4_IN1, M4_IN2, self.pwm3, v)
 
     def go_backward(self, vel=None):
         # self.go_from_angle(180, vel)
         v = vel or self.HIGH
         self._bwd(M1_IN1, M1_IN2, self.pwm1, v)
-        self._bwd(M3_IN1, M3_IN2, self.pwm2, v)
+        self._fwd(M3_IN1, M3_IN2, self.pwm2, v)
         # self._bwd(M4_IN1, M4_IN2, self.pwm3, v)
 
     def go_right(self, vel=None):
