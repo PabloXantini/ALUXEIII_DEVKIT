@@ -1,6 +1,7 @@
 import cv2
 import time
 import numpy as np
+import threading
 from utils.fsm import MContext
 from .actuators import ActuatorController
 from .cv import CVDetector, ColorSegmentator
@@ -46,7 +47,7 @@ class RobotContext(MContext):
     Almacena el estado de percepción en self.info y expone motores y sensores unificados.
     """
  
-    def __init__(self, debug: bool = False, name: str = 'robot', team_color: str = "blue"):
+    def __init__(self, debug: bool = False, name: str = 'robot', team_color: str = "blue", init_hardware: bool = True):
         super().__init__()
         self.debug = debug
         self.name = name
@@ -54,7 +55,10 @@ class RobotContext(MContext):
         self.team_color_rgb = (255, 0, 0) if self.team_color == "blue" else (0, 255, 255)
         self.actuators = ActuatorController()
 
-        self.cap = self._initialize_camera()
+        if init_hardware:
+            self.cap = self._initialize_camera()
+        else:
+            self.cap = None
  
         # Diccionario central de percepción
         self.info = {
@@ -92,6 +96,32 @@ class RobotContext(MContext):
  
         # Orquestador
         self.vision = CVDetector(ball_seg, ally_seg, enemy_seg, franja_central=CENTER_TOLERANCE)
+        
+        # Threading state variables
+        self._running = True
+        self._latest_frame = None
+        
+        if init_hardware:
+            # Start daemon threads for camera and sensors
+            self.camera_thread = threading.Thread(target=self._camera_thread_loop, daemon=True)
+            self.sensor_thread = threading.Thread(target=self._sensor_thread_loop, daemon=True)
+            self.camera_thread.start()
+            self.sensor_thread.start()
+
+    def _camera_thread_loop(self):
+        while self._running:
+            ret, frame = self.cap.read()
+            if ret:
+                self._latest_frame = frame
+            else:
+                time.sleep(0.01)
+
+    def _sensor_thread_loop(self):
+        while self._running:
+            self.us_back_dist = self.actuators.us_back.get_distance()
+            self.us_left_dist = self.actuators.us_left.get_distance()
+            self.us_right_dist = self.actuators.us_right.get_distance()
+            time.sleep(0.05)  # Add a small delay to avoid excessive CPU usage if sensor reads fail fast
 
     def _initialize_camera(self):
         cap = cv2.VideoCapture(CAMERA_SOURCE, CAP_BACKEND)
@@ -112,15 +142,14 @@ class RobotContext(MContext):
  
     def compute(self):
         """Captura y procesa un frame."""
-        # Read camera current frame
-        ret, frame = self.cap.read()
-        if not ret: return False
+        if self._latest_frame is None:
+            # Wait for the first frame
+            return True
+            
+        frame = self._latest_frame.copy()
+        
         # track FPS
         self.track_fps()
-
-        self.us_back_dist = self.actuators.us_back.get_distance()
-        self.us_left_dist = self.actuators.us_left.get_distance()
-        self.us_right_dist = self.actuators.us_right.get_distance()
 
         w = frame.shape[1]
         h = frame.shape[0]
@@ -167,6 +196,7 @@ class RobotContext(MContext):
     # ── Limpieza ──────────────────────────────────────────────────────────────
  
     def cleanup(self):
+        self._running = False
         self.actuators.cleanup()
         self.cap.release()
         cv2.destroyAllWindows()

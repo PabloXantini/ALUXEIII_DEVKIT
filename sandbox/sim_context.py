@@ -12,7 +12,7 @@ class SimContext(RobotContext):
     los estados mentales del FSM (fsm.py).
     """
     def __init__(self, debug: bool = True, name: str = 'robot', team_color: str = "blue"):
-        super().__init__(debug=debug, name=name ,team_color=team_color)
+        super().__init__(debug=debug, name=name ,team_color=team_color, init_hardware=False)
         self.actuators = ActuatorController()
         
         class DummyCap:
