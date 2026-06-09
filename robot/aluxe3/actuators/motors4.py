@@ -13,6 +13,7 @@ M3_IN1, M3_IN2, M3_EN = 5,  6,  12   # Motor 3 – izquierda
 M4_IN1, M4_IN2, M4_EN = 16, 20, 13   # Motor 4 – abajo
 
 from utils.actuators import IMotorController
+from utils.gpio_manager import init_gpio
 
 class MotorController4W(IMotorController):
     """Gestiona los cuatro motores omnidireccionales del robot vía GPIO/PWM."""
@@ -33,8 +34,7 @@ class MotorController4W(IMotorController):
         if calib:
             self.calib.update(calib)
 
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
+        init_gpio()
 
         self._pins = [
             M1_IN1, M1_IN2, M1_EN,
@@ -56,16 +56,15 @@ class MotorController4W(IMotorController):
         self.pwm4.start(0)
 
     # ── Primitivas ────────────────────────────────────────────────────────────
-
     def _fwd(self, in1, in2, pwm, vel):
         GPIO.output(in1, GPIO.HIGH)
         GPIO.output(in2, GPIO.LOW)
-        pwm.ChangeDutyCycle(max(0, min(100, vel)))
+        pwm.ChangeDutyCycle(vel)
 
     def _bwd(self, in1, in2, pwm, vel):
         GPIO.output(in1, GPIO.LOW)
         GPIO.output(in2, GPIO.HIGH)
-        pwm.ChangeDutyCycle(max(0, min(100, vel)))
+        pwm.ChangeDutyCycle(vel)
 
     # ── Movimientos compuestos ────────────────────────────────────────────────
 
@@ -81,7 +80,7 @@ class MotorController4W(IMotorController):
         Move in an arbitrary direction using 4-wheel omnidirectional kinematics.
         angle: heading in degrees (0=forward, 90=right, 180=backward, 270=left).
         """
-        v = vel or self.HIGH
+        v = self._norm_vel(vel, self.HIGH)
         rad = math.radians(angle)
         vx = math.sin(rad)   # lateral component
         vy = math.cos(rad)   # forward component
@@ -105,7 +104,7 @@ class MotorController4W(IMotorController):
         _apply(M4_IN1, M4_IN2, self.pwm4, w4)
 
     def go_forward(self, vel=None):
-        v = vel or self.HIGH
+        v = self._norm_vel(vel, self.HIGH)
         c = self.calib["fwd"]
         self._bwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
         self._fwd(M2_IN1, M2_IN2, self.pwm2, v * c[1])
@@ -113,7 +112,7 @@ class MotorController4W(IMotorController):
         self._fwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
     def go_backward(self, vel=None):
-        v = vel or self.HIGH
+        v = self._norm_vel(vel, self.HIGH)
         c = self.calib["bwd"]
         self._fwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
         self._bwd(M2_IN1, M2_IN2, self.pwm2, v * c[1])
@@ -121,7 +120,7 @@ class MotorController4W(IMotorController):
         self._bwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
     def go_right(self, vel=None):
-        v = vel or self.MEDIUM
+        v = self._norm_vel(vel, self.MEDIUM)
         c = self.calib["right"]
         self._fwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
         self._fwd(M2_IN1, M2_IN2, self.pwm2, v * c[1])
@@ -129,7 +128,7 @@ class MotorController4W(IMotorController):
         self._fwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
     def go_left(self, vel=None):
-        v = vel or self.MEDIUM
+        v = self._norm_vel(vel, self.MEDIUM)
         c = self.calib["left"]
         self._bwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
         self._bwd(M2_IN1, M2_IN2, self.pwm2, v * c[1])
@@ -137,7 +136,7 @@ class MotorController4W(IMotorController):
         self._bwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
     def spin_right(self, vel=None):
-        v = vel or self.MEDIUM
+        v = self._norm_vel(vel, self.MEDIUM)
         c = self.calib["turn_r"]
         self._fwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
         self._fwd(M2_IN1, M2_IN2, self.pwm2, v * c[1])
@@ -145,7 +144,7 @@ class MotorController4W(IMotorController):
         self._bwd(M4_IN1, M4_IN2, self.pwm4, v * c[3])
 
     def spin_left(self, vel=None):
-        v = vel or self.MEDIUM
+        v = self._norm_vel(vel, self.MEDIUM)
         c = self.calib["turn_l"]
         self._bwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
         self._bwd(M2_IN1, M2_IN2, self.pwm2, v * c[1])

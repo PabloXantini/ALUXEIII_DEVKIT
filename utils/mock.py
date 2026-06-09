@@ -9,6 +9,10 @@ class MockGPIO:
     LOW = 0
 
     @staticmethod
+    def getmode():
+        return None
+
+    @staticmethod
     def setmode(mode):
         pass
 

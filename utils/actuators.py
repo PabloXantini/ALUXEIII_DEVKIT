@@ -9,6 +9,12 @@ class IMotorController(ABC):
     MID_LOW   = 30
     LOW       = 20
 
+    def _norm_vel(self, vel, max_val, min_val=0.0):
+        if vel is None:
+            return max_val
+        norm = max(0.0, min(100.0, float(vel))) / 100.0
+        return min_val + norm * (max_val - min_val)
+
     @abstractmethod
     def stop(self) -> None:
         pass
