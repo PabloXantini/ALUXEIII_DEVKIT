@@ -93,12 +93,11 @@ def _print_status_placeholder() -> None:
 
 
 def _render_status(action: str, ctx, speed_name: str, speed_val: int) -> None:
-    env     = ctx.env
-    heading = ctx.actuators.psensor.get_heading()
+    env = ctx.env
     sys.stdout.write(f"\033[{_STATUS_LINES + 1}A")  # move cursor up
     sys.stdout.write(
         f"  Action  : {action:<16}  Speed: {speed_name} ({speed_val}%)\n"
-        f"  Heading : {heading:6.1f}°\n"
+        f"  Heading : {env.heading:6.1f}°\n"
         f"  US Left : {_fmt_dist(env.us_left_dist)}\n"
         f"  US Back : {_fmt_dist(env.us_back_dist)}\n"
         f"  US Right: {_fmt_dist(env.us_right_dist)}\n"
