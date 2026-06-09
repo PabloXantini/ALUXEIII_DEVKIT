@@ -10,9 +10,11 @@ Usage (from project root on the Pi):
 """
 from __future__ import annotations
 
+import os
 import sys
 import time
-import select
+import queue
+import threading
 import tty
 import termios
 
@@ -31,29 +33,48 @@ def _info(msg: str) -> None:
 
 
 # ─────────────────────────────────────────────────────────────────
-# Raw keyboard (Linux/Pi only)
+# Keyboard input thread — reads raw chars into a queue
 # ─────────────────────────────────────────────────────────────────
 
-class _RawKeyboard:
-    """Context manager that switches stdin to raw mode."""
+class _KeyboardThread:
+    """
+    Reads single keystrokes in raw mode from stdin in a daemon thread.
+    Characters are pushed into a thread-safe queue.
+    """
 
-    def __enter__(self):
-        self._fd  = sys.stdin.fileno()
-        self._old = termios.tcgetattr(self._fd)
+    def __init__(self):
+        self._queue  = queue.Queue()
+        self._stop   = threading.Event()
+        self._thread = threading.Thread(target=self._loop, daemon=True)
+        self._fd     = sys.stdin.fileno()
+        self._old    = termios.tcgetattr(self._fd)
+
+    def start(self) -> None:
         tty.setraw(self._fd)
-        return self
+        self._thread.start()
 
-    def __exit__(self, *_):
+    def stop(self) -> None:
+        self._stop.set()
         termios.tcsetattr(self._fd, termios.TCSADRAIN, self._old)
 
+    def get(self) -> str | None:
+        """Return the next queued char, or None if empty."""
+        try:
+            return self._queue.get_nowait()
+        except queue.Empty:
+            return None
 
-def _char_ready() -> bool:
-    r, _, _ = select.select([sys.stdin], [], [], 0)
-    return bool(r)
+    def _loop(self) -> None:
+        while not self._stop.is_set():
+            try:
+                ch = os.read(self._fd, 1).decode("utf-8", errors="ignore")
+                self._queue.put(ch.lower())
+            except Exception:
+                break
 
 
 # ─────────────────────────────────────────────────────────────────
-# Status display (in-place update)
+# Status display (in-place update via ANSI)
 # ─────────────────────────────────────────────────────────────────
 
 _BINDINGS_HELP = """
@@ -89,26 +110,23 @@ def _fmt_dist(d: float) -> str:
 def _print_status_placeholder() -> None:
     for _ in range(_STATUS_LINES):
         print()
-    print("  > ", end="", flush=True)
 
 
-def _render_status(action: str, ctx, speed_name: str, speed_val: int) -> None:
-    env = ctx.env
-    sys.stdout.write(f"\033[{_STATUS_LINES + 1}A")  # move cursor up
+def _render_status(action: str, env, speed_name: str, speed_val: int) -> None:
+    sys.stdout.write(f"\033[{_STATUS_LINES}A\033[J")  # move up + clear below
     sys.stdout.write(
         f"  Action  : {action:<16}  Speed: {speed_name} ({speed_val}%)\n"
         f"  Heading : {env.heading:6.1f}°\n"
         f"  US Left : {_fmt_dist(env.us_left_dist)}\n"
         f"  US Back : {_fmt_dist(env.us_back_dist)}\n"
         f"  US Right: {_fmt_dist(env.us_right_dist)}\n"
-        f"\n"
-        f"  > "
+        f"  [W/S/A/D/Q/E=move  SPACE=stop  1-4=speed  X=exit]\n"
     )
     sys.stdout.flush()
 
 
 # ─────────────────────────────────────────────────────────────────
-# Keyboard remote control
+# Remote control main loop
 # ─────────────────────────────────────────────────────────────────
 
 def run_remote(ctx) -> None:
@@ -121,38 +139,46 @@ def run_remote(ctx) -> None:
     current_act = "STOP"
 
     bindings = {
-        "w": ("FORWARD",       lambda v: motors.go_forward(v)),
-        "s": ("BACKWARD",      lambda v: motors.go_backward(v)),
-        "a": ("STRAFE LEFT",   lambda v: motors.go_left(v)),
-        "d": ("STRAFE RIGHT",  lambda v: motors.go_right(v)),
-        "q": ("SPIN LEFT",     lambda v: motors.spin_left(v)),
-        "e": ("SPIN RIGHT",    lambda v: motors.spin_right(v)),
-        " ": ("STOP",          lambda _: motors.stop()),
+        "w": ("FORWARD",      lambda v: motors.go_forward(v)),
+        "s": ("BACKWARD",     lambda v: motors.go_backward(v)),
+        "a": ("STRAFE LEFT",  lambda v: motors.go_left(v)),
+        "d": ("STRAFE RIGHT", lambda v: motors.go_right(v)),
+        "q": ("SPIN LEFT",    lambda v: motors.spin_left(v)),
+        "e": ("SPIN RIGHT",   lambda v: motors.spin_right(v)),
+        " ": ("STOP",         lambda _: motors.stop()),
     }
 
     _print_status_placeholder()
 
+    kb = _KeyboardThread()
+    kb.start()
+
     try:
-        with _RawKeyboard():
+        while True:
+            # ── Process all pending key events ──────────────────
             while True:
-                if _char_ready():
-                    key_char = sys.stdin.read(1).lower()
+                ch = kb.get()
+                if ch is None:
+                    break
 
-                    if key_char == "x":
-                        motors.stop()
-                        break
+                if ch == "x":
+                    motors.stop()
+                    return
 
-                    if key_char in _SPEED_LEVELS:
-                        speed_name, speed_val = _SPEED_LEVELS[key_char]
-                    elif key_char in bindings:
-                        current_act, fn = bindings[key_char]
-                        fn(speed_val)
+                if ch in _SPEED_LEVELS:
+                    speed_name, speed_val = _SPEED_LEVELS[ch]
+                elif ch in bindings:
+                    current_act, fn = bindings[ch]
+                    fn(speed_val)
 
-                _render_status(current_act, ctx, speed_name, speed_val)
-                time.sleep(0.1)
+            # ── Tick: update context + refresh display ───────────
+            ctx.compute()
+            _render_status(current_act, ctx.env, speed_name, speed_val)
+            time.sleep(0.05)
 
     finally:
-        print("\n")
+        kb.stop()
+        print()
         _ok("Remote control exited.")
 
 
