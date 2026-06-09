@@ -15,12 +15,16 @@ from robot.aluxe3.v1.builder import Aluxe3v1aBuilder
 
 def main():
     parser = argparse.ArgumentParser(description="Robot Agent Alpha 1")
-    parser.add_argument("--debug", action="store_true", help="Enable debug mode (UI)")
-    parser.add_argument("--sandbox", action="store_true", help="Run FSM in Pygame 2D simulator")
+    parser.add_argument("--debug",      action="store_true", help="Enable debug mode (UI)")
+    parser.add_argument("--sandbox",    action="store_true", help="Run FSM in Pygame 2D simulator")
     parser.add_argument("--split-cams", action="store_true", help="Muestra ventanas individuales para la visión en lugar del mosaico")
+    parser.add_argument("--test",       action="store_true", help="Run manual actuator hardware test suite")
     args = parser.parse_args()
 
-    if args.sandbox:
+    if args.test:
+        import tests.test_actuators as test_actuators
+        test_actuators.run()
+    elif args.sandbox:
         import math
         import tests.matchs as matchs
         from sandbox.game.game import GameController
