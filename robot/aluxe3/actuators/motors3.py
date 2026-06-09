@@ -49,13 +49,13 @@ class MotorController3W(IMotorController):
         for pin in self._pins:
             GPIO.setup(pin, GPIO.OUT)
 
-        self.pwm_m1 = GPIO.PWM(M1_EN, 1000)
-        self.pwm_m3 = GPIO.PWM(M3_EN, 1000)
-        self.pwm_m4 = GPIO.PWM(M4_EN, 1000)
+        self.pwm1 = GPIO.PWM(M1_EN, 1000)
+        self.pwm2 = GPIO.PWM(M3_EN, 1000)
+        self.pwm3 = GPIO.PWM(M4_EN, 1000)
 
-        self.pwm_m1.start(0)
-        self.pwm_m3.start(0)
-        self.pwm_m4.start(0)
+        self.pwm1.start(0)
+        self.pwm2.start(0)
+        self.pwm3.start(0)
 
     def _fwd(self, in1, in2, pwm, vel):
         GPIO.output(in1, GPIO.HIGH)
