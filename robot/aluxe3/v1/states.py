@@ -55,11 +55,11 @@ class LookBall(State):
             return
         if self.align > 0:
             # Pelota a la derecha en imagen → corregir girando a la derecha
-            ctx.estado_label = "LookBall -> DER (Ajustando)"
+            ctx.state_label = "LookBall -> DER (Ajustando)"
             ctx.actuators.motors.spin_slow_left()
         else:
             # Pelota a la izquierda en imagen → corregir girando a la izquierda
-            ctx.estado_label = "LookBall <- IZQ (Ajustando)"
+            ctx.state_label = "LookBall <- IZQ (Ajustando)"
             ctx.actuators.motors.spin_slow_right()
  
 # REVISAR
@@ -68,7 +68,7 @@ class GotoBall(State):
     Action: Forward
     """
     def on_init(self, ctx: RobotContext):
-        ctx.estado_label = "Avanzando..."
+        ctx.state_label = "Avanzando..."
  
     def on_exit(self, ctx: RobotContext):
         ctx.actuators.motors.stop()
@@ -95,10 +95,10 @@ class LookForShot(State):
             return
         self.align = o_ball - o_goal
         if self.align > 0:
-            ctx.estado_label = f"LookForShot: Derecha (A={self.align})"
+            ctx.state_label = f"LookForShot: Derecha (A={self.align})"
             ctx.actuators.motors.go_right()
         else:
-            ctx.estado_label = f"LookForShot: Izquierda (A={self.align})"
+            ctx.state_label = f"LookForShot: Izquierda (A={self.align})"
             ctx.actuators.motors.go_left()
  
 class GotoEnemyGoal(State):
@@ -107,19 +107,19 @@ class GotoEnemyGoal(State):
     Action: Forward
     """
     def on_init(self, ctx: RobotContext):
-        ctx.estado_label = "Avanzando con balon..."
+        ctx.state_label = "Avanzando con balon..."
  
     def on_exit(self, ctx: RobotContext):
         ctx.actuators.motors.stop()
  
     def execute(self, ctx: RobotContext):
         radius = ctx.info['ball']['radius']
-        ctx.estado_label = f"GotoEnemyGoal: Avanzando (R:{radius})"
+        ctx.state_label = f"GotoEnemyGoal: Avanzando (R:{radius})"
         ctx.actuators.motors.go_forward()
  
 class RedirectBall(State):
     def on_init(self, ctx: RobotContext):
-        ctx.estado_label = "Redirigiendo pelota..."
+        ctx.state_label = "Redirigiendo pelota..."
  
     def on_exit(self, ctx: RobotContext):
         ctx.actuators.motors.stop()
@@ -129,10 +129,10 @@ class RedirectBall(State):
         if o_ball is None:
             return
         if o_ball > 0:
-            ctx.estado_label = "RedirectBall -> DER (Redirigiendo)"
+            ctx.state_label = "RedirectBall -> DER (Redirigiendo)"
             ctx.actuators.motors.go_left(vel=ctx.actuators.motors.HIGH)
         else:
-            ctx.estado_label = "RedirectBall -> IZQ (Redirigiendo)"
+            ctx.state_label = "RedirectBall -> IZQ (Redirigiendo)"
             ctx.actuators.motors.go_right(vel=ctx.actuators.motors.HIGH)
 
 class AvoidAllyGoal(State):
@@ -149,10 +149,10 @@ class AvoidAllyGoal(State):
             return
         self.align = o_goal - o_ball
         if self.align > 0:
-            ctx.estado_label = "AvoidAllyGoal -> DER (Evitando)"
+            ctx.state_label = "AvoidAllyGoal -> DER (Evitando)"
             ctx.actuators.motors.go_right(vel=ctx.actuators.motors.HIGH)
         else:
-            ctx.estado_label = "AvoidAllyGoal -> IZQ (Evitando)"
+            ctx.state_label = "AvoidAllyGoal -> IZQ (Evitando)"
             ctx.actuators.motors.go_left(vel=ctx.actuators.motors.HIGH)
 
 # states for Aluxe3v1b
@@ -161,7 +161,7 @@ class SideMoveForShot(State):
     Action: Move for shot.
     """
     def on_init(self, ctx: RobotContext):
-        ctx.estado_label = "CERCA! Alineando a porteria"
+        ctx.state_label = "CERCA! Alineando a porteria"
  
     def on_exit(self, ctx: RobotContext):
         ctx.actuators.motors.stop()
@@ -172,10 +172,10 @@ class SideMoveForShot(State):
             return
         self.align = o_ball
         if self.align > 0:
-            ctx.estado_label = f"SideMoveForShot -> Derecha (A={self.align})"
+            ctx.state_label = f"SideMoveForShot -> Derecha (A={self.align})"
             ctx.actuators.motors.go_right()
         else:
-            ctx.estado_label = f"SideMoveForShot -> Izquierda (A={self.align})"
+            ctx.state_label = f"SideMoveForShot -> Izquierda (A={self.align})"
             ctx.actuators.motors.go_left()
 
 class Backwards(State):

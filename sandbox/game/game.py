@@ -119,7 +119,7 @@ class GameController:
                 if r.context:
                     color = (255, 50, 50) if r.ban_timer > 0 else r.color
                     ban_text = f" [BANEADO {int(r.ban_timer)}s]" if r.ban_timer > 0 else ""
-                    lbl = font_small.render(f"FSM {r.name}[{r.team}]: {r.context.estado_label}{ban_text}", True, color)
+                    lbl = font_small.render(f"FSM {r.name}[{r.team}]: {r.context.state_label}{ban_text}", True, color)
                     self.screen.blit(lbl, (10, y_offset))
                     y_offset += 25
 

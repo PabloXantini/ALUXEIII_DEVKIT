@@ -49,9 +49,8 @@ def main():
         b = Aluxe3v1aBuilder()
         machine, ctx = b.build_machine(debug=args.debug, sandbox=False)
         try:
-            while True:
-                if not ctx.compute():
-                    break
+            while ctx.running:
+                ctx.compute()
                 machine.run(ctx)
                 ctx.show_debug()
                 if args.debug:

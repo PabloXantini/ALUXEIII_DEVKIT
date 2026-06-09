@@ -41,24 +41,29 @@ CAP_BACKEND    = cv2.CAP_V4L2
 # Derived parameters
 SCALE_NORM = SCALE_PERCENT / 100
 
-class RobotContext(MContext):
+class Environment:
+    def __init__(self):
+        self.frame_debug = None
+        self.frame_width: int = 0
+        self.frame_height: int = 0
+        self.fps: float = 0.0
+        self.last_time: float = time.time()
+        self.estado_label: str = "Processing..."
+        self.us_back_dist = 0.0
+        self.us_left_dist = 0.0
+        self.us_right_dist = 0.0
+
+class Aluxe3Context(MContext):
     """
-    Contexto compartido entre todos los estados.
-    Almacena el estado de percepción en self.info y expone motores y sensores unificados.
+    Base context class. Handles FSM memory, Generic vision pipeline processing, 
+    and debug rendering.
     """
- 
-    def __init__(self, debug: bool = False, name: str = 'robot', team_color: str = "blue", init_hardware: bool = True):
+    def __init__(self, debug: bool = False, name: str = 'robot', team_color: str = "blue"):
         super().__init__()
         self.debug = debug
         self.name = name
         self.team_color = team_color.lower()
         self.team_color_rgb = (255, 0, 0) if self.team_color == "blue" else (0, 255, 255)
-        self.actuators = ActuatorController()
-
-        if init_hardware:
-            self.cap = self._initialize_camera()
-        else:
-            self.cap = None
  
         # Diccionario central de percepción
         self.info = {
@@ -67,19 +72,9 @@ class RobotContext(MContext):
             'enemy_goal': {'detected': False, 'offset_x': None, 'radius': 0}
         }
 
-        self.frame_debug          = None
-        self.frame_width: int     = 0
-        self.frame_height: int    = 0
-        self.fps: float           = 0.0
-        self._last_time: float    = time.time()
- 
-        # Estado legible para overlay
-        self.estado_label: str    = "Iniciando..."
-        
-        # Ultrasonic distances (read from actuators facade)
-        self.us_back_dist = 0.0
-        self.us_left_dist = 0.0
-        self.us_right_dist = 0.0
+        self.env = Environment()
+        self.actuators = None
+        self.running = True
         
         # Configurar colores según equipo
         if self.team_color == "blue":
@@ -96,31 +91,88 @@ class RobotContext(MContext):
  
         # Orquestador
         self.vision = CVDetector(ball_seg, ally_seg, enemy_seg, franja_central=CENTER_TOLERANCE)
-        
-        # Threading state variables
-        self._running = True
-        self._latest_frame = None
-        
-        if init_hardware:
-            # Start daemon threads for camera and sensors
-            self.camera_thread = threading.Thread(target=self._camera_thread_loop, daemon=True)
-            self.sensor_thread = threading.Thread(target=self._sensor_thread_loop, daemon=True)
-            self.camera_thread.start()
-            self.sensor_thread.start()
 
-    def _camera_thread_loop(self):
-        while self._running:
+    @property
+    def state_label(self):
+        return self.env.estado_label
+        
+    @state_label.setter
+    def state_label(self, value):
+        self.env.estado_label = value
+
+    def track_fps(self):
+        current_time = time.time()
+        dt = current_time - self.env.last_time
+        dt = max(dt, 1e-6)
+        self.env.fps = 1.0 / dt
+        self.env.last_time = current_time
+        return self.env.fps
+
+    def get_debug_frame(self, window_name="POV:"):
+        if self.debug and self.env.frame_debug is not None:
+            frame = self.env.frame_debug.copy()
+            heading = 0.0
+            if self.actuators:
+                heading = self.actuators.psensor.get_heading()
+                
+            cv2.putText(frame, f"Orientation: {heading}",
+                        (10, 40),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            cv2.putText(frame, f"{self.name} ({window_name})", (10, 20),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.team_color_rgb, 2)
+            cv2.putText(frame, f"US (L/B/R): {self.env.us_left_dist:.1f} | {self.env.us_back_dist:.1f} | {self.env.us_right_dist:.1f}",
+                        (10, 60),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
+            cv2.putText(frame, f"E: {self.env.estado_label}",
+                        (10, self.env.frame_height - 20),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            cv2.putText(frame, f"FPS: {int(self.env.fps)}",
+                        (10, self.env.frame_height - 40),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            return frame
+        return None
+
+    def show_debug(self, window_name="POV:"):
+        frame = self.get_debug_frame(window_name)
+        if frame is not None:
+            cv2.imshow(f"{window_name} {self.name}", frame)
+
+    def cleanup(self):
+        self.running = False
+        cv2.destroyAllWindows()
+
+
+class RobotContext(Aluxe3Context):
+    """
+    Contexto específico para el hardware del robot.
+    Inicia la cámara física y los hilos para sensores reales.
+    """
+    def __init__(self, debug: bool = False, name: str = 'robot', team_color: str = "blue"):
+        super().__init__(debug=debug, name=name, team_color=team_color)
+        self.actuators = ActuatorController()
+        
+        self._last_frame = None
+        self.cap = self._initialize_camera()
+        
+        # Start daemon threads for physical camera and sensors
+        self.camera_thread = threading.Thread(target=self._camera_process, daemon=True)
+        self.sensor_thread = threading.Thread(target=self._sensor_process, daemon=True)
+        self.camera_thread.start()
+        self.sensor_thread.start()
+
+    def _camera_process(self):
+        while self.running:
             ret, frame = self.cap.read()
             if ret:
-                self._latest_frame = frame
+                self._last_frame = frame
             else:
                 time.sleep(0.01)
 
-    def _sensor_thread_loop(self):
-        while self._running:
-            self.us_back_dist = self.actuators.us_back.get_distance()
-            self.us_left_dist = self.actuators.us_left.get_distance()
-            self.us_right_dist = self.actuators.us_right.get_distance()
+    def _sensor_process(self):
+        while self.running:
+            self.env.us_back_dist = self.actuators.us_back.get_distance()
+            self.env.us_left_dist = self.actuators.us_left.get_distance()
+            self.env.us_right_dist = self.actuators.us_right.get_distance()
             time.sleep(0.05)  # Add a small delay to avoid excessive CPU usage if sensor reads fail fast
 
     def _initialize_camera(self):
@@ -131,72 +183,32 @@ class RobotContext(MContext):
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, r_w)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, r_h)
         return cap
-
-    def track_fps(self):
-        current_time = time.time()
-        dt = current_time - self._last_time
-        dt = max(dt, 1e-6)
-        self.fps = 1.0 / dt
-        self._last_time = current_time
-        return self.fps
- 
+        
     def compute(self):
         """Captura y procesa un frame."""
-        if self._latest_frame is None:
-            # Wait for the first frame
-            return True
-            
-        frame = self._latest_frame.copy()
+        if self._last_frame is None:
+            return False            
+        frame = self._last_frame.copy()
         
         # track FPS
         self.track_fps()
-
         w = frame.shape[1]
         h = frame.shape[0]
-
+        
         if FLIP_FRAME:
             frame = cv2.flip(frame, 0)
  
-        self.frame_width  = w
-        self.frame_height = h
+        self.env.frame_width  = w
+        self.env.frame_height = h
         
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        self.info, self.frame_debug = self.vision.detect(frame, hsv, self.debug)
+        self.info, self.env.frame_debug = self.vision.detect(frame, hsv, self.debug)
         
         return True
- 
-    # ── Debug visual ──────────────────────────────────────────────────────────
- 
-    def get_debug_frame(self, window_name="POV:"):
-        if self.debug and self.frame_debug is not None:
-            frame = self.frame_debug.copy()
-            # Combina el nombre de la ventana y el estado para mostrar en el mosaico/ventana
-            cv2.putText(frame, f"{self.name} ({window_name})", (10, 20),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.team_color_rgb, 2)
-            cv2.putText(frame, f"Orientation: {self.actuators.psensor.get_heading()}",
-                        (10, 40),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            cv2.putText(frame, f"US (L/B/R): {self.us_left_dist:.1f} | {self.us_back_dist:.1f} | {self.us_right_dist:.1f}",
-                        (10, 60),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
-            cv2.putText(frame, f"E: {self.estado_label}",
-                        (10, self.frame_height - 20),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            cv2.putText(frame, f"FPS: {int(self.fps)}",
-                        (10, self.frame_height - 40),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            return frame
-        return None
 
-    def show_debug(self, window_name="POV:"):
-        frame = self.get_debug_frame(window_name)
-        if frame is not None:
-            cv2.imshow(f"{window_name} {self.name}", frame)
- 
-    # ── Limpieza ──────────────────────────────────────────────────────────────
- 
     def cleanup(self):
-        self._running = False
+        super().cleanup()
         self.actuators.cleanup()
         self.cap.release()
-        cv2.destroyAllWindows()
+        self.camera_thread.join()
+        self.sensor_thread.join()

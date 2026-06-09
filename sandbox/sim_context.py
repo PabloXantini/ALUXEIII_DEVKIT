@@ -1,36 +1,31 @@
 import cv2
 import robot.aluxe3.context as aluxe3
-from robot.aluxe3.context import RobotContext
+from robot.aluxe3.context import Aluxe3Context
 from sandbox.sim_actuators import ActuatorController
 from sandbox.virtual_camera import VirtualCamera
 from sandbox.sim_cache import SimState
 
-class SimContext(RobotContext):
+class SimContext(Aluxe3Context):
     """
     Contexto simulado simplificado.
     Actúa únicamente como puente (MVC) entre el Robot físico simulado en 'game.py' y 
     los estados mentales del FSM (fsm.py).
     """
     def __init__(self, debug: bool = True, name: str = 'robot', team_color: str = "blue"):
-        super().__init__(debug=debug, name=name ,team_color=team_color, init_hardware=False)
+        super().__init__(debug=debug, name=name ,team_color=team_color)
         self.actuators = ActuatorController()
         
-        class DummyCap:
-            def release(self): pass
-        self.cap = DummyCap() # Mock de cámara física
-        
-        self.estado_label: str    = "Iniciando Simulación..."
-        self.frame_width: int     = int(aluxe3.CAMERA_W * aluxe3.SCALE_NORM)
-        self.frame_height: int    = int(aluxe3.CAMERA_H * aluxe3.SCALE_NORM)
-        self.frame_debug          = None
+        self.env.state_label = "Processing..."
+        self.env.frame_width = int(aluxe3.CAMERA_W * aluxe3.SCALE_NORM)
+        self.env.frame_height = int(aluxe3.CAMERA_H * aluxe3.SCALE_NORM)
         
         # Enlace a la entidad cinemática
         self.robot = None
 
         # Delegar responsabilidades de renderizado a la cámara virtual
         self.camera = VirtualCamera(
-            width=self.frame_width, 
-            height=self.frame_height, 
+            width=self.env.frame_width, 
+            height=self.env.frame_height, 
             fov_degrees=120,
             pitch=30.0,
             camera_height=18.0
@@ -63,7 +58,7 @@ class SimContext(RobotContext):
 
         # Evaluar la visión sobre la imagen resultante (con distorsión inyectada)
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        self.info, self.frame_debug = self.vision.detect(frame, hsv, self.debug)
+        self.info, self.env.frame_debug = self.vision.detect(frame, hsv, self.debug)
         
         return True
 
