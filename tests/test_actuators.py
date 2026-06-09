@@ -77,8 +77,8 @@ class RemoteUI:
 
     def _panel(self, rect: tuple, color=C_PANEL, border=C_BORDER) -> None:
         r = pygame.Rect(rect)
-        pygame.draw.rect(self._screen, color, r, border_radius=8)
-        pygame.draw.rect(self._screen, border, r, width=1, border_radius=8)
+        pygame.draw.rect(self._screen, color, r)
+        pygame.draw.rect(self._screen, border, r, 1)
 
     def _text(self, txt: str, x: int, y: int, font=None, color=C_WHITE) -> None:
         f = font or self._font_md
@@ -88,8 +88,8 @@ class RemoteUI:
     def _key_tile(self, label: str, x: int, y: int, active: bool = False, w: int = 50, h: int = 36) -> None:
         bg = C_KEY_ACT if active else C_KEY_BG
         r  = pygame.Rect(x, y, w, h)
-        pygame.draw.rect(self._screen, bg, r, border_radius=6)
-        pygame.draw.rect(self._screen, C_BORDER, r, width=1, border_radius=6)
+        pygame.draw.rect(self._screen, bg, r)
+        pygame.draw.rect(self._screen, C_BORDER, r, 1)
         surf = self._font_sm.render(label, True, C_WHITE)
         self._screen.blit(surf, surf.get_rect(center=r.center))
 
