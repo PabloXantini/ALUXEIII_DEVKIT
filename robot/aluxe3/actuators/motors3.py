@@ -97,38 +97,38 @@ class MotorController3W(IMotorController):
     def go_forward(self, vel=None):
         # self.go_from_angle(0, vel)
         v = self._norm_vel(vel, self.HIGH)
-        self._fwd(M1_IN1, M1_IN2, self.pwm1, v)
-        self._bwd(M3_IN1, M3_IN2, self.pwm2, v)
+        self._bwd(M1_IN1, M1_IN2, self.pwm1, v)
+        self._fwd(M3_IN1, M3_IN2, self.pwm2, v)
         # self._fwd(M4_IN1, M4_IN2, self.pwm3, v)
 
     def go_backward(self, vel=None):
         # self.go_from_angle(180, vel)
         v = self._norm_vel(vel, self.HIGH)
-        self._bwd(M1_IN1, M1_IN2, self.pwm1, v)
-        self._fwd(M3_IN1, M3_IN2, self.pwm2, v)
+        self._fwd(M1_IN1, M1_IN2, self.pwm1, v)
+        self._bwd(M3_IN1, M3_IN2, self.pwm2, v)
         # self._bwd(M4_IN1, M4_IN2, self.pwm3, v)
 
     def go_right(self, vel=None):
         # Native right direction at 60° for 3-wheel layout
-        self.go_from_angle(60, vel, default_max=self.MEDIUM)
+        self.go_from_angle(90, vel, default_max=self.MEDIUM)
 
     def go_left(self, vel=None):
         # Native left direction at 300° for 3-wheel layout
-        self.go_from_angle(300, vel, default_max=self.MEDIUM)
+        self.go_from_angle(270, vel, default_max=self.MEDIUM)
 
     def spin_right(self, vel=None):
         v = self._norm_vel(vel, self.MEDIUM)
         c = self.calib["turn_r"]
-        self._fwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
-        self._fwd(M3_IN1, M3_IN2, self.pwm2, v * c[1])
-        self._fwd(M4_IN1, M4_IN2, self.pwm3, v * c[2])
+        self._bwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
+        self._bwd(M3_IN1, M3_IN2, self.pwm2, v * c[1])
+        self._bwd(M4_IN1, M4_IN2, self.pwm3, v * c[2])
 
     def spin_left(self, vel=None):
         v = self._norm_vel(vel, self.MEDIUM)
         c = self.calib["turn_l"]
-        self._bwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
-        self._bwd(M3_IN1, M3_IN2, self.pwm2, v * c[1])
-        self._bwd(M4_IN1, M4_IN2, self.pwm3, v * c[2])
+        self._fwd(M1_IN1, M1_IN2, self.pwm1, v * c[0])
+        self._fwd(M3_IN1, M3_IN2, self.pwm2, v * c[1])
+        self._fwd(M4_IN1, M4_IN2, self.pwm3, v * c[2])
 
     def spin_slow_right(self):
         self.spin_right(vel=self.MID_LOW)

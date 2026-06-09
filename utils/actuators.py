@@ -3,11 +3,11 @@ from abc import ABC, abstractmethod
 class IMotorController(ABC):
     """Abstract interface for motor controllers."""
     
-    HIGH      = 80
-    MID_HIGH  = 60
-    MEDIUM    = 40
-    MID_LOW   = 30
-    LOW       = 20
+    HIGH      = 95
+    MID_HIGH  = 75
+    MEDIUM    = 60
+    MID_LOW   = 50
+    LOW       = 40
 
     def _norm_vel(self, vel, max_val, min_val=0.0):
         if vel is None:
