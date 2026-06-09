@@ -49,9 +49,10 @@ class Environment:
         self.fps: float = 0.0
         self.last_time: float = time.time()
         self.estado_label: str = "Processing..."
-        self.us_back_dist = 0.0
-        self.us_left_dist = 0.0
+        self.us_back_dist  = 0.0
+        self.us_left_dist  = 0.0
         self.us_right_dist = 0.0
+        self.heading       = 0.0
 
 class Aluxe3Context(MContext):
     """
@@ -111,11 +112,8 @@ class Aluxe3Context(MContext):
     def get_debug_frame(self, window_name="POV:"):
         if self.debug and self.env.frame_debug is not None:
             frame = self.env.frame_debug.copy()
-            heading = 0.0
-            if self.actuators:
-                heading = self.actuators.psensor.get_heading()
                 
-            cv2.putText(frame, f"Orientation: {heading}",
+            cv2.putText(frame, f"Orientation: {self.env.heading}",
                         (10, 40),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
             cv2.putText(frame, f"{self.name} ({window_name})", (10, 20),
@@ -173,7 +171,8 @@ class RobotContext(Aluxe3Context):
             self.env.us_back_dist = self.actuators.us_back.get_distance()
             self.env.us_left_dist = self.actuators.us_left.get_distance()
             self.env.us_right_dist = self.actuators.us_right.get_distance()
-            time.sleep(0.05)  # Add a small delay to avoid excessive CPU usage if sensor reads fail fast
+            self.env.heading       = self.actuators.psensor.get_heading()
+            time.sleep(0.05)
 
     def _initialize_camera(self):
         cap = cv2.VideoCapture(CAMERA_SOURCE, CAP_BACKEND)
