@@ -7,7 +7,7 @@ except ImportError:
     GPIO = MockGPIO()
 
 
-def init_gpio(mode=GPIO.BCM) -> None:
+def init(mode=GPIO.BCM) -> None:
     """
     Initialize GPIO pin numbering mode exactly once.
     Safe to call from multiple actuator constructors.

@@ -8,7 +8,7 @@ except ImportError:
     GPIO = MockGPIO()
 
 from utils.actuators import IUltrasonicSensor
-from utils.gpio_manager import init_gpio
+import utils.gpio as gpio
 
 class UltrasonicSensor(IUltrasonicSensor):
     """
@@ -18,7 +18,7 @@ class UltrasonicSensor(IUltrasonicSensor):
     def __init__(self, trig_pin: int = 23, echo_pin: int = 24):
         self._trig_pin = trig_pin
         self._echo_pin = echo_pin
-        init_gpio()
+        gpio.init()
         GPIO.setup(self._trig_pin, GPIO.OUT)
         GPIO.setup(self._echo_pin, GPIO.IN)
 

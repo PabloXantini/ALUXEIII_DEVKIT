@@ -6,7 +6,7 @@ except ImportError:
 
 import math
 from utils.actuators import IMotorController
-from utils.gpio_manager import init_gpio
+import utils.gpio as gpio
 
 # =======================================================
 # PINES DE LOS MOTORES (Usando distribución M1, M3, M4)
@@ -39,7 +39,7 @@ class MotorController3W(IMotorController):
         if calib:
             self.calib.update(calib)
 
-        init_gpio()
+        gpio.init()
 
         self._pins = [
             M1_IN1, M1_IN2, M1_EN,

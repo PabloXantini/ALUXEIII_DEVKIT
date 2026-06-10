@@ -13,7 +13,8 @@ M3_IN1, M3_IN2, M3_EN = 5,  6,  12   # Motor 3 – izquierda
 M4_IN1, M4_IN2, M4_EN = 16, 20, 13   # Motor 4 – abajo
 
 from utils.actuators import IMotorController
-from utils.gpio_manager import init_gpio
+import utils.gpio as gpio
+
 
 class MotorController4W(IMotorController):
     """Gestiona los cuatro motores omnidireccionales del robot vía GPIO/PWM."""
@@ -34,7 +35,7 @@ class MotorController4W(IMotorController):
         if calib:
             self.calib.update(calib)
 
-        init_gpio()
+        gpio.init()
 
         self._pins = [
             M1_IN1, M1_IN2, M1_EN,
