@@ -16,7 +16,7 @@ M3_IN1, M3_IN2, M3_EN = 5,  6,  12   # Delantera derecha
 M4_IN1, M4_IN2, M4_EN = 16, 20, 13   # Trasera
 
 # Wheel angles for a standard 120° spaced 3-wheel omni configuration
-_WHEEL_ANGLES_DEG = [90.0, 210.0, 330.0]
+_WHEEL_ANGLES_DEG = [60.0, 180.0, 300.0]
 
 
 
@@ -78,21 +78,22 @@ class MotorController3W(IMotorController):
     def go_from_angle(self, angle: float, vel: float = None, default_max: float = None):
         """
         Move in an arbitrary direction using 3-wheel omnidirectional kinematics.
-        angle: heading in degrees (0=forward, 90=right, 180=backward, 270=left).
-        Each wheel contribution: speed_i = vel * cos(wheel_angle_i - angle).
         """
         if default_max is None:
             default_max = self.HIGH
         v = self._norm_vel(vel, default_max)
         rad = math.radians(angle)
 
-        w1 = v * math.cos(math.radians(_WHEEL_ANGLES_DEG[0]) - rad)
-        w2 = v * math.cos(math.radians(_WHEEL_ANGLES_DEG[1]) - rad)
-        w3 = v * math.cos(math.radians(_WHEEL_ANGLES_DEG[2]) - rad)
+        w1 = v * math.sin(rad - math.radians(_WHEEL_ANGLES_DEG[0]))
+        w2 = v * math.sin(rad - math.radians(_WHEEL_ANGLES_DEG[1]))
+        w3 = v * math.sin(rad - math.radians(_WHEEL_ANGLES_DEG[2]))
 
-        self._fwd(M1_IN1, M1_IN2, self.pwm1, w1) if w1 >= 0 else self._bwd(M1_IN1, M1_IN2, self.pwm1, abs(w1))
-        self._fwd(M3_IN1, M3_IN2, self.pwm2, w2) if w2 >= 0 else self._bwd(M3_IN1, M3_IN2, self.pwm2, abs(w2))
-        self._fwd(M4_IN1, M4_IN2, self.pwm3, w3) if w3 >= 0 else self._bwd(M4_IN1, M4_IN2, self.pwm3, abs(w3))
+        if w1 >= 0: self._fwd(M1_IN1, M1_IN2, self.pwm1, w1) 
+        else:       self._bwd(M1_IN1, M1_IN2, self.pwm1, abs(w1))
+        if w2 >= 0: self._fwd(M3_IN1, M3_IN2, self.pwm2, w2) 
+        else:       self._bwd(M3_IN1, M3_IN2, self.pwm2, abs(w2))
+        if w3 >= 0: self._fwd(M4_IN1, M4_IN2, self.pwm3, w3) 
+        else:       self._bwd(M4_IN1, M4_IN2, self.pwm3, abs(w3))
 
     def go_forward(self, vel=None):
         # self.go_from_angle(0, vel)
@@ -110,11 +111,11 @@ class MotorController3W(IMotorController):
 
     def go_right(self, vel=None):
         # Native right direction at 60° for 3-wheel layout
-        self.go_from_angle(90, vel, default_max=self.MEDIUM)
+        self.go_from_angle(0, vel, default_max=self.MEDIUM)
 
     def go_left(self, vel=None):
         # Native left direction at 300° for 3-wheel layout
-        self.go_from_angle(270, vel, default_max=self.MEDIUM)
+        self.go_from_angle(180, vel, default_max=self.MEDIUM)
 
     def spin_right(self, vel=None):
         v = self._norm_vel(vel, self.MEDIUM)

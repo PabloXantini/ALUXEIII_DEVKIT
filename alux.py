@@ -22,8 +22,8 @@ def main():
     args = parser.parse_args()
 
     if args.test:
-        import tests.test_actuators as test
-        test.run()
+        import tests.robot_test as rtest
+        rtest.run(sandbox=args.sandbox, debug=args.debug)
     elif args.sandbox:
         import math
         import tests.matchs as matchs

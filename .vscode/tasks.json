@@ -18,6 +18,18 @@
             "type": "shell",
             "command": "python alux.py --sandbox --debug",
             "problemMatcher": []
+        },
+        {
+            "label": "Run Tests (with Sandbox)",
+            "type": "shell",
+            "command": "python alux.py --sandbox --test",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Tests (w/Sandbox and Debug)",
+            "type": "shell",
+            "command": "python alux.py --sandbox --debug --test",
+            "problemMatcher": []
         }
     ]
 }

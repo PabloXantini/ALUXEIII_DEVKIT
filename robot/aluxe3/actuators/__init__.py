@@ -1,22 +1,23 @@
 from __future__ import annotations
-from .motors4 import MotorController4W
-from .motors3 import MotorController3W
+
+from robot.aluxe3.manifest import MOTOR_CONFIG
 from .compass import Compass
 from .ultrasonic import UltrasonicSensor
 
+if MOTOR_CONFIG == "3W":
+    from .motors3 import MotorController3W as Motors
+else:
+    from .motors4 import MotorController4W as Motors
+
+
 class ActuatorController:
     """
-    Facade actuator controller that holds motors and sensors (physical sensor/psensor).
-    Provides access to self.motors and self.psensor for scaling components.
-    
-    Author: PabloXantini (Placeholder as per guidelines)
+    Facade actuator controller that holds motors and sensors.
+    The active motor class is determined by robot/aluxe3/manifest.py.
     """
-
-    def __init__(self, motors: MotorController4W = None, psensor: Compass = None, calib=None, bus_id=1):
-        # Allow injection of custom or mock instances for extensibility
-        self.motors: MotorController4W = motors if motors is not None else MotorController4W(calib=calib)
+    def __init__(self, motors: Motors = None, psensor: Compass = None, calib=None, bus_id=1):
+        self.motors: Motors = motors if motors is not None else Motors(calib=calib)
         self.psensor: Compass = psensor if psensor is not None else Compass(bus_id=bus_id)
-        
         self.us_back = UltrasonicSensor(9, 11)
         self.us_left = UltrasonicSensor(26, 21)
         self.us_right = UltrasonicSensor(8, 7)

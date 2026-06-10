@@ -61,13 +61,13 @@ class MockMotorController4W(IMotorController):
         v_base = super()._norm_vel(vel, self.MEDIUM)
         v = v_base * self.SIM_TURN_SCALE
         self._reset_speeds()
-        self.v_turn = -v
+        self.v_turn = v
 
     def spin_left(self, vel=None):
         v_base = super()._norm_vel(vel, self.MEDIUM)
         v = v_base * self.SIM_TURN_SCALE
         self._reset_speeds()
-        self.v_turn = v
+        self.v_turn = -v
 
     def spin_slow_right(self):
         self._reset_speeds()
