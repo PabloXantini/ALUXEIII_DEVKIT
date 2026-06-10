@@ -195,7 +195,7 @@ class RobotContext(Aluxe3Context):
         h = frame.shape[0]
         
         if FLIP_FRAME:
-            frame = cv2.flip(frame, 0)
+            frame = cv2.flip(frame, 1)
  
         self.env.frame_width  = w
         self.env.frame_height = h

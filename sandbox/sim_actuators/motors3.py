@@ -48,11 +48,11 @@ class MockMotorController3W(IMotorController):
         self.v_forward = -v
 
     def go_right(self, vel=None):
-        self.go_from_angle(0, vel or self.MEDIUM)
+        self.go_from_angle(90, vel or self.MEDIUM)
 
     def go_left(self, vel=None):
         # Native left direction at 300° for 3-wheel layout
-        self.go_from_angle(180, vel or self.MEDIUM)
+        self.go_from_angle(270, vel or self.MEDIUM)
 
     def spin_right(self, vel=None):
         v_base = super()._norm_vel(vel, self.MEDIUM)
