@@ -15,9 +15,9 @@ class UltrasonicSensor(IUltrasonicSensor):
     Class encapsulating the functionality of an ultrasonic sensor.
     """
     
-    def __init__(self, trig_pin: int = 23, echo_pin: int = 24):
-        self._trig_pin = trig_pin
-        self._echo_pin = echo_pin
+    def __init__(self, trig: int = 23, echo: int = 24):
+        self._trig_pin = trig
+        self._echo_pin = echo
         gpio.init()
         GPIO.setup(self._trig_pin, GPIO.OUT)
         GPIO.setup(self._echo_pin, GPIO.IN)

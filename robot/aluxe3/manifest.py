@@ -1,10 +1,13 @@
 """
 robot/aluxe3/manifest.py – Hardware configuration manifest.
 
-Edit MOTOR_CONFIG to switch the active motor controller for both
-the real hardware stack and the simulation sandbox simultaneously.
+Set ROBOT_MODEL to the name of the desired config file (without .json)
+located in robot/aluxe3/config/. The loader will raise a ConfigError at
+startup if the file is missing or contains invalid fields.
+
+Available models:
+  - "alux3w"  →  3-wheel omnidirectional robot
+  - "alux4w"  →  4-wheel omnidirectional robot
 """
 
-# Active motor controller variant.
-# Accepted values: "3W" (3-wheel omni) | "4W" (4-wheel omni)
-MOTOR_CONFIG: str = "3W"
+ROBOT_MODEL: str = "alux3w"

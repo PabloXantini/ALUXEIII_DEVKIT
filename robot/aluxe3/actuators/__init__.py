@@ -1,26 +1,39 @@
 from __future__ import annotations
 
-from robot.aluxe3.manifest import MOTOR_CONFIG
+from robot.aluxe3.manifest import ROBOT_MODEL
+from utils.config_loader import ROBOT_CONFIG, ConfigError
 from .compass import Compass
 from .ultrasonic import UltrasonicSensor
 
-if MOTOR_CONFIG == "3W":
+# Motor class is driven by the active config file
+_motor_config: str = ROBOT_CONFIG.get("motor_config", "")
+if _motor_config == "3W":
     from .motors3 import MotorController3W as Motors
-else:
+elif _motor_config == "4W":
     from .motors4 import MotorController4W as Motors
+else:
+    raise ConfigError(
+        f"[{ROBOT_MODEL}] Unknown motor_config value '{_motor_config}'. "
+        "Expected '3W' or '4W'."
+    )
 
 
 class ActuatorController:
     """
-    Facade actuator controller that holds motors and sensors.
-    The active motor class is determined by robot/aluxe3/manifest.py.
+    Facade actuator controller. Motor class and sensor pins are determined
+    by the active robot config file declared in robot/aluxe3/manifest.py.
     """
-    def __init__(self, motors: Motors = None, psensor: Compass = None, calib=None, bus_id=1):
-        self.motors: Motors = motors if motors is not None else Motors(calib=calib)
-        self.psensor: Compass = psensor if psensor is not None else Compass(bus_id=bus_id)
-        self.us_back = UltrasonicSensor(9, 11)
-        self.us_left = UltrasonicSensor(26, 21)
-        self.us_right = UltrasonicSensor(8, 7)
+
+    def __init__(self, motors: Motors = None, psensor: Compass = None, calib=None):
+        us_cfg      = ROBOT_CONFIG["ultrasonic"]
+        compass_cfg = ROBOT_CONFIG["compass"]
+
+        self.motors: Motors  = motors   if motors   is not None else Motors(calib=calib)
+        self.psensor: Compass = psensor if psensor is not None else Compass(bus_id=compass_cfg["bus_id"])
+
+        self.us_back  = UltrasonicSensor(**us_cfg["back"])
+        self.us_left  = UltrasonicSensor(**us_cfg["left"])
+        self.us_right = UltrasonicSensor(**us_cfg["right"])
 
     def get_orientation(self) -> float:
         """Returns the current absolute heading of the robot."""
