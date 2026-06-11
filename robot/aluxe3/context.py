@@ -91,7 +91,7 @@ class Aluxe3Context(MContext):
         enemy_seg = ColorSegmentator(enemy_l, enemy_u, GOAL_AREA_MIN)
  
         # Orquestador
-        self.vision = CVDetector(ball_seg, ally_seg, enemy_seg, franja_central=CENTER_TOLERANCE)
+        self.vision = CVDetector(ball_seg, ally_seg, enemy_seg, center_tolerance=CENTER_TOLERANCE)
 
     @property
     def state_label(self):

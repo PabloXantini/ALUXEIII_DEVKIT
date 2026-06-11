@@ -53,11 +53,11 @@ class CVDetector:
     Orquestador de visión por computadora. Gestiona múltiples segmentadores
     y realiza cálculos geométricos de proximidad y alineación.
     """
-    def __init__(self, ball_segmenter, ally_goal_segmenter, enemy_goal_segmenter, franja_central=40):
+    def __init__(self, ball_segmenter, ally_goal_segmenter, enemy_goal_segmenter, center_tolerance=40):
         self.ball_seg = ball_segmenter
         self.ally_seg = ally_goal_segmenter
         self.enemy_seg = enemy_goal_segmenter
-        self.franja_central = franja_central
+        self.center_tolerance = center_tolerance
 
     def detect_proximity(self, contour, centroid, frame_width):
         """
@@ -124,8 +124,8 @@ class CVDetector:
                 cv2.putText(img_debug, "ENEMY", (eg_centroid[0] - 25, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                 
             # Franja central
-            lx = img_cx - self.franja_central
-            rx = img_cx + self.franja_central
+            lx = img_cx - self.center_tolerance
+            rx = img_cx + self.center_tolerance
             cv2.line(img_debug, (lx, 0), (lx, frame_height), (255, 255, 255), 1)
             cv2.line(img_debug, (rx, 0), (rx, frame_height), (255, 255, 255), 1)
 
