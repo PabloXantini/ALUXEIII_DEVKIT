@@ -47,16 +47,22 @@ class SimContext(Aluxe3Context):
         
         self.track_fps()
 
-        # Excluir a sí mismo de los objetos a dibujar
+        # Sync simulated states to the environment (for HUD/FSM)
+        self.env.heading       = self.actuators.psensor.get_heading()
+        self.env.us_left_dist  = self.actuators.us_left.get_distance()
+        self.env.us_back_dist  = self.actuators.us_back.get_distance()
+        self.env.us_right_dist = self.actuators.us_right.get_distance()
+
+        # Exclude itself from robots to draw
         other_robots = [r for r in state.robots if r is not self.robot]
         
-        # Construir state filtrado conservando todos los elementos en la cache
+        # Build filtered state preserving all elements in the cache
         filtered_state = SimState(ball=state.ball, robots=other_robots, goals=state.goals, pitch=state.pitch)
         
-        # Encargar la renderización a la VirtualCamera pasándole la cache de estado
+        # Delegate rendering to VirtualCamera passing the state cache
         frame = self.camera.render(observer=self.robot, state=filtered_state)
 
-        # Evaluar la visión sobre la imagen resultante (con distorsión inyectada)
+        # Evaluate vision on the resulting image (with injected distortion)
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         self.info, self.env.frame_debug = self.vision.detect(frame, hsv, self.debug)
         

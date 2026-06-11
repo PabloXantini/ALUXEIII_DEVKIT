@@ -159,7 +159,7 @@ class Robot(Entity):
             return  # Inactive robot
 
         # Ejecutar Lógica de Agente FSM (Autonomía)
-        if self.machine and self.context:
+        if self.context:
             sim_state = SimState(
                 ball=game.ball, 
                 robots=robots or [], 
@@ -167,10 +167,9 @@ class Robot(Entity):
                 pitch=game.pitch
             )
             self.context.compute(sim_state)
+        if self.machine:
             self.machine.run(self.context)
             
-        # La física se delega a physics.py
-
     def draw(self, screen, debug=False):
         if self.ban_timer > 0:
             return # Desaparece del tablero si está baneado

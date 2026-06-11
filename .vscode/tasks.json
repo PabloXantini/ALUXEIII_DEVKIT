@@ -20,6 +20,12 @@
             "problemMatcher": []
         },
         {
+            "label": "Run Tests (with Debug)",
+            "type": "shell",
+            "command": "python alux.py --debug --test",
+            "problemMatcher": []
+        },
+        {
             "label": "Run Tests (with Sandbox)",
             "type": "shell",
             "command": "python alux.py --sandbox --test",
