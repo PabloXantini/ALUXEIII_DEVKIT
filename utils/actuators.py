@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 
 class IMotorController(ABC):
@@ -10,7 +11,7 @@ class IMotorController(ABC):
     LOW       = 40
     def __init__(self) -> None:
         pass
-    def _norm_vel(self, vel, max_val, min_val=0.0):
+    def norm_vel(self, vel, max_val, min_val=0.0):
         if vel is None:
             return max_val
         norm = max(0.0, min(100.0, float(vel))) / 100.0
