@@ -8,13 +8,13 @@
       "en": 18, 
       "label": "front-left"  
     },
-    "M3": {
+    "M4": {
       "in1": 5,
       "in2": 6,
       "en": 12,
       "label": "front-right"
     },
-    "M4": {
+    "M3": {
       "in1": 16,
       "in2": 20,
       "en": 13,
