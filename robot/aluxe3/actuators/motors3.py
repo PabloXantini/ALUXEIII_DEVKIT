@@ -122,10 +122,10 @@ class MotorController3W(IMotorController):
         self._set_motor(self._motor_configs[1], -v*c[1])
 
     def go_right(self, vel: float = None) -> None:
-        self.go_from_angle(90, vel, v_def=self.MEDIUM, calib=self.calib['right'])
+        self.go_from_angle(270, vel, v_def=self.MEDIUM, calib=self.calib['right'])
 
     def go_left(self, vel: float = None) -> None:
-        self.go_from_angle(270, vel, v_def=self.MEDIUM, calib=self.calib['left'])
+        self.go_from_angle(90, vel, v_def=self.MEDIUM, calib=self.calib['left'])
 
     def spin_left(self, vel: float = None) -> None:
         v = self.norm_vel(vel)
