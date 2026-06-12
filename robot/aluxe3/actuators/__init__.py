@@ -27,9 +27,11 @@ class ActuatorController:
     def __init__(self, motors: Motors = None, psensor: Compass = None, calib=None):
         us_cfg      = ROBOT_CONFIG["ultrasonic"]
         compass_cfg = ROBOT_CONFIG["compass"]
-
-        self.motors: Motors  = motors   if motors   is not None else Motors(calib=calib)
-        self.psensor: Compass = psensor if psensor is not None else Compass(bus_id=compass_cfg["bus_id"])
+        
+        if motors is None: self.motors:Motors = Motors(pins=ROBOT_CONFIG.get("motors"), calib=calib)
+        else: self.motors:Motors = motors
+        if psensor is None: self.psensor:Compass = Compass(bus_id=compass_cfg["bus_id"])
+        else: self.psensor:Compass = psensor
 
         self.us_back  = UltrasonicSensor(**us_cfg["back"])
         self.us_left  = UltrasonicSensor(**us_cfg["left"])

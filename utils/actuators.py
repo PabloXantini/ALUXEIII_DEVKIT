@@ -8,7 +8,8 @@ class IMotorController(ABC):
     MEDIUM    = 60
     MID_LOW   = 50
     LOW       = 40
-
+    def __init__(self) -> None:
+        pass
     def _norm_vel(self, vel, max_val, min_val=0.0):
         if vel is None:
             return max_val
@@ -20,7 +21,7 @@ class IMotorController(ABC):
         pass
 
     @abstractmethod
-    def go_from_angle(self, angle: float, vel: float = None) -> None:
+    def go_from_angle(self, angle: float, vel: float = None, calib: dict | None = None) -> None:
         """Move in an arbitrary direction given a heading angle in degrees (0=forward, 90=right)."""
         pass
 

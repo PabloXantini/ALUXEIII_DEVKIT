@@ -11,6 +11,7 @@ class MockMotorController4W(IMotorController):
     SIM_TURN_SCALE = 0.05 / 40.0
 
     def __init__(self, calib=None):
+        super().__init__()
         self.v_forward = 0.0
         self.v_lateral = 0.0
         self.v_turn = 0.0

@@ -13,9 +13,8 @@ class MockUltrasonicSensor:
     (walls) or other robots/obstacles, you can compute the Euclidean distance 
     and return it.
     """
-    def __init__(self, trig: int = 0, echo: int = 0):
-        self._trig_pin = trig
-        self._echo_pin = echo
+    def __init__(self):
+        pass
 
     def get_distance(self) -> float:
         """Returns a simulated distance placeholder."""

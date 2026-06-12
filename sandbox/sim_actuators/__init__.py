@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from utils.config_loader import ROBOT_CONFIG
-from .compass import MockCompass, Compass
+from .compass import MockCompass
 from .ultrasonic import MockUltrasonicSensor
 
 _motor_config: str = ROBOT_CONFIG.get("motor_config", "")
@@ -17,14 +17,15 @@ class MockActuatorController:
     The active motor class is determined by robot/aluxe3/manifest.py.
     """
 
-    def __init__(self, motors: MockMotors = None, psensor: MockCompass = None, calib=None):
-        us_cfg = ROBOT_CONFIG["ultrasonic"]
-        self.motors: MockMotors = motors if motors is not None else MockMotors(calib=calib)
-        self.psensor: MockCompass = psensor if psensor is not None else Compass(bus_id=ROBOT_CONFIG["compass"]["bus_id"])
+    def __init__(self, motors: MockMotors = None, psensor: MockCompass = None):
+        if motors is None: self.motors: MockMotors = MockMotors()
+        else: self.motors: MockMotors = motors
+        if psensor is None: self.psensor: MockCompass = MockCompass(bus_id=ROBOT_CONFIG["compass"]["bus_id"])
+        else: self.psensor: MockCompass = psensor
 
-        self.us_back  = MockUltrasonicSensor(**us_cfg["back"])
-        self.us_left  = MockUltrasonicSensor(**us_cfg["left"])
-        self.us_right = MockUltrasonicSensor(**us_cfg["right"])
+        self.us_back: MockUltrasonicSensor  = MockUltrasonicSensor()
+        self.us_left: MockUltrasonicSensor  = MockUltrasonicSensor()
+        self.us_right: MockUltrasonicSensor = MockUltrasonicSensor()
 
     def get_orientation(self) -> float:
         """Returns the current absolute heading of the robot."""
