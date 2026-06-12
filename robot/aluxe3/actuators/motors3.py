@@ -16,7 +16,7 @@ M3_IN1, M3_IN2, M3_EN = 5,  6,  12   # Delantera derecha
 M4_IN1, M4_IN2, M4_EN = 16, 20, 13   # Trasera
 
 # Wheel angles for a standard 120° spaced 3-wheel omni configuration
-_WHEEL_ANGLES_DEG = [60.0, 180.0, 300.0]
+_WHEEL_ANGLES_DEG = [0.0, 60.0, 120.0]
 
 
 
@@ -66,6 +66,13 @@ class MotorController3W(IMotorController):
         GPIO.output(in1, GPIO.LOW)
         GPIO.output(in2, GPIO.HIGH)
         pwm.ChangeDutyCycle(vel)
+        
+    def _apply(self, in1, in2, pwm, w):
+        speed = abs(w)
+        if w >= 0:
+            self._fwd(in1, in2, pwm, speed)
+        else:
+            self._bwd(in1, in2, pwm, speed)
 
     # ── Movimientos compuestos ────────────────────────────────────────────────
 
@@ -83,17 +90,18 @@ class MotorController3W(IMotorController):
             default_max = self.HIGH
         v = self._norm_vel(vel, default_max)
         rad = math.radians(angle)
+        vx = v * math.cos(rad) # x component
+        vy = v * math.sin(rad) # y component
+        sqrt3_2 = 0.8660254
+        
+        # Standard 3-Omni wheel speed matrix (wheels at 60°, 180°, 300°)
+        w1 = 0.5 * vx + sqrt3_2 * vy
+        w2 = -vx
+        w3 = 0.5 * vx - sqrt3_2 * vy
 
-        w1 = v * math.sin(rad - math.radians(_WHEEL_ANGLES_DEG[0]))
-        w2 = v * math.sin(rad - math.radians(_WHEEL_ANGLES_DEG[1]))
-        w3 = v * math.sin(rad - math.radians(_WHEEL_ANGLES_DEG[2]))
-
-        if w1 >= 0: self._fwd(M1_IN1, M1_IN2, self.pwm1, w1) 
-        else:       self._bwd(M1_IN1, M1_IN2, self.pwm1, abs(w1))
-        if w2 >= 0: self._fwd(M3_IN1, M3_IN2, self.pwm2, w2) 
-        else:       self._bwd(M3_IN1, M3_IN2, self.pwm2, abs(w2))
-        if w3 >= 0: self._fwd(M4_IN1, M4_IN2, self.pwm3, w3) 
-        else:       self._bwd(M4_IN1, M4_IN2, self.pwm3, abs(w3))
+        self._apply(M1_IN1, M1_IN2, self.pwm1, w1)
+        self._apply(M3_IN1, M3_IN2, self.pwm2, w2)
+        self._apply(M4_IN1, M4_IN2, self.pwm3, w3)
 
     def go_forward(self, vel=None):
         # self.go_from_angle(0, vel)

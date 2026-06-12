@@ -67,6 +67,13 @@ class MotorController4W(IMotorController):
         GPIO.output(in2, GPIO.HIGH)
         pwm.ChangeDutyCycle(vel)
 
+    def _apply(self, in1, in2, pwm, w):
+        speed = abs(w)
+        if w >= 0:
+            self._fwd(in1, in2, pwm, speed)
+        else:
+            self._bwd(in1, in2, pwm, speed)
+
     # ── Movimientos compuestos ────────────────────────────────────────────────
 
     def stop(self):
@@ -83,26 +90,19 @@ class MotorController4W(IMotorController):
         """
         v = self._norm_vel(vel, self.HIGH)
         rad = math.radians(angle)
-        vx = math.sin(rad)   # lateral component
-        vy = math.cos(rad)   # forward component
+        vx = v * math.sin(rad)   # x component
+        vy = v * math.cos(rad)   # y component
 
         # Standard 4-Omni wheel speed matrix (wheels at 45°, 135°, 225°, 315°)
-        w1 = vy - vx   # front-right
-        w2 = vy + vx   # front-left
-        w3 = vy - vx   # back-left
-        w4 = vy + vx   # back-right
+        w1 = vy - vx
+        w2 = vy + vx
+        w3 = vy - vx
+        w4 = vy + vx
 
-        def _apply(in1, in2, pwm, w):
-            speed = abs(w) * v
-            if w >= 0:
-                self._fwd(in1, in2, pwm, speed)
-            else:
-                self._bwd(in1, in2, pwm, speed)
-
-        _apply(M1_IN1, M1_IN2, self.pwm1, w1)
-        _apply(M2_IN1, M2_IN2, self.pwm2, w2)
-        _apply(M3_IN1, M3_IN2, self.pwm3, w3)
-        _apply(M4_IN1, M4_IN2, self.pwm4, w4)
+        self._apply(M1_IN1, M1_IN2, self.pwm1, w1)
+        self._apply(M2_IN1, M2_IN2, self.pwm2, w2)
+        self._apply(M3_IN1, M3_IN2, self.pwm3, w3)
+        self._apply(M4_IN1, M4_IN2, self.pwm4, w4)
 
     def go_forward(self, vel=None):
         v = self._norm_vel(vel, self.HIGH)
