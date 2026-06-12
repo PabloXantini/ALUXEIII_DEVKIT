@@ -1,6 +1,6 @@
 import math
 
-class MockCompass:
+class SimCompass:
     """
     Simulated/Mock communication bridge for the GY-87 multi-sensor module.
     Reads orientation directly from the simulator's robot angle (rangle),
@@ -9,8 +9,7 @@ class MockCompass:
     Author: PabloXantini
     """
 
-    def __init__(self, bus_id=1):
-        self.bus_id = bus_id
+    def __init__(self):
         # Heading in radians, updated each frame by SimContext or physics engine
         self._rangle: float = 0.0
 
@@ -72,4 +71,4 @@ class MockCompass:
 
 
 # Abstract name matching the real bridge
-Compass = MockCompass
+Compass = SimCompass

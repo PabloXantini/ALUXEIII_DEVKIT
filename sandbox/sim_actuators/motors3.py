@@ -4,7 +4,7 @@ _WHEEL_ANGLES_DEG = [90.0, 210.0, 330.0]
 
 from utils.actuators import IMotorController
 
-class MockMotorController3W(IMotorController):
+class SimMotorController3W(IMotorController):
     """Implementación falsa del controlador de 3 motores omnidireccionales para el simulador."""
 
     # Escala para convertir las constantes de motor (ej: 80) a velocidad de simulador (ej: 4.0)

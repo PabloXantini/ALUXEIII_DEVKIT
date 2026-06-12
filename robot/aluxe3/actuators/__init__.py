@@ -24,19 +24,16 @@ class ActuatorController:
     by the active robot config file declared in robot/aluxe3/manifest.py.
     """
 
-    def __init__(self, motors: Motors = None, psensor: Compass = None):
+    def __init__(self):
         us_cfg      = ROBOT_CONFIG["ultrasonic"]
         compass_cfg = ROBOT_CONFIG["compass"]
         calib       = None # ROBOT_CONFIG["calibration"]   
         
-        if motors is None: self.motors:Motors = Motors(pins=ROBOT_CONFIG.get("motors"), calib=calib)
-        else: self.motors:Motors = motors
-        if psensor is None: self.psensor:Compass = Compass(bus_id=compass_cfg["bus_id"])
-        else: self.psensor:Compass = psensor
-
-        self.us_back  = UltrasonicSensor(**us_cfg["back"])
-        self.us_left  = UltrasonicSensor(**us_cfg["left"])
-        self.us_right = UltrasonicSensor(**us_cfg["right"])
+        self.motors:Motors = Motors(pins=ROBOT_CONFIG.get("motors"), calib=calib)
+        self.psensor:Compass = Compass(bus_id=compass_cfg["bus_id"])
+        self.us_back: UltrasonicSensor = UltrasonicSensor(**us_cfg["back"])
+        self.us_left: UltrasonicSensor = UltrasonicSensor(**us_cfg["left"])
+        self.us_right: UltrasonicSensor = UltrasonicSensor(**us_cfg["right"])
 
     def get_orientation(self) -> float:
         """Returns the current absolute heading of the robot."""

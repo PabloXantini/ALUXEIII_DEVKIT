@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-class MockUltrasonicSensor:
+class SimUltrasonicSensor:
     """
     Mock of the ultrasonic sensor for the simulation environment.
     Currently, this component does nothing and returns 0.0.

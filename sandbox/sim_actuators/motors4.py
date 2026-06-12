@@ -2,7 +2,7 @@ import math
 
 from utils.actuators import IMotorController
 
-class MockMotorController4W(IMotorController):
+class SimMotorController4W(IMotorController):
     """Implementación falsa del controlador de 4 motores omnidireccionales para el simulador."""
 
     # Escala para convertir las constantes de motor (ej: 80) a velocidad de simulador (ej: 4.0)
