@@ -91,7 +91,7 @@ class MotorController3W(IMotorController):
         """
         if default_max is None:
             default_max = self.HIGH
-        v = self._norm_vel(vel, default_max)
+        v = self.norm_vel(vel, default_max)
         rad = math.radians(angle)
         vx = v * math.cos(rad) # x component
         vy = v * math.sin(rad) # y component
@@ -112,12 +112,12 @@ class MotorController3W(IMotorController):
         self._set_motor(self._motor_configs[2], w3)
 
     def go_forward(self, vel: float = None) -> None:
-        v = self._norm_vel(vel, self.HIGH)
+        v = self.norm_vel(vel, self.HIGH)
         self._set_motor(self._motor_configs[0], -v)
         self._set_motor(self._motor_configs[1], v)
 
     def go_backward(self, vel: float = None) -> None:
-        v = self._norm_vel(vel, self.HIGH)
+        v = self.norm_vel(vel, self.HIGH)
         self._set_motor(self._motor_configs[0], v)
         self._set_motor(self._motor_configs[1], -v)
 
@@ -128,14 +128,14 @@ class MotorController3W(IMotorController):
         self.go_from_angle(180, vel, default_max=self.MEDIUM, calib=self.calib['left'])
 
     def spin_right(self, vel: float = None) -> None:
-        v = self._norm_vel(vel, self.MEDIUM)
+        v = self.norm_vel(vel, self.MEDIUM)
         c = self.calib['turn_r']
         self._set_motor(self._motor_configs[0], v * c[0])
         self._set_motor(self._motor_configs[1], v * c[1])
         self._set_motor(self._motor_configs[2], v * c[2])
 
     def spin_left(self, vel: float = None) -> None:
-        v = self._norm_vel(vel, self.MEDIUM)
+        v = self.norm_vel(vel, self.MEDIUM)
         c = self.calib['turn_l']
         self._set_motor(self._motor_configs[0], -v * c[0])
         self._set_motor(self._motor_configs[1], -v * c[1])

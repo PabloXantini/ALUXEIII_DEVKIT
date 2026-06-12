@@ -89,7 +89,7 @@ class MotorController4W(IMotorController):
         Move in an arbitrary direction using 4-wheel omnidirectional kinematics.
         angle: heading in degrees (0=forward, 90=right, 180=backward, 270=left).
         """
-        v = self._norm_vel(vel, self.HIGH)
+        v = self.norm_vel(vel, self.HIGH)
         rad = math.radians(angle)
         vx = v * math.sin(rad)   # x component
         vy = v * math.cos(rad)   # y component
@@ -106,7 +106,7 @@ class MotorController4W(IMotorController):
         self._set_motor(self._motor_configs[3], w4)
 
     def go_forward(self, vel: float = None) -> None:
-        v = self._norm_vel(vel, self.HIGH)
+        v = self.norm_vel(vel, self.HIGH)
         c = self.calib["fwd"]
         self._set_motor(self._motor_configs[0], -v * c[0])
         self._set_motor(self._motor_configs[1], v * c[1])
@@ -114,7 +114,7 @@ class MotorController4W(IMotorController):
         self._set_motor(self._motor_configs[3], v * c[3])
 
     def go_backward(self, vel: float = None) -> None:
-        v = self._norm_vel(vel, self.HIGH)
+        v = self.norm_vel(vel, self.HIGH)
         c = self.calib["bwd"]
         self._set_motor(self._motor_configs[0], v * c[0])
         self._set_motor(self._motor_configs[1], -v * c[1])
@@ -122,7 +122,7 @@ class MotorController4W(IMotorController):
         self._set_motor(self._motor_configs[3], -v * c[3])
 
     def go_right(self, vel: float = None) -> None:
-        v = self._norm_vel(vel, self.MEDIUM)
+        v = self.norm_vel(vel, self.MEDIUM)
         c = self.calib["right"]
         self._set_motor(self._motor_configs[0], v * c[0])
         self._set_motor(self._motor_configs[1], v * c[1])
@@ -130,7 +130,7 @@ class MotorController4W(IMotorController):
         self._set_motor(self._motor_configs[3], v * c[3])
 
     def go_left(self, vel: float = None) -> None:
-        v = self._norm_vel(vel, self.MEDIUM)
+        v = self.norm_vel(vel, self.MEDIUM)
         c = self.calib["left"]
         self._set_motor(self._motor_configs[0], -v * c[0])
         self._set_motor(self._motor_configs[1], -v * c[1])
@@ -138,7 +138,7 @@ class MotorController4W(IMotorController):
         self._set_motor(self._motor_configs[3], -v * c[3])
 
     def spin_right(self, vel: float = None) -> None:
-        v = self._norm_vel(vel, self.MEDIUM)
+        v = self.norm_vel(vel, self.MEDIUM)
         c = self.calib["turn_r"]
         self._set_motor(self._motor_configs[0], v * c[0])
         self._set_motor(self._motor_configs[1], v * c[1])
@@ -146,7 +146,7 @@ class MotorController4W(IMotorController):
         self._set_motor(self._motor_configs[3], -v * c[3])
 
     def spin_left(self, vel: float = None) -> None:
-        v = self._norm_vel(vel, self.MEDIUM)
+        v = self.norm_vel(vel, self.MEDIUM)
         c = self.calib["turn_l"]
         self._set_motor(self._motor_configs[0], -v * c[0])
         self._set_motor(self._motor_configs[1], -v * c[1])
