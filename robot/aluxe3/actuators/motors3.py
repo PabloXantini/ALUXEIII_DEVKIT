@@ -82,15 +82,14 @@ class MotorController3W(IMotorController):
 
     def go_from_angle(self, 
         angle: float, 
-        vel: float = None, 
-        default_max: float = None, 
+        vel: float = None,
+        v_def: float = IMotorController.HIGH, 
         calib: dict | None = None) -> None:
         """
         Move in an arbitrary direction using 3-wheel omnidirectional kinematics.
         """
-        if default_max is None:
-            default_max = self.HIGH
-        v = self.norm_vel(vel, default_max)
+        if vel is None: vel = v_def
+        v = self.norm_vel(vel)
         rad = math.radians(angle)
         vx = v * math.cos(rad) # x component
         vy = v * math.sin(rad) # y component
@@ -111,36 +110,36 @@ class MotorController3W(IMotorController):
         self._set_motor(self._motor_configs[2], w3)
 
     def go_forward(self, vel: float = None) -> None:
-        v = self.norm_vel(vel, self.HIGH)
+        v = self.norm_vel(vel)
         c = self.calib["fwd"]
         self._set_motor(self._motor_configs[0], -v*c[0])
         self._set_motor(self._motor_configs[1], v*c[1])
 
     def go_backward(self, vel: float = None) -> None:
-        v = self.norm_vel(vel, self.HIGH)
+        v = self.norm_vel(vel)
         c = self.calib["bwd"]
         self._set_motor(self._motor_configs[0], v*c[0])
         self._set_motor(self._motor_configs[1], -v*c[1])
 
     def go_right(self, vel: float = None) -> None:
-        self.go_from_angle(0, vel, default_max=self.MEDIUM, calib=self.calib['right'])
+        self.go_from_angle(90, vel, v_def=self.MEDIUM, calib=self.calib['right'])
 
     def go_left(self, vel: float = None) -> None:
-        self.go_from_angle(180, vel, default_max=self.MEDIUM, calib=self.calib['left'])
-
-    def spin_right(self, vel: float = None) -> None:
-        v = self.norm_vel(vel, self.MEDIUM)
-        c = self.calib['turn_r']
-        self._set_motor(self._motor_configs[0], -v * c[0])
-        self._set_motor(self._motor_configs[1], -v * c[1])
-        self._set_motor(self._motor_configs[2], -v * c[2])
+        self.go_from_angle(270, vel, v_def=self.MEDIUM, calib=self.calib['left'])
 
     def spin_left(self, vel: float = None) -> None:
-        v = self.norm_vel(vel, self.MEDIUM)
+        v = self.norm_vel(vel)
         c = self.calib['turn_l']
         self._set_motor(self._motor_configs[0], v * c[0])
         self._set_motor(self._motor_configs[1], v * c[1])
         self._set_motor(self._motor_configs[2], v * c[2])
+
+    def spin_right(self, vel: float = None) -> None:
+        v = self.norm_vel(vel)
+        c = self.calib['turn_r']
+        self._set_motor(self._motor_configs[0], -v * c[0])
+        self._set_motor(self._motor_configs[1], -v * c[1])
+        self._set_motor(self._motor_configs[2], -v * c[2])
 
     def spin_slow_right(self) -> None:
         self.spin_right(vel=self.MID_LOW)

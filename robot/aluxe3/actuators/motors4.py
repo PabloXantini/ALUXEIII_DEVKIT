@@ -59,7 +59,6 @@ class MotorController4W(IMotorController):
                 from utils.config_loader import ConfigError
                 raise ConfigError(f"Motor configuration at index {idx} is missing keys: {m_cfg.keys()}")
 
-    # ── Primitivas ────────────────────────────────────────────────────────────
     def _set_motor(self, motor: dict, speed: float) -> None:
         """Establecer la velocidad de un motor."""
         if speed >= 0:
@@ -83,12 +82,17 @@ class MotorController4W(IMotorController):
             GPIO.output(motor["in2"], GPIO.LOW)
             motor["pwm"].ChangeDutyCycle(0)
 
-    def go_from_angle(self, angle: float, vel: float = None) -> None:
+    def go_from_angle(self, 
+        angle: float, 
+        vel: float = None,
+        v_def: float = IMotorController.HIGH,
+        calib:dict | None = None) -> None:
         """
         Move in an arbitrary direction using 4-wheel omnidirectional kinematics.
         angle: heading in degrees (0=forward, 90=right, 180=backward, 270=left).
         """
-        v = self.norm_vel(vel, self.HIGH)
+        if vel is None: vel = v_def
+        v = self.norm_vel(vel)
         rad = math.radians(angle)
         vx = v * math.sin(rad)   # x component
         vy = v * math.cos(rad)   # y component
@@ -99,13 +103,19 @@ class MotorController4W(IMotorController):
         w3 = vy - vx
         w4 = vy + vx
 
+        if calib:
+            w1 *= calib[0]
+            w2 *= calib[1]
+            w3 *= calib[2]
+            w4 *= calib[3]
+
         self._set_motor(self._motor_configs[0], w1)
         self._set_motor(self._motor_configs[1], w2)
         self._set_motor(self._motor_configs[2], w3)
         self._set_motor(self._motor_configs[3], w4)
 
     def go_forward(self, vel: float = None) -> None:
-        v = self.norm_vel(vel, self.HIGH)
+        v = self.norm_vel(vel)
         c = self.calib["fwd"]
         self._set_motor(self._motor_configs[0], -v * c[0])
         self._set_motor(self._motor_configs[1], v * c[1])
@@ -113,7 +123,7 @@ class MotorController4W(IMotorController):
         self._set_motor(self._motor_configs[3], v * c[3])
 
     def go_backward(self, vel: float = None) -> None:
-        v = self.norm_vel(vel, self.HIGH)
+        v = self.norm_vel(vel)
         c = self.calib["bwd"]
         self._set_motor(self._motor_configs[0], v * c[0])
         self._set_motor(self._motor_configs[1], -v * c[1])
@@ -121,7 +131,7 @@ class MotorController4W(IMotorController):
         self._set_motor(self._motor_configs[3], -v * c[3])
 
     def go_right(self, vel: float = None) -> None:
-        v = self.norm_vel(vel, self.MEDIUM)
+        v = self.norm_vel(vel)
         c = self.calib["right"]
         self._set_motor(self._motor_configs[0], v * c[0])
         self._set_motor(self._motor_configs[1], v * c[1])
@@ -136,29 +146,27 @@ class MotorController4W(IMotorController):
         self._set_motor(self._motor_configs[2], -v * c[2])
         self._set_motor(self._motor_configs[3], -v * c[3])
 
-    def spin_right(self, vel: float = None) -> None:
-        v = self.norm_vel(vel, self.MEDIUM)
-        c = self.calib["turn_r"]
+    def spin_left(self, vel: float = None) -> None:
+        v = self.norm_vel(vel)
+        c = self.calib["turn_l"]
         self._set_motor(self._motor_configs[0], v * c[0])
         self._set_motor(self._motor_configs[1], v * c[1])
-        self._set_motor(self._motor_configs[2], -v * c[2])
-        self._set_motor(self._motor_configs[3], -v * c[3])
-
-    def spin_left(self, vel: float = None) -> None:
-        v = self.norm_vel(vel, self.MEDIUM)
-        c = self.calib["turn_l"]
-        self._set_motor(self._motor_configs[0], -v * c[0])
-        self._set_motor(self._motor_configs[1], -v * c[1])
         self._set_motor(self._motor_configs[2], v * c[2])
         self._set_motor(self._motor_configs[3], v * c[3])
+
+    def spin_right(self, vel: float = None) -> None:
+        v = self.norm_vel(vel)
+        c = self.calib["turn_r"]
+        self._set_motor(self._motor_configs[0], -v * c[0])
+        self._set_motor(self._motor_configs[1], -v * c[1])
+        self._set_motor(self._motor_configs[2], -v * c[2])
+        self._set_motor(self._motor_configs[3], -v * c[3])
 
     def spin_slow_right(self) -> None:
         self.spin_right(vel=self.MID_LOW)
 
     def spin_slow_left(self) -> None:
         self.spin_left(vel=self.MID_LOW)
-
-    # ── Limpieza ──────────────────────────────────────────────────────────────
 
     def cleanup(self) -> None:
         self.stop()
