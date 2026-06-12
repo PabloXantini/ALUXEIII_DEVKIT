@@ -24,9 +24,10 @@ class ActuatorController:
     by the active robot config file declared in robot/aluxe3/manifest.py.
     """
 
-    def __init__(self, motors: Motors = None, psensor: Compass = None, calib=None):
+    def __init__(self, motors: Motors = None, psensor: Compass = None):
         us_cfg      = ROBOT_CONFIG["ultrasonic"]
         compass_cfg = ROBOT_CONFIG["compass"]
+        calib       = None # ROBOT_CONFIG["calibration"]   
         
         if motors is None: self.motors:Motors = Motors(pins=ROBOT_CONFIG.get("motors"), calib=calib)
         else: self.motors:Motors = motors
