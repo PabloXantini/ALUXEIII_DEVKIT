@@ -59,11 +59,10 @@ class MotorController3W(IMotorController):
 
     def _set_motor(self, motor: dict, speed: float) -> None:
         """Establecer la velocidad de un motor."""
-        val = speed * motor["c"]
-        if val >= 0:
-            self._fwd(motor["in1"], motor["in2"], motor["pwm"], val)
+        if speed >= 0:
+            self._fwd(motor["in1"], motor["in2"], motor["pwm"], speed)
         else:
-            self._bwd(motor["in1"], motor["in2"], motor["pwm"], abs(val))
+            self._bwd(motor["in1"], motor["in2"], motor["pwm"], abs(speed))
 
     def _fwd(self, in1: int, in2: int, pwm: GPIO.PWM, vel: float) -> None:
         GPIO.output(in1, GPIO.HIGH)
