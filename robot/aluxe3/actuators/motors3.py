@@ -94,9 +94,15 @@ class MotorController3W(IMotorController):
         sqrt3_2 = 0.8660254
         
         # Standard 3-Omni wheel speed matrix (wheels at 60°, 180°, 300°)
+        # w_k = vx * cos(rad) + vy * sin(rad) + w * R
+
         w1 = 0.5 * vx + sqrt3_2 * vy
         w2 = -vx
         w3 = 0.5 * vx - sqrt3_2 * vy
+
+        w1 = self.norm_vel(w1)
+        w2 = self.norm_vel(w2)
+        w3 = self.norm_vel(w3)
 
         if calib:
             w1 *= calib[0]
@@ -138,12 +144,6 @@ class MotorController3W(IMotorController):
         self._set_motor(self._motor_configs[0], -v * c[0])
         self._set_motor(self._motor_configs[1], -v * c[1])
         self._set_motor(self._motor_configs[2], -v * c[2])
-
-    def spin_slow_right(self) -> None:
-        self.spin_right(vel=self.MID_LOW)
-
-    def spin_slow_left(self) -> None:
-        self.spin_left(vel=self.MID_LOW)
 
     def cleanup(self) -> None:
         self.stop()

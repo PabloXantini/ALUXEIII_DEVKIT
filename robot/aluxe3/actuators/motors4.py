@@ -94,12 +94,19 @@ class MotorController4W(IMotorController):
         rad = math.radians(angle)
         vx = v * math.sin(rad)   # x component
         vy = v * math.cos(rad)   # y component
+        sqrt2_2 = 0.70710678
 
         # Standard 4-Omni wheel speed matrix (wheels at 45°, 135°, 225°, 315°)
-        w1 = vy - vx
-        w2 = vy + vx
-        w3 = vy - vx
-        w4 = vy + vx
+        # w_k = vx * cos(rad) + vy * sin(rad) + w * R
+        w1 = sqrt2_2*(vx + vy)
+        w2 = sqrt2_2*(-vx + vy)
+        w3 = sqrt2_2*(-vx - vy)
+        w4 = sqrt2_2*(vx - vy)
+
+        w1 = self.norm_vel(w1)
+        w2 = self.norm_vel(w2)
+        w3 = self.norm_vel(w3)
+        w4 = self.norm_vel(w4)
 
         if calib:
             w1 *= calib[0]
@@ -159,12 +166,6 @@ class MotorController4W(IMotorController):
         self._set_motor(self._motor_configs[1], -v * c[1])
         self._set_motor(self._motor_configs[2], -v * c[2])
         self._set_motor(self._motor_configs[3], -v * c[3])
-
-    def spin_slow_right(self) -> None:
-        self.spin_right(vel=self.MID_LOW)
-
-    def spin_slow_left(self) -> None:
-        self.spin_left(vel=self.MID_LOW)
 
     def cleanup(self) -> None:
         self.stop()

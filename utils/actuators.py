@@ -17,7 +17,7 @@ class IMotorController(ABC):
 
     def norm_vel(self, vel, minv=0.0, maxv=90.0):
         if vel is None: vel = Speed.HIGH.value
-        norm = max(0.0, min(100.0, float(vel))) / 100.0
+        norm = max(minv, min(maxv, float(vel))) / maxv
         return minv + norm * (maxv - minv)
 
     @abstractmethod
