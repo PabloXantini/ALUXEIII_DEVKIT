@@ -1,121 +1,68 @@
 from __future__ import annotations
-import threading
-from utils.actuators import IMotorController, Speed
-import utils.input as inputs
-
-try:
-    from pynput import keyboard as pynput_kb
-except ImportError:
-    pynput_kb = None
-
+from utils.actuators import Speed
+from utils.input import Key, InputManager
 
 class KeyboardListener:
     """
-    Threaded keyboard listener for the actuator test suite.
-    Uses pynput to track key state continuously in a background daemon thread,
-    eliminating OS key-repeat delays. cv2.waitKey(1) is still called each frame
-    to keep the OpenCV window responsive.
+    Keyboard listener for the actuator test suite.
+    Uses InputManager to track key state continuously.
 
     Author: PabloXantini
     """
     _SPEED_KEYS = {
-        '1': ("LOW",      Speed.LOW.value),
-        '2': ("MID_LOW",  Speed.MID_LOW.value),
-        '3': ("MEDIUM",   Speed.MEDIUM.value),
-        '4': ("MID_HIGH", Speed.MID_HIGH.value),
-        '5': ("HIGH",     Speed.HIGH.value),
+        Key.K_1: ("LOW",      Speed.LOW.value),
+        Key.K_2: ("MID_LOW",  Speed.MID_LOW.value),
+        Key.K_3: ("MEDIUM",   Speed.MEDIUM.value),
+        Key.K_4: ("MID_HIGH", Speed.MID_HIGH.value),
+        Key.K_5: ("HIGH",     Speed.HIGH.value),
     }
 
     _MOVE_KEYS = {
-        'w': "FORWARD",
-        's': "BACKWARD",
-        'a': "LEFT",
-        'd': "RIGHT",
-        'z': "SPIN LEFT",
-        'x': "SPIN RIGHT",
+        Key.W: "FORWARD",
+        Key.S: "BACKWARD",
+        Key.A: "LEFT",
+        Key.D: "RIGHT",
+        Key.Z: "SPIN LEFT",
+        Key.X: "SPIN RIGHT",
     }
 
-    def __init__(self, sandbox: bool = False):
-        self.sandbox = sandbox
+    def __init__(self, input_manager: InputManager):
+        self.input_manager = input_manager
         self.running = True
         self.speed_name = "MEDIUM"
         self.speed_val = Speed.MEDIUM.value
         self.active_action = "STOP"
 
-        self._held: set[str] = set()
-        self._lock = threading.Lock()
-        self._start_listener()
-
-    def _start_listener(self) -> None:
-        if pynput_kb is None:
-            return
-        self._kb_listener = pynput_kb.Listener(
-            on_press=self._on_press,
-            on_release=self._on_release,
-            daemon=True
-        )
-        self._kb_listener.start()
-
-    def _on_press(self, key) -> None:
-        char = self._key_to_char(key)
-        if char:
-            with self._lock:
-                self._held.add(char)
-
-    def _on_release(self, key) -> None:
-        char = self._key_to_char(key)
-        if char:
-            with self._lock:
-                self._held.discard(char)
-
-    @staticmethod
-    def _key_to_char(key) -> str | None:
-        try:
-            return key.char
-        except AttributeError:
-            # Special keys (space, esc, etc.)
-            if key == pynput_kb.Key.space:
-                return ' '
-            if key == pynput_kb.Key.esc:
-                return '\x1b'
-        return None
-
-    def _is_held(self, char: str) -> bool:
-        with self._lock:
-            return char in self._held
-
     def poll_inputs(self) -> None:
         """
         Updates active action and speed from the current held key state.
-        Also calls cv2.waitKey(1) to keep the OpenCV window responsive.
         """
-        # Service OpenCV window events (must run on main thread)
-        inputs.InputManager.poll()
+        # Service window events and snapshot input state
+        self.input_manager.poll()
 
         # Check exit keys
-        if self._is_held('\x1b') or self._is_held('q'):
+        if (self.input_manager.is_key_pressed(Key.ESC) 
+        or self.input_manager.is_key_pressed(Key.Q)):
             self.running = False
             return
 
-        # Speed selection (last wins)
-        for char, (name, val) in self._SPEED_KEYS.items():
-            if self._is_held(char):
+        # Speed selection (last wins, instantaneous)
+        for key, (name, val) in self._SPEED_KEYS.items():
+            if self.input_manager.is_key_pressed(key):
                 self.speed_name = name
                 self.speed_val = val
 
-        # Movement (space = STOP, movement keys override)
+        # Movement (continuous held check)
         action = "STOP"
-        if self._is_held(' '):
+        if self.input_manager.is_key_held(Key.SPACE):
             action = "STOP"
         else:
-            for char, act in self._MOVE_KEYS.items():
-                if self._is_held(char):
+            for key, act in self._MOVE_KEYS.items():
+                if self.input_manager.is_key_held(key):
                     action = act
                     break
 
         self.active_action = action
 
     def stop(self) -> None:
-        """Stop the background listener thread."""
-        if hasattr(self, '_kb_listener'):
-            self._kb_listener.stop()
+        pass

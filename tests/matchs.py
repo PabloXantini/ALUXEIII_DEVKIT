@@ -1,5 +1,9 @@
-from robot.aluxe3.v1.builder import Aluxe3v1aBuilder
-from robot.aluxe3.v1.builder import Aluxe3v1bBuilder
+from sandbox.game.entities import Robot
+from robot.aluxe3.v1.builder import (
+    Aluxe3v1aBuilder,
+    Aluxe3v1bBuilder,
+    Aluxe3v1TestBuilder
+)
 
 def prepare_2v2(debug: bool = False, sandbox: bool = False) -> list:
     a3v1a = Aluxe3v1aBuilder()
@@ -78,3 +82,14 @@ def prepare_solo(debug: bool = False, sandbox: bool = False) -> list:
 
     robots = [robot1]
     return robots
+
+def prepare_test(debug: bool = False, sandbox: bool = False) -> tuple:
+    test = Aluxe3v1TestBuilder()
+    machine, ctx = test.build_machine(debug=debug, sandbox=sandbox, name='TestBot', team_color="blue") 
+    robots = []
+    if sandbox:
+        from sandbox.game.entities import Robot
+        robot = Robot(kickoff_x=300, kickoff_y=200, color=(0, 0, 255), brain=(machine, ctx))
+        robots = [robot]
+    return machine, ctx, robots
+

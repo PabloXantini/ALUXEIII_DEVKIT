@@ -1,6 +1,7 @@
 from __future__ import annotations
 from utils.fsm import HState, Machine, MachineBuilder
 from robot.aluxe3.v1.states import (
+    ManualControl,
     Wait,
     Search, 
     LookBall, 
@@ -126,3 +127,16 @@ class Aluxe3v1bBuilder(MachineBuilder):
         # BACKWARDS
         machine.add(m_shot, search, BallLost())
         return machine, ctx
+
+class Aluxe3v1TestBuilder(MachineBuilder):
+    def build_machine(self, debug: bool = False, sandbox: bool = False, name: str = "aluxe", team_color: str = "blue") -> tuple[Machine, object]:
+        if sandbox:
+            from sandbox.sim_context import SimContext
+            ctx = SimContext(debug=debug, name=name, team_color=team_color)
+        else:
+            from robot.aluxe3.context import RobotContext
+            ctx = RobotContext(debug=debug, name=name, team_color=team_color)
+        manual = ManualControl()
+        machine = Machine(manual)
+        return machine, ctx
+

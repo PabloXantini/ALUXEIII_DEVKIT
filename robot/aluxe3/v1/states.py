@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from utils.logging import logger
 from utils.fsm import State
 from utils.actuators import Speed
+from utils.input import Key
 from robot.aluxe3.context import RobotContext
 import random
 
@@ -188,5 +190,57 @@ class Backwards(State):
 
     def execute(self, ctx: RobotContext):
         ctx.actuators.motors.go_backward()
-   
-    
+        
+class ManualControl(State):
+    """
+    Action: Control the robot manually using the InputManager.
+    Requires ctx.input_manager to be set.
+    """
+    def __init__(self):
+        super().__init__()
+        self.speed = Speed.MEDIUM
+
+    def on_init(self, ctx: RobotContext):
+        ctx.estado_label = "Control Manual"
+
+    def on_exit(self, ctx: RobotContext):
+        ctx.actuators.motors.stop()
+
+    def execute(self, ctx: RobotContext):
+        if ctx.input_manager is None:
+            ctx.estado_label = "Sin InputManager!"
+            return
+
+        im = ctx.input_manager
+
+        # Speeds
+        if im.is_key_pressed(Key.K_1): self.speed = Speed.LOW
+        if im.is_key_pressed(Key.K_2): self.speed = Speed.MID_LOW
+        if im.is_key_pressed(Key.K_3): self.speed = Speed.MEDIUM
+        if im.is_key_pressed(Key.K_4): self.speed = Speed.MID_HIGH
+        if im.is_key_pressed(Key.K_5): self.speed = Speed.HIGH
+        if im.is_key_pressed(Key.UP) or im.is_key_pressed(Key.W): logger.msg("FORWARD")
+        if im.is_key_pressed(Key.DOWN) or im.is_key_pressed(Key.S): logger.msg("BACKWARD")
+        if im.is_key_pressed(Key.LEFT) or im.is_key_pressed(Key.A): logger.msg("GO LEFT")
+        if im.is_key_pressed(Key.RIGHT) or im.is_key_pressed(Key.D): logger.msg("GO RIGHT")
+        if im.is_key_pressed(Key.Z): logger.msg("SPIN LEFT")
+        if im.is_key_pressed(Key.X): logger.msg("SPIN RIGHT")
+        
+        # Movement
+        v_val = self.speed.value
+        if im.is_key_held(Key.SPACE):
+            ctx.actuators.motors.stop()
+        elif im.is_key_held(Key.W) or im.is_key_held(Key.UP):
+            ctx.actuators.motors.go_forward(vel=v_val)
+        elif im.is_key_held(Key.S) or im.is_key_held(Key.DOWN):
+            ctx.actuators.motors.go_backward(vel=v_val)
+        elif im.is_key_held(Key.A) or im.is_key_held(Key.LEFT):
+            ctx.actuators.motors.go_left(vel=v_val)
+        elif im.is_key_held(Key.D) or im.is_key_held(Key.RIGHT):
+            ctx.actuators.motors.go_right(vel=v_val)
+        elif im.is_key_held(Key.Z):
+            ctx.actuators.motors.spin_left(vel=v_val)
+        elif im.is_key_held(Key.X):
+            ctx.actuators.motors.spin_right(vel=v_val)
+        else:
+            ctx.actuators.motors.stop()
