@@ -17,7 +17,7 @@ class RobotLogger:
     """Structured canonical logger: msg / warn / error / fatal."""
 
     _TAGS = {
-        "MSG":   " ",
+        "MSG":   ">",
         "WARN":  "!",
         "ERROR": "X",
         "FATAL": "✗",
