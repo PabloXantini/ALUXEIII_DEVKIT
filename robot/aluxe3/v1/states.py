@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from utils.fsm import State
+from utils.actuators import Speed
 from robot.aluxe3.context import RobotContext
 import random
 
@@ -56,11 +57,11 @@ class LookBall(State):
         if self.align > 0:
             # Pelota a la derecha en imagen → corregir girando a la derecha
             ctx.state_label = "LookBall -> DER (Ajustando)"
-            ctx.actuators.motors.spin_slow_left()
+            ctx.actuators.motors.spin_right(vel=Speed.MID_LOW.value)
         else:
             # Pelota a la izquierda en imagen → corregir girando a la izquierda
             ctx.state_label = "LookBall <- IZQ (Ajustando)"
-            ctx.actuators.motors.spin_slow_right()
+            ctx.actuators.motors.spin_left(vel=Speed.MID_LOW.value)
  
 # REVISAR
 class GotoBall(State):
@@ -76,7 +77,7 @@ class GotoBall(State):
     def execute(self, ctx: RobotContext):
         radius = ctx.info['ball']['radius']
         ctx.estado_label = f"GotoBall: Avanzando (R:{radius})"
-        ctx.actuators.motors.go_forward(vel=ctx.actuators.motors.HIGH)
+        ctx.actuators.motors.go_forward()
  
 class LookForShot(State):
     """
@@ -130,10 +131,10 @@ class RedirectBall(State):
             return
         if o_ball > 0:
             ctx.state_label = "RedirectBall -> DER (Redirigiendo)"
-            ctx.actuators.motors.go_left(vel=ctx.actuators.motors.HIGH)
+            ctx.actuators.motors.go_left()
         else:
             ctx.state_label = "RedirectBall -> IZQ (Redirigiendo)"
-            ctx.actuators.motors.go_right(vel=ctx.actuators.motors.HIGH)
+            ctx.actuators.motors.go_right()
 
 class AvoidAllyGoal(State):
     def on_init(self, ctx: RobotContext):
@@ -150,10 +151,10 @@ class AvoidAllyGoal(State):
         self.align = o_goal - o_ball
         if self.align > 0:
             ctx.state_label = "AvoidAllyGoal -> DER (Evitando)"
-            ctx.actuators.motors.go_right(vel=ctx.actuators.motors.HIGH)
+            ctx.actuators.motors.go_right()
         else:
             ctx.state_label = "AvoidAllyGoal -> IZQ (Evitando)"
-            ctx.actuators.motors.go_left(vel=ctx.actuators.motors.HIGH)
+            ctx.actuators.motors.go_left()
 
 # states for Aluxe3v1b
 class SideMoveForShot(State):

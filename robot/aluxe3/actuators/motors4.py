@@ -85,13 +85,11 @@ class MotorController4W(IMotorController):
     def go_from_angle(self, 
         angle: float, 
         vel: float = None,
-        v_def: float = IMotorController.HIGH,
         calib:dict | None = None) -> None:
         """
         Move in an arbitrary direction using 4-wheel omnidirectional kinematics.
         angle: heading in degrees (0=forward, 90=right, 180=backward, 270=left).
         """
-        if vel is None: vel = v_def
         v = self.norm_vel(vel)
         rad = math.radians(angle)
         vx = v * math.sin(rad)   # x component

@@ -1,19 +1,24 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from enum import Enum
+
+class Speed(Enum):
+    HIGH = 95
+    MID_HIGH = 75
+    MEDIUM = 60
+    MID_LOW = 50
+    LOW = 40
+    STOP = 0
 
 class IMotorController(ABC):
     """Abstract interface for motor controllers."""
-    HIGH      = 95
-    MID_HIGH  = 75
-    MEDIUM    = 60
-    MID_LOW   = 50
-    LOW       = 40
     def __init__(self) -> None:
         pass
-    def norm_vel(self, vel, min_pwr=0.0, max_pwr=100.0):
-        if vel is None: return max_pwr
+
+    def norm_vel(self, vel, minv=0.0, maxv=90.0):
+        if vel is None: vel = Speed.HIGH.value
         norm = max(0.0, min(100.0, float(vel))) / 100.0
-        return min_pwr + norm * (max_pwr - min_pwr)
+        return minv + norm * (maxv - minv)
 
     @abstractmethod
     def stop(self) -> None:
@@ -46,14 +51,6 @@ class IMotorController(ABC):
 
     @abstractmethod
     def spin_left(self, vel: float = None) -> None:
-        pass
-
-    @abstractmethod
-    def spin_slow_right(self) -> None:
-        pass
-
-    @abstractmethod
-    def spin_slow_left(self) -> None:
         pass
 
     @abstractmethod

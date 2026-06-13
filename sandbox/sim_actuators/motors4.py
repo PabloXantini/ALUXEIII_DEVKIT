@@ -7,12 +7,12 @@ class SimMotorController4W(SimMotorController):
         super().__init__()
 
     def go_right(self, vel=None):
-        v = self.norm_vel(vel, self.MEDIUM)
+        v = self.norm_vel(vel)
         self.reset_speeds()
         self.v_y = v
 
     def go_left(self, vel=None):
-        v = self.norm_vel(vel, self.MEDIUM)
+        v = self.norm_vel(vel)
         self.reset_speeds()
         self.v_y = -v
 

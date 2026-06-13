@@ -7,10 +7,10 @@ class SimMotorController3W(SimMotorController):
         super().__init__()
 
     def go_right(self, vel=None):
-        self.go_from_angle(90, vel or self.MEDIUM)
+        self.go_from_angle(90, vel)
 
     def go_left(self, vel=None):
-        self.go_from_angle(270, vel or self.MEDIUM)
+        self.go_from_angle(270, vel)
 
     def cleanup(self):
         self.stop()

@@ -6,7 +6,7 @@ import time
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
-from utils.actuators import IMotorController
+from utils.actuators import Speed
 from utils.logging import logger
 from tests.input import KeyboardListener
 from tests.ui import RobotContextHUD
@@ -14,7 +14,7 @@ from tests.ui import RobotContextHUD
 
 def run_process(context, motors, sandbox: bool = False, debug: bool = False, game=None, robots=None) -> None:
     current_act = "STOP"
-    last_dispatched_speed = IMotorController.MEDIUM
+    last_dispatched_speed = Speed.MEDIUM.value
 
     dispatch = {
         "FORWARD":      lambda v: motors.go_forward(v),

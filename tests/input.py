@@ -1,6 +1,6 @@
 from __future__ import annotations
 import threading
-from utils.actuators import IMotorController
+from utils.actuators import IMotorController, Speed
 import utils.input as inputs
 
 try:
@@ -19,11 +19,11 @@ class KeyboardListener:
     Author: PabloXantini
     """
     _SPEED_KEYS = {
-        '1': ("LOW",      IMotorController.LOW),
-        '2': ("MID_LOW",  IMotorController.MID_LOW),
-        '3': ("MEDIUM",   IMotorController.MEDIUM),
-        '4': ("MID_HIGH", IMotorController.MID_HIGH),
-        '5': ("HIGH",     IMotorController.HIGH),
+        '1': ("LOW",      Speed.LOW.value),
+        '2': ("MID_LOW",  Speed.MID_LOW.value),
+        '3': ("MEDIUM",   Speed.MEDIUM.value),
+        '4': ("MID_HIGH", Speed.MID_HIGH.value),
+        '5': ("HIGH",     Speed.HIGH.value),
     }
 
     _MOVE_KEYS = {
@@ -39,7 +39,7 @@ class KeyboardListener:
         self.sandbox = sandbox
         self.running = True
         self.speed_name = "MEDIUM"
-        self.speed_val = IMotorController.MEDIUM
+        self.speed_val = Speed.MEDIUM.value
         self.active_action = "STOP"
 
         self._held: set[str] = set()

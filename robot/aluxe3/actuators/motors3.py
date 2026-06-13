@@ -83,12 +83,10 @@ class MotorController3W(IMotorController):
     def go_from_angle(self, 
         angle: float, 
         vel: float = None,
-        v_def: float = IMotorController.HIGH, 
         calib: dict | None = None) -> None:
         """
         Move in an arbitrary direction using 3-wheel omnidirectional kinematics.
         """
-        if vel is None: vel = v_def
         v = self.norm_vel(vel)
         rad = math.radians(angle)
         vx = v * math.cos(rad) # x component
@@ -122,10 +120,10 @@ class MotorController3W(IMotorController):
         self._set_motor(self._motor_configs[1], -v*c[1])
 
     def go_right(self, vel: float = None) -> None:
-        self.go_from_angle(270, vel, v_def=self.MEDIUM, calib=self.calib['right'])
+        self.go_from_angle(270, vel, calib=self.calib['right'])
 
     def go_left(self, vel: float = None) -> None:
-        self.go_from_angle(90, vel, v_def=self.MEDIUM, calib=self.calib['left'])
+        self.go_from_angle(90, vel, calib=self.calib['left'])
 
     def spin_left(self, vel: float = None) -> None:
         v = self.norm_vel(vel)
