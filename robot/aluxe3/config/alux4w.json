@@ -1,47 +1,87 @@
 {
   "model": "alux4w",
-  "motor_config": "4W",
-  "motors": {
-    "M1": {
-      "in1": 17,
-      "in2": 27,
-      "en": 18,
-      "label": "right"
-    },
-    "M2": {
-      "in1": 22,
-      "in2": 23,
-      "en": 19,
-      "label": "top"
-    },
-    "M3": {
-      "in1": 5,
-      "in2": 6,
-      "en": 12,
-      "label": "left"
-    },
-    "M4": {
-      "in1": 16,
-      "in2": 20,
-      "en": 13,
-      "label": "bottom"
-    }
-  },
-  "ultrasonic": {
-    "back":  { 
-      "trig": 9, 
-      "echo": 11 
-    },
-    "left":  { 
-      "trig": 26, 
-      "echo": 21 
-    },
-    "right": { 
-      "trig": 8,  
-      "echo": 7  
-    }
-  },
-  "compass": {
-    "bus_id": 1
+  "components": {
+    "motors": [
+      {
+        "label": "OmniMotors",
+        "type": "Omni",
+        "calibration": {
+          "default": [1.0, 1.0, 1.0, 1.0]
+        },
+        "config": [
+          {
+            "label": "M1",
+            "properties": {
+              "in1": 17,
+              "in2": 27,
+              "en": 18,
+              "label": "right"
+            }
+          },
+          {
+            "label": "M2",
+            "properties": {
+              "in1": 22,
+              "in2": 23,
+              "en": 19,
+              "label": "top"
+            }
+          },
+          {
+            "label": "M3",
+            "properties": {
+              "in1": 5,
+              "in2": 6,
+              "en": 12,
+              "label": "left"
+            }
+          },
+          {
+            "label": "M4",
+            "properties": {
+              "in1": 16,
+              "in2": 20,
+              "en": 13,
+              "label": "bottom"
+            }
+          }
+        ]
+      }
+    ],
+    "ultrasonics": [
+      {
+        "label": "back",
+        "type": "default",
+        "properties": {
+          "trig": 9,
+          "echo": 11
+        }
+      },
+      {
+        "label": "left",
+        "type": "default",
+        "properties": {
+          "trig": 26,
+          "echo": 21
+        }
+      },
+      {
+        "label": "right",
+        "type": "default",
+        "properties": {
+          "trig": 8,
+          "echo": 7
+        }
+      }
+    ],
+    "compasses": [
+      {
+        "label": "compass",
+        "type": "default",
+        "properties": {
+          "bus_id": 1
+        }
+      }
+    ]
   }
 }

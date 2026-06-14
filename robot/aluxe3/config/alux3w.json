@@ -1,41 +1,78 @@
 {
   "model": "alux3w",
-  "motor_config": "3W",
-  "motors": {
-    "M1": {
-      "in1": 17, 
-      "in2": 27, 
-      "en": 18, 
-      "label": "front-left"  
-    },
-    "M4": {
-      "in1": 5,
-      "in2": 6,
-      "en": 12,
-      "label": "front-right"
-    },
-    "M3": {
-      "in1": 16,
-      "in2": 20,
-      "en": 13,
-      "label": "rear"
-    }
-  },
-  "ultrasonic": {
-    "back":  {
-       "trig": 26,  
-       "echo": 21
+  "components": {
+    "motors": [
+      {
+        "label": "OmniMotors",
+        "type": "Omni",
+        "calibration": {
+          "default": [1.0, 1.0, 1.0]
+        },
+        "config": [
+          {
+            "label": "M1",
+            "properties": {
+              "in1": 17,
+              "in2": 27,
+              "en": 18,
+              "label": "front-left"
+            }
+          },
+          {
+            "label": "M4",
+            "properties": {
+              "in1": 5,
+              "in2": 6,
+              "en": 12,
+              "label": "front-right"
+            }
+          },
+          {
+            "label": "M3",
+            "properties": {
+              "in1": 16,
+              "in2": 20,
+              "en": 13,
+              "label": "rear"
+            }
+          }
+        ]
+      }
+    ],
+    "ultrasonics": [
+      {
+        "label": "back",
+        "type": "default",
+        "properties": {
+          "trig": 26,
+          "echo": 21
+        }
       },
-    "left":  {
-       "trig": 11, 
-       "echo": 9
+      {
+        "label": "left",
+        "type": "default",
+        "properties": {
+          "trig": 11,
+          "echo": 9
+        }
       },
-    "right": { 
-      "trig": 22,  
-      "echo": 10  
-    }
-  },
-  "compass": {
-    "bus_id": 1
+      {
+        "label": "right",
+        "type": "default",
+        "properties": {
+          "trig": 22,
+          "echo": 10
+        }
+      }
+    ],
+    "compasses": [
+      {
+        "label": "compass",
+        "type": "default",
+        "properties": {
+          "bus_id": 1
+        }
+      }
+    ]
   }
 }

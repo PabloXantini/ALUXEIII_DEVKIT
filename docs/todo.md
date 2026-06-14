@@ -25,3 +25,49 @@
         #### Command: alux.py --test [--sandbox] [--debug]
 
     - Only missing show the camera when run test with --debug (real)
+
+# Model configuration file structure implementation
+    model: (name)
+    components: {
+        motors: [
+            { 
+                label: (any name) 
+                type: (Omni)
+                calibration: {
+                    action: tuple(float[config.len])
+                }
+                config: [
+                    {
+                        label: (any name)
+                        properties: { (validator custom per type)
+                            pin1
+                            pin2
+                        }
+                    }
+                ]
+            },
+            ...
+        ]
+        ultrasonics: [
+            {
+                label: (any name)
+                type: (default)
+                properties: { (validator custom per type)
+                    pin1
+                    pin2
+                }
+            },
+            ...
+        ]
+        compass: [
+            { 
+                label: (any name)
+                type: (default)
+                properties: { (validator custom per type)
+                    pin1
+                    pin2
+                }
+            },
+            ...
+        ]
+    }
