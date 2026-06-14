@@ -1,0 +1,67 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/alux.py",
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Run Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/alux.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--debug"
+            ]
+        },
+        {
+            "name": "Run Test(with Debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/alux.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--test",
+                "--debug"
+            ]
+        },
+        {
+            "name": "Run Test(with Sandbox)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/alux.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--test",
+                "--sandbox"
+            ]
+        },
+        {
+            "name": "Run Test(w/Sandbox & Debug)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/alux.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--test",
+                "--debug",
+                "--sandbox"
+            ]
+        },
+        {
+            "name": "Run Sandbox",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/alux.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--debug",
+                "--sandbox"
+            ]
+        }
+    ]
+}
