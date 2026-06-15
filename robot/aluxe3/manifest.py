@@ -21,7 +21,7 @@ Available models:
   - "alux3w"  →  3-wheel omnidirectional robot
   - "alux4w"  →  4-wheel omnidirectional robot
 """
-ROBOT_MODEL: str = "alux3w"
+ROBOT_MODEL:str = "alux3w"
 """
 The robot envoriment to execute for competition and tests.
 
@@ -29,4 +29,4 @@ Available environments:
   - "salon" →  tests environment
   - "cup"   →  cup environment
 """
-ENV_SETUP: str = "salon"
+ENV_SETUP:str = "salon"

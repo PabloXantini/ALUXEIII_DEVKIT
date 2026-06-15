@@ -1,4 +1,5 @@
 from sandbox.sim_actuators.motors import SimMotorController
+from utils.actuators import Speed
 
 class SimMotorController3W(SimMotorController):
     """Implementación falsa del controlador de 3 motores omnidireccionales para el simulador."""
@@ -6,10 +7,10 @@ class SimMotorController3W(SimMotorController):
     def __init__(self):
         super().__init__()
 
-    def go_right(self, vel=None):
+    def go_right(self, vel=Speed.DEFAULT.value):
         self.go_from_angle(90, vel)
 
-    def go_left(self, vel=None):
+    def go_left(self, vel=Speed.DEFAULT.value):
         self.go_from_angle(270, vel)
 
     def cleanup(self):

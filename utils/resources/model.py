@@ -20,7 +20,7 @@ class MotorNode(ConfigNode):
         self.properties = data.get("properties", {})
 
 class MotorConfigNode(ConfigNode):
-    __slots__ = ("label", "model", "raw_data", "type", "motors" "calibration")
+    __slots__ = ("label", "model", "raw_data", "type", "motors", "calibration")
     def __init__(self, label:str, model:str, data:dict) -> None:
         self.label = label
         self.model = model
@@ -29,13 +29,13 @@ class MotorConfigNode(ConfigNode):
         self.motors = self._build_motors(data.get("config", []))
         self.calibration = self._build_calibration(data.get("calibration", {}))
         
-    def _build_motors(self, data:list) -> dict[str, MotorNode]:
-        motors = {}
+    def _build_motors(self, data:list) -> list[MotorNode]:
+        motors = []
         if not data:
             logger.warn(f"Motors has not been specified ({self.model}:{self.label})")
             return motors
         for motor_data in data:
-            motors[motor_data["label"]] = MotorNode(motor_data["label"], self.model, motor_data)
+            motors.append(MotorNode(motor_data["label"], self.model, motor_data))
         return motors
 
     def _build_calibration(self, data:dict) -> dict[str, tuple[float, ...]]:
@@ -83,7 +83,8 @@ class ModelNode(ConfigNode):
         self._read_component(components, "compasses")
 
     def _read_component(self, data:dict, comp_type:str) -> None:
-        for comp in data.get(comp_type, []):
+        comp_data = data.get(comp_type, [])
+        for comp in comp_data:
             data = dict(comp)
             label = data.get("label", f"unknown_{comp_type}")
             if comp_type == "motors":

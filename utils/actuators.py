@@ -1,6 +1,15 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
+from utils.resources.config import ConfigError
+from utils.resources.model import (
+    ModelNode,
+    MotorConfigNode,
+    MotorNode,
+    UltrasonicNode,
+    CompassNode,
+    ModelVisitor
+)
 
 class Speed(Enum):
     HIGH = 95
@@ -9,48 +18,85 @@ class Speed(Enum):
     MID_LOW = 50
     LOW = 40
     STOP = 0
+    DEFAULT = 95
+
+class Serializer(ModelVisitor):
+    def __init__(self) -> None:
+        super().__init__()
+        self.motors:list[MotorConfigNode] = []
+        self.ultrasonics:list[UltrasonicNode] = []
+        self.compasses:list[CompassNode] = []
+
+    def _visit_model(self, node: ModelNode) -> None:
+        for comp in node.l_components:
+            comp.accept(self)
+
+    def _visit_motor_config(self, node: MotorConfigNode) -> None:
+        self.motors.append(node)
+
+    def _visit_motor(self, node: MotorNode) -> None:
+        pass
+
+    def _visit_ultrasonic(self, node: UltrasonicNode) -> None:
+        self.ultrasonics.append(node)
+
+    def _visit_compass(self, node: CompassNode) -> None:
+        self.compasses.append(node)
+
+class ActuatorFactory(ABC):
+    def __init__(self, model_node: ModelNode) -> None:
+        self.model_node = model_node
+        self.serializer = Serializer()
+        self.model_node.accept(self.serializer)
+    def advance(self, l:list) -> MotorConfigNode | None:
+        if len(l) > 0: return l.pop(0)
+        return None
+    @abstractmethod
+    def create_motor_controller(self)-> IMotorController:
+        pass
+    @abstractmethod
+    def create_ultrasonic_sensor(self)-> IUltrasonicSensor:
+        pass
+    @abstractmethod
+    def create_compass(self)-> ICompass:
+        pass
 
 class IMotorController(ABC):
     """Abstract interface for motor controllers."""
     def __init__(self) -> None:
         pass
 
-    def norm_vel(self, vel, minv=0.0, maxv=90.0):
-        if vel is None: vel = Speed.HIGH.value
-        norm = max(minv, min(maxv, float(vel))) / maxv
-        return minv + norm * (maxv - minv)
-
     @abstractmethod
     def stop(self) -> None:
         pass
 
     @abstractmethod
-    def go_from_angle(self, angle: float, vel: float = None, calib: dict | None = None) -> None:
+    def go_from_angle(self, angle: float, vel: float = Speed.DEFAULT.value, calib: str = "default") -> None:
         """Move in an arbitrary direction given a heading angle in degrees (0=forward, 90=right)."""
         pass
 
     @abstractmethod
-    def go_forward(self, vel: float = None) -> None:
+    def go_forward(self, vel: float = Speed.DEFAULT.value) -> None:
         pass
 
     @abstractmethod
-    def go_backward(self, vel: float = None) -> None:
+    def go_backward(self, vel: float = Speed.DEFAULT.value) -> None:
         pass
 
     @abstractmethod
-    def go_right(self, vel: float = None) -> None:
+    def go_right(self, vel: float = Speed.DEFAULT.value) -> None:
         pass
 
     @abstractmethod
-    def go_left(self, vel: float = None) -> None:
+    def go_left(self, vel: float = Speed.DEFAULT.value) -> None:
         pass
 
     @abstractmethod
-    def spin_right(self, vel: float = None) -> None:
+    def spin_right(self, vel: float = Speed.DEFAULT.value) -> None:
         pass
 
     @abstractmethod
-    def spin_left(self, vel: float = None) -> None:
+    def spin_left(self, vel: float = Speed.DEFAULT.value) -> None:
         pass
 
     @abstractmethod
@@ -76,3 +122,15 @@ class IUltrasonicSensor(ABC):
     @abstractmethod
     def cleanup(self) -> None:
         pass
+
+class IActuatorController(ABC):
+    """Abstract interface for actuator controllers."""
+    def __init__(self, model:ModelNode) -> None:
+        if model is None:
+            raise ConfigError("No model configuration found in the model config.")
+
+    @abstractmethod
+    def cleanup(self) -> None:
+        """Clean up resources for all child components."""
+        pass
+

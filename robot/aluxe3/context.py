@@ -5,6 +5,8 @@ import threading
 from utils.fsm import MContext
 from .actuators import ActuatorController
 from .cv import CVDetector, ColorSegmentator
+import utils.resources.model as robot_model
+from .manifest import *
 
 # CAMERA
 CAMERA_W = 640
@@ -61,6 +63,7 @@ class Aluxe3Context(MContext):
     """
     def __init__(self, debug: bool = False, name: str = 'robot', team_color: str = "blue"):
         super().__init__()
+        self.model = robot_model.load_model(MODEL_DIR, ROBOT_MODEL)
         self.debug = debug
         self.name = name
         self.team_color = team_color.lower()
@@ -147,7 +150,7 @@ class RobotContext(Aluxe3Context):
     """
     def __init__(self, debug: bool = False, name: str = 'robot', team_color: str = "blue"):
         super().__init__(debug=debug, name=name, team_color=team_color)
-        self.actuators = ActuatorController()
+        self.actuators = ActuatorController(self.model)
         
         self._last_frame = None
         self.cap = self._initialize_camera()
