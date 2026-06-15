@@ -1,10 +1,10 @@
 import threading
 import cv2
 import time
-import robot.aluxe3.context as ctx
+from robot.aluxe3.context import *
 from robot.aluxe3.actuators import HardwareActuatorController
 
-class RobotContext(ctx.Aluxe3Context):
+class RobotContext(Aluxe3Context):
     """
     Contexto específico para el hardware del robot.
     Inicia la cámara física y los hilos para sensores reales.
@@ -39,10 +39,10 @@ class RobotContext(ctx.Aluxe3Context):
             time.sleep(0.05)
 
     def _initialize_camera(self):
-        cap = cv2.VideoCapture(ctx.CAMERA_SOURCE, ctx.CAP_BACKEND)
+        cap = cv2.VideoCapture(CAMERA_SOURCE, CAP_BACKEND)
         cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-        r_w = int(ctx.CAMERA_W * ctx.SCALE_NORM)
-        r_h = int(ctx.CAMERA_H * ctx.SCALE_NORM)
+        r_w = int(CAMERA_W * SCALE_NORM)
+        r_h = int(CAMERA_H * SCALE_NORM)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, r_w)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, r_h)
         return cap
@@ -58,7 +58,7 @@ class RobotContext(ctx.Aluxe3Context):
         w = frame.shape[1]
         h = frame.shape[0]
         
-        if ctx.FLIP_FRAME:
+        if FLIP_FRAME:
             frame = cv2.flip(frame, -1)
  
         self.env.frame_width  = w
