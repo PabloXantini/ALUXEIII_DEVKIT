@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from utils.fsm import Rule
 from robot.aluxe3.context import (
-    RobotContext, 
     CENTER_TOLERANCE, 
     BALL_RADIUS_CLOSE_MIN
 )
+from robot.aluxe3.context.real import RobotContext
 
 class BallLost(Rule):
     """Pelota dejó de verse."""

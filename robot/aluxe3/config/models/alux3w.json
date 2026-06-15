@@ -6,7 +6,13 @@
         "label": "OmniMotors",
         "type": "Omni",
         "calibration": {
-          "default": [1.0, 1.0, 1.0]
+          "default": [1.0, 1.0, 1.0],
+          "fwd": [1.0, 1.0, 1.0],
+          "bwd": [1.0, 1.0, 1.0],
+          "left": [1.0, 1.0, 1.0],
+          "right": [1.0, 1.0, 1.0],
+          "turn_l": [1.0, 1.0, 1.0],
+          "turn_r": [1.0, 1.0, 1.0]
         },
         "config": [
           {
@@ -41,14 +47,6 @@
     ],
     "ultrasonics": [
       {
-        "label": "back",
-        "type": "default",
-        "properties": {
-          "trig": 26,
-          "echo": 21
-        }
-      },
-      {
         "label": "left",
         "type": "default",
         "properties": {
@@ -58,6 +56,14 @@
       },
       {
         "label": "right",
+        "type": "default",
+        "properties": {
+          "trig": 26,
+          "echo": 21
+        }
+      },
+      {
+        "label": "back",
         "type": "default",
         "properties": {
           "trig": 22,

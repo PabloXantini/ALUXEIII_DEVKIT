@@ -6,11 +6,11 @@ from utils.resources.config import ConfigError
 from utils.resources.model import ModelNode
 from utils.actuators import (
     ActuatorFactory,
-    IActuatorController,
     IMotorController,
     IUltrasonicSensor,
     ICompass
 )
+from robot.aluxe3.controllers import ActuatorController
 
 class HardwareActuatorFactory(ActuatorFactory):
     def __init__(self, model_node: ModelNode):
@@ -44,24 +44,12 @@ class HardwareActuatorFactory(ActuatorFactory):
         else:
             raise ConfigError(f"Unsupported compass type: {compass_node.type}")
 
-class ActuatorController(IActuatorController):
+class HardwareActuatorController(ActuatorController):
     """
     Facade actuator controller. Motor class and sensor pins are determined
     by the active robot config file loaded via utils.resources.model.
     """
-
     def __init__(self, model:ModelNode):
         super().__init__(model)
         factory = HardwareActuatorFactory(model)
-        self.motors = factory.create_motor_controller()
-        self.us_back = factory.create_ultrasonic_sensor()
-        self.us_left = factory.create_ultrasonic_sensor()
-        self.us_right = factory.create_ultrasonic_sensor()
-        self.psensor = factory.create_compass()
-
-    def cleanup(self):
-        """Clean up resources for all child components."""
-        self.motors.cleanup()
-        if self.us_back: self.us_back.cleanup()
-        if self.us_left: self.us_left.cleanup()
-        if self.us_right: self.us_right.cleanup()
+        self._init_components(factory)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
-from utils.resources.config import ConfigError
 from utils.resources.model import (
     ModelNode,
     MotorConfigNode,
@@ -122,15 +121,3 @@ class IUltrasonicSensor(ABC):
     @abstractmethod
     def cleanup(self) -> None:
         pass
-
-class IActuatorController(ABC):
-    """Abstract interface for actuator controllers."""
-    def __init__(self, model:ModelNode) -> None:
-        if model is None:
-            raise ConfigError("No model configuration found in the model config.")
-
-    @abstractmethod
-    def cleanup(self) -> None:
-        """Clean up resources for all child components."""
-        pass
-

@@ -1,4 +1,4 @@
-from sandbox.sim_actuators.motors import SimMotorController
+from utils.sim.motors import SimMotorController
 from utils.actuators import Speed
 
 class SimMotorController3W(SimMotorController):

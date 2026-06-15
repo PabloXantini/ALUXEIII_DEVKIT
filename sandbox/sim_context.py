@@ -1,7 +1,7 @@
 import cv2
 import robot.aluxe3.context as aluxe3
 from robot.aluxe3.context import Aluxe3Context
-from sandbox.sim_actuators import ActuatorController
+from robot.aluxe3.actuators import SimActuatorController
 from sandbox.virtual_camera import VirtualCamera
 from sandbox.sim_cache import SimState
 
@@ -13,7 +13,7 @@ class SimContext(Aluxe3Context):
     """
     def __init__(self, debug: bool = True, name: str = 'robot', team_color: str = "blue"):
         super().__init__(debug=debug, name=name ,team_color=team_color)
-        self.actuators = ActuatorController(self.model)
+        self.actuators = SimActuatorController(self.model)
         
         self.env.state_label = "Processing..."
         self.env.frame_width = int(aluxe3.CAMERA_W * aluxe3.SCALE_NORM)
