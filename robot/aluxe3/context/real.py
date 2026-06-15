@@ -18,25 +18,25 @@ class RobotContext(Aluxe3Context):
         
         # Start daemon threads for physical camera and sensors
         self.pool = Pool(processes=cpu_count()-1)
-        self.camera_thread = self.pool.apply_async(self._camera_process)
-        self.sensor_thread = self.pool.apply_async(self._sensor_process)
+        self.camera_thread = self.pool.apply_async(self._camera_process, args=(self.cap))
+        self.sensor_thread = self.pool.apply_async(self._sensor_process, args=(self.actuators))
         # self.camera_thread.start()
         # self.sensor_thread.start()
 
-    def _camera_process(self):
+    def _camera_process(self, cap):
         while self.running:
-            ret, frame = self.cap.read()
+            ret, frame = cap.read()
             if ret:
                 self._last_frame = frame
             else:
                 time.sleep(0.01)
 
-    def _sensor_process(self):
+    def _sensor_process(self, actuators):
         while self.running:
-            self.env.us_back_dist = self.actuators.us_back.get_distance()
-            self.env.us_left_dist = self.actuators.us_left.get_distance()
-            self.env.us_right_dist = self.actuators.us_right.get_distance()
-            self.env.heading       = self.actuators.psensor.get_heading()
+            self.env.us_back_dist = actuators.us_back.get_distance()
+            self.env.us_left_dist = actuators.us_left.get_distance()
+            self.env.us_right_dist = actuators.us_right.get_distance()
+            self.env.heading = actuators.psensor.get_heading()
             time.sleep(0.05)
 
     def _initialize_camera(self):
