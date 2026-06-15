@@ -23,10 +23,10 @@ Available models:
 """
 ROBOT_MODEL:str = "alux3w"
 """
-The robot envoriment to execute for competition and tests.
+The robot workspace envoriment to execute for competition and tests.
 
 Available environments:
   - "salon" →  tests environment
   - "cup"   →  cup environment
 """
-ENV_SETUP:str = "salon"
+WORKSPACE_ENV:str = "salon"
