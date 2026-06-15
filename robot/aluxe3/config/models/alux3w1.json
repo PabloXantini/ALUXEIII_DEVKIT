@@ -1,0 +1,84 @@
+{
+  "model": "alux3w1",
+  "components": {
+    "motors": [
+      {
+        "label": "OmniMotors",
+        "type": "Omni",
+        "calibration": {
+          "default": [1.0, 1.0, 1.0],
+          "fwd": [1.0, 1.0, 1.0],
+          "bwd": [1.0, 1.0, 1.0],
+          "left": [1.0, 1.0, 1.0],
+          "right": [1.0, 1.0, 1.0],
+          "turn_l": [1.0, 1.0, 1.0],
+          "turn_r": [1.0, 1.0, 1.0]
+        },
+        "config": [
+          {
+            "label": "M1",
+            "properties": {
+              "in1": 17,
+              "in2": 27,
+              "en": 18,
+              "label": "front-left"
+            }
+          },
+          {
+            "label": "M4",
+            "properties": {
+              "in1": 5,
+              "in2": 6,
+              "en": 12,
+              "label": "front-right"
+            }
+          },
+          {
+            "label": "M3",
+            "properties": {
+              "in1": 16,
+              "in2": 20,
+              "en": 13,
+              "label": "rear"
+            }
+          }
+        ]
+      }
+    ],
+    "ultrasonics": [
+      {
+        "label": "left",
+        "type": "default",
+        "properties": {
+          "trig": 11,
+          "echo": 9
+        }
+      },
+      {
+        "label": "right",
+        "type": "default",
+        "properties": {
+          "trig": 26,
+          "echo": 21
+        }
+      },
+      {
+        "label": "back",
+        "type": "default",
+        "properties": {
+          "trig": 22,
+          "echo": 10
+        }
+      }
+    ],
+    "compasses": [
+      {
+        "label": "compass",
+        "type": "default",
+        "properties": {
+          "bus_id": 1
+        }
+      }
+    ]
+  }
+}
