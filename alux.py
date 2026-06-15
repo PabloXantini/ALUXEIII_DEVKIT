@@ -17,7 +17,6 @@ class AluxeApp:
     def __init__(self, args) -> None:
         self.args = args
         self.input = inputs.init(sandbox=args.sandbox, debug=args.debug)
-        self.machine, self.ctx = None, None
 
     def run(self) -> None:        
         if self.args.test:
