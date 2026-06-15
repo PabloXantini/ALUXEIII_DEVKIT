@@ -58,8 +58,10 @@ class MotorH:
         GPIO.output(in2, GPIO.HIGH)
         pwm.ChangeDutyCycle(vel)
 
-    def norm_vel(self, vel=Speed.DEFAULT.value, minv=0.0, maxv=90.0):
-        norm = max(minv, min(maxv, float(vel))) / maxv
+    def norm_vel(self, vel=Speed.DEFAULT.value, maxv=90.0):
+        minv = -maxv
+        clipped = max(minv, min(maxv, vel))
+        norm = (maxv + clipped) / (2 * maxv)
         return minv + norm * (maxv - minv)
 
     def stop(self):
