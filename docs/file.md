@@ -64,6 +64,26 @@ In this section will be documented the file reading implementation, with the pro
         ]
     }
 
+For masks we need to specify a file for each one
+#### Mask file structure implementation
+    mask: (any name)
+    properties: {
+        lower_bound: tuple(float[3])
+        upper_bound: tuple(float[3])
+        filters: [
+            {
+                type: (filter_type), 
+                size: int
+                iterations: int
+            },
+            ...
+        ]
+    }
+
+Is needed to create a mask recorder that save the filter applied on the image.
+Also, it will be stored with a simple filter example (closening, size)
+Iterations will be 1 by default.
+
 ### Sim Scene configuration file structure implementation
     scene: (any name)
     properties: {
