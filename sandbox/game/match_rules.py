@@ -218,11 +218,10 @@ class MatchRules:
                     self._face_ball(r, ball, random.uniform(-math.pi/6, math.pi/6))
 
     def count_goals(self, team):
-        match team:
-            case "blue":
-                diff = self.score["blue"] - self.score["yellow"]
-            case "yellow":
-                diff = self.score["yellow"] - self.score["blue"]
+        if team == "blue":
+            diff = self.score["blue"] - self.score["yellow"]
+        elif team == "yellow":
+            diff = self.score["yellow"] - self.score["blue"]
         if diff >= self.MAX_GOAL_DIFF:
             return 
         self.score[team] += 1
