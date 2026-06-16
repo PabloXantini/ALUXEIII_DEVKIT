@@ -2,11 +2,12 @@ from __future__ import annotations
 from pathlib import Path
 from utils.resources.mask import MaskNode
 from utils.resources.config import (
-    Result,
     ConfigNode,
     ConfigVisitor,
+)
+from utils.resources.errors import (
+    ConfigFileNotFound,
     ConfigFileInvalid,
-    ConfigFileNotFound
 )
 from utils.logging import logger
 import utils.resources.mask as mask

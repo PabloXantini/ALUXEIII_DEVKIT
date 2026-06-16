@@ -3,8 +3,10 @@ from pathlib import Path
 from utils.resources.config import (
     ConfigNode,
     ConfigVisitor,
+)
+from utils.resources.errors import (
+    ConfigFileNotFound,
     ConfigFileInvalid,
-    ConfigFileNotFound
 )
 from utils.logging import logger
 import json

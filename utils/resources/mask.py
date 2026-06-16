@@ -4,6 +4,8 @@ from utils.resources import workspace
 from utils.resources.config import (
     ConfigVisitor,
     ConfigNode,
+)
+from utils.resources.errors import (
     ConfigFileNotFound,
     ConfigFileInvalid,
 )
