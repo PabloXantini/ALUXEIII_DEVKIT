@@ -1,6 +1,14 @@
 {
   "model": "alux3w2",
   "components": {
+    "cameras": [
+      {
+        "label": "main",
+        "properties": {
+          "src": 0
+        }
+      }
+    ],
     "motors": [
       {
         "label": "OmniMotors",
