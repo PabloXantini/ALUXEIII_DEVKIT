@@ -15,9 +15,10 @@ import json
 
 class WorkspaceNode(ConfigNode):
     __slots__ = ("dir", "name", "properties")
-    def __init__(self, dir:str, name:str, cfg:dict):
+    def __init__(self, dir:str, cfg:dict):
         self.dir = dir
-        self.name = name
+        res = self.check_attribute(cfg, "workspace", str)
+        self.name = res.value if res.issuccess else "unknown"
         res = self.check_attribute(cfg, "properties", dict)
         properties = res.value if res.issuccess else {}
         self._build_properties(properties)

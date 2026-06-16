@@ -13,11 +13,10 @@ from utils.logging import logger
 import json
 
 class MaskNode(ConfigNode):
-    __slots__ = ("label", "workspace", "lower_bound", "upper_bound")
-    def __init__(self, workspace:str, data:dict):
+    __slots__ = ("label", "lower_bound", "upper_bound")
+    def __init__(self, data:dict):
         res = self.check_attribute(data, "mask", str)
         self.label = res.value if res.issuccess else f"unknown_mask"
-        self.workspace = workspace
         res = self.check_attribute(data, "lower_bound", tuple)
         self.lower_bound = res.value if res.issuccess else (0, 0, 0)
         res = self.check_attribute(data, "upper_bound", tuple)
@@ -61,6 +60,6 @@ def load_mask(dir:Path, file:str, workspace:str = "none") -> MaskNode:
                 f"[{file}] Failed to parse JSON config file at '{file_path}'.\n"
                 f"Error: {exc}"
             ) from exc
-    mask_node = MaskNode(workspace, cfg)
+    mask_node = MaskNode(cfg)
     return mask_node
     

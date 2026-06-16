@@ -17,7 +17,7 @@ class ConfigNode:
     __slots__ = ()
     def accept(self, visitor: ConfigVisitor):
         visitor.visit(self)
-    def check_attribute(self, data:dict, attribute:str, type:type) -> Result[bool, ConfigError]:
+    def check_attribute(self, data:dict, attribute:str, type:type) -> Result[any, ConfigError]:
         if attribute not in data:
             msg = f"Missing '{attribute}' attribute"
             res = Result.fail(ConfigMissingAttribute(msg))
