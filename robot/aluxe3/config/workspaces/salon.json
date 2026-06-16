@@ -1,0 +1,13 @@
+{
+    "workspace": "salon",
+    "properties": {
+        "mask_dir": "salon",
+        "masks": [
+            "ball",
+            "blue",
+            "yellow",
+            "white",
+            "black"
+        ]
+    }
+}

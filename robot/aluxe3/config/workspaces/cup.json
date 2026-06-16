@@ -1,0 +1,13 @@
+{
+    "workspace": "cup",
+    "properties": {
+        "mask_dir": "cup",
+        "masks": [
+            "ball",
+            "blue",
+            "yellow",
+            "white",
+            "black"
+        ]
+    }
+}

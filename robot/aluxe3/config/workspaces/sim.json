@@ -1,0 +1,13 @@
+{
+    "workspace": "sim",
+    "properties": {
+        "mask_dir": "sim",
+        "masks": [
+            "ball",
+            "blue",
+            "yellow",
+            "white",
+            "black"
+        ]
+    }
+}
