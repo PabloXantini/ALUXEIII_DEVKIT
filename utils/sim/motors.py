@@ -1,7 +1,7 @@
 import math
-from utils.components import IMotorController, Speed
+from utils.components import OmniWheelMotorController, Speed
 
-class SimMotorController(IMotorController):
+class SimMotorController(OmniWheelMotorController):
     # Escala para convertir las constantes de motor (ej: 80) a velocidad de simulador (ej: 4.0)
     SIM_SCALE = 0.05
 

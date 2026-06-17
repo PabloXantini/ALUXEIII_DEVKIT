@@ -3,9 +3,9 @@ from __future__ import annotations
 import math
 from utils.resources.model import MotorNode
 from utils.components import Speed
-from .motorh import MotorH, MotorHController
+from .motorh import MotorH, OmniMotorHController
 
-class MotorController4W(MotorHController):
+class OmniMotorHController4W(OmniMotorHController):
     """Gestiona los cuatro motores omnidireccionales del robot vía GPIO/PWM."""
 
     def __init__(self, config:list[MotorNode] | None = None, calib:dict | None = None) -> None:

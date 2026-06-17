@@ -3,9 +3,9 @@ from __future__ import annotations
 import math
 from utils.resources.model import MotorNode
 from utils.components import Speed
-from .motorh import MotorH, MotorHController
+from .motorh import MotorH, OmniMotorHController
 
-class MotorController3W(MotorHController):
+class OmniMotorHController3W(OmniMotorHController):
     """Gestiona los tres motores omnidireccionales del robot vía GPIO/PWM."""
     MOTOR_COUNT = 3
     CALIBRATION_DEFAULT = (1.0, 1.0, 1.0)

@@ -10,6 +10,7 @@ from utils.resources.model import (
     CompassNode,
     ModelVisitor
 )
+from utils.pid import PIDController
 
 class Speed(Enum):
     HIGH = 95
@@ -70,11 +71,30 @@ class ICamera(ABC):
         self.width = width,
         self.height = height
     
-
-class IMotorController(ABC):
-    """Abstract interface for motor controllers."""
+class IMotor(ABC):
     def __init__(self) -> None:
         pass
+    
+    def norm_vel(self, vel=Speed.DEFAULT.value, maxv=90.0):
+        minv = -maxv
+        clipped = max(minv, min(maxv, vel))
+        norm = (maxv + clipped) / (2 * maxv)
+        return minv + norm * (maxv - minv)
+
+    @abstractmethod
+    def run(self, vel: float) -> None:
+        pass
+
+class IMotorController:
+    def __init__(self):
+        pass
+    def attach_PID(self, pid:PIDController) -> None:
+        pass
+
+class OmniWheelMotorController(IMotorController):
+    """Interface for omni-wheel motor controllers."""
+    def __init__(self) -> None:
+        super().__init__()
 
     @abstractmethod
     def stop(self) -> None:

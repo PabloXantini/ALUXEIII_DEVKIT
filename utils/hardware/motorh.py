@@ -7,7 +7,7 @@ except ImportError:
     GPIO = MockGPIO()
     
 from utils.resources.model import MotorNode
-from utils.components import IMotorController, Speed
+from utils.components import OmniWheelMotorController, Speed, IMotor
 from utils.resources.config import (
     ConfigVisitor,
     ConfigError,
@@ -27,7 +27,7 @@ class MotorHValidator(ConfigVisitor):
                 f"[Model ({node.model}): {node.label}] Missing required attributes in motor config"
             )
 
-class MotorH:
+class MotorH(IMotor):
     """
     Class that resumes the bridge H motor driven control
     """
@@ -58,12 +58,6 @@ class MotorH:
         GPIO.output(in2, GPIO.HIGH)
         pwm.ChangeDutyCycle(vel)
 
-    def norm_vel(self, vel=Speed.DEFAULT.value, maxv=90.0):
-        minv = -maxv
-        clipped = max(minv, min(maxv, vel))
-        norm = (maxv + clipped) / (2 * maxv)
-        return minv + norm * (maxv - minv)
-
     def stop(self):
         """Stop the motor."""
         GPIO.output(self.in1, GPIO.LOW)
@@ -83,7 +77,7 @@ class MotorH:
         self.stop()
         self.pwm.stop()
 
-class MotorHController(IMotorController):
+class OmniMotorHController(OmniWheelMotorController):
     def __init__(self, config:list[MotorNode], calib:dict = {}) -> None:
         super().__init__()
         if config is None:

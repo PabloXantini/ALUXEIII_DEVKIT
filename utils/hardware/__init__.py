@@ -6,7 +6,7 @@ from utils.resources.config import ConfigError
 from utils.resources.model import Model
 from utils.components import (
     ComponentFactory,
-    IMotorController,
+    OmniWheelMotorController,
     IUltrasonicSensor,
     ICompass
 )
@@ -19,15 +19,15 @@ class HardwareActuatorFactory(ComponentFactory):
         self.motor_pointer = 0
         self.ultrasonic_pointer = 0
         self.compass_pointer = 0
-    def create_motor_controller(self)-> IMotorController:
+    def create_motor_controller(self)-> OmniWheelMotorController:
         motor_config_node = self.advance(self.serializer.motors)
         if motor_config_node.type == "Omni":
             if len(motor_config_node.motors) == 3:
-                from .motors3 import MotorController3W
-                return MotorController3W(motor_config_node.motors, motor_config_node.calibration)
+                from .motors3 import OmniMotorHController3W
+                return OmniMotorHController3W(motor_config_node.motors, motor_config_node.calibration)
             elif len(motor_config_node.motors) == 4:
-                from .motors4 import MotorController4W
-                return MotorController4W(motor_config_node.motors, motor_config_node.calibration)
+                from .motors4 import OmniMotorHController4W
+                return OmniMotorHController4W(motor_config_node.motors, motor_config_node.calibration)
         else:
             raise ConfigError(f"Unsupported motor type: {motor_config_node.type}")
         
