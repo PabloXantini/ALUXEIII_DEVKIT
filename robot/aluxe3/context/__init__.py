@@ -21,30 +21,6 @@ FLIP_FRAME     = True
 CENTER_TOLERANCE = 40   # píxeles de tolerancia lateral
 BALL_RADIUS_CLOSE_MIN = 18   # radio mínimo para considerar la pelota "cerca"
 
-# BALL
-#> ORANGE MASK
-# LOWER_BALL = np.array([0, 20, 0], dtype=np.uint8)
-# UPPER_BALL = np.array([27, 255, 255], dtype=np.uint8)
-LOWER_BALL = np.array([0, 81, 82], dtype=np.uint8)
-UPPER_BALL = np.array([20, 255, 255], dtype=np.uint8)
-#> BALL PROXIMITY
-BALL_AREA_MIN   = 50
-BALL_AREA_MINT  = 1
-
-# GOALS
-#> GOAL PROXIMITY
-GOAL_AREA_MIN = 80
-#> BLUE MASK
-# LOWER_GOAL1 = np.array([77, 123, 50], dtype=np.uint8)
-# UPPER_GOAL1 = np.array([120, 255, 200], dtype=np.uint8)
-LOWER_GOAL1 = np.array([0, 97, 195], dtype=np.uint8)
-UPPER_GOAL1 = np.array([179, 255, 255], dtype=np.uint8)
-#> YELLOW MASK
-# LOWER_GOAL2 = np.array([28, 171, 139], dtype=np.uint8)
-# UPPER_GOAL2 = np.array([41, 255, 255], dtype=np.uint8)
-LOWER_GOAL2 = np.array([84, 75, 134], dtype=np.uint8)
-UPPER_GOAL2 = np.array([122, 249, 220], dtype=np.uint8)
-
 # CAMERA SOURCE
 CAMERA_SOURCE  = 0
 CAP_BACKEND    = cv2.CAP_V4L2
