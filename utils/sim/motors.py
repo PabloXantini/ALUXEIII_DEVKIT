@@ -1,5 +1,5 @@
 import math
-from utils.actuators import IMotorController, Speed
+from utils.components import IMotorController, Speed
 
 class SimMotorController(IMotorController):
     # Escala para convertir las constantes de motor (ej: 80) a velocidad de simulador (ej: 4.0)

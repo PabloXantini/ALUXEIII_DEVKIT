@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from utils.resources.model import ModelNode
+from utils.resources.model import Model
 from utils.hardware import HardwareActuatorFactory
 from utils.sim import SimActuatorFactory
 from robot.aluxe3.controllers import ActuatorController

@@ -7,7 +7,7 @@ except ImportError:
     from utils.mock import MockGPIO
     GPIO = MockGPIO()
 
-from utils.actuators import IUltrasonicSensor
+from utils.components import IUltrasonicSensor
 import utils.gpio as gpio
 
 class UltrasonicSensor(IUltrasonicSensor):

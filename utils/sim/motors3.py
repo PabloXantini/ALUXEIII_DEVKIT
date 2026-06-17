@@ -1,5 +1,5 @@
 from utils.sim.motors import SimMotorController
-from utils.actuators import Speed
+from utils.components import Speed
 
 class SimMotorController3W(SimMotorController):
     """Implementación falsa del controlador de 3 motores omnidireccionales para el simulador."""

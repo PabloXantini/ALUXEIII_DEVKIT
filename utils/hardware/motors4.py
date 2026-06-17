@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 from utils.resources.model import MotorNode
-from utils.actuators import Speed
+from utils.components import Speed
 from .motorh import MotorH, MotorHController
 
 class MotorController4W(MotorHController):

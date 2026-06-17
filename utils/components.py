@@ -2,7 +2,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
 from utils.resources.model import (
-    ModelNode,
+    Model,
+    CameraNode,
     MotorConfigNode,
     MotorNode,
     UltrasonicNode,
@@ -22,13 +23,17 @@ class Speed(Enum):
 class Serializer(ModelVisitor):
     def __init__(self) -> None:
         super().__init__()
+        self.cameras:list[CameraNode] = []
         self.motors:list[MotorConfigNode] = []
         self.ultrasonics:list[UltrasonicNode] = []
         self.compasses:list[CompassNode] = []
 
-    def _visit_model(self, node: ModelNode) -> None:
+    def _visit_model(self, node:Model) -> None:
         for comp in node.l_components:
             comp.accept(self)
+
+    def _visit_camera(self, node:CameraNode) -> None:
+        self.cameras.append(node)
 
     def _visit_motor_config(self, node: MotorConfigNode) -> None:
         self.motors.append(node)
@@ -42,8 +47,8 @@ class Serializer(ModelVisitor):
     def _visit_compass(self, node: CompassNode) -> None:
         self.compasses.append(node)
 
-class ActuatorFactory(ABC):
-    def __init__(self, model_node: ModelNode) -> None:
+class ComponentFactory(ABC):
+    def __init__(self, model_node: Model) -> None:
         self.model_node = model_node
         self.serializer = Serializer()
         self.model_node.accept(self.serializer)
@@ -59,6 +64,12 @@ class ActuatorFactory(ABC):
     @abstractmethod
     def create_compass(self)-> ICompass:
         pass
+
+class ICamera(ABC):
+    def __init__(self, width:int, height:int):
+        self.width = width,
+        self.height = height
+    
 
 class IMotorController(ABC):
     """Abstract interface for motor controllers."""

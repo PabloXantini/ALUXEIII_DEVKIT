@@ -7,7 +7,7 @@ except ImportError:
     GPIO = MockGPIO()
     
 from utils.resources.model import MotorNode
-from utils.actuators import IMotorController, Speed
+from utils.components import IMotorController, Speed
 from utils.resources.config import (
     ConfigVisitor,
     ConfigError,
