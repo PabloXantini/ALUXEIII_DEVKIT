@@ -9,8 +9,8 @@ class RobotContext(Aluxe3Context):
     Contexto específico para el hardware del robot.
     Inicia la cámara física y los hilos para sensores reales.
     """
-    def __init__(self, debug: bool = False, name: str = 'robot', team_color: str = "blue"):
-        super().__init__(debug=debug, name=name, team_color=team_color)
+    def __init__(self, model:Model, workspace:Workspace, debug:bool = False, name:str = 'robot', team:str = "blue"):
+        super().__init__(model=model, workspace=workspace, debug=debug, name=name, team=team)
         self.actuators = HardwareActuatorController(self.model)
         
         self._last_frame = None

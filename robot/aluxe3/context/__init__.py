@@ -1,9 +1,14 @@
+from utils.resources.workspace import Workspace
 import cv2
 import time
 import numpy as np
 from utils.fsm import MContext
-import utils.resources.model as robot_model
-from ..cv import ColorSegmentator, CVDetector
+from utils.resources.model import Model
+from ..cv import (
+    ColorSegmentator,
+    ThresholdSegmentator,
+    CVDetector,
+)
 from ..manifest import *
 
 # CAMERA
@@ -65,40 +70,43 @@ class Aluxe3Context(MContext):
     Base context class. Handles FSM memory, Generic vision pipeline processing, 
     and debug rendering.
     """
-    def __init__(self, debug: bool = False, name: str = 'robot', team_color: str = "blue"):
+    def __init__(self, model:Model, workspace:Workspace, debug: bool = False, name: str = 'robot', team: str = "blue"):
         super().__init__()
-        self.model = robot_model.load_model(MODEL_DIR, ROBOT_MODEL)
+        self.model = model
+        self.workspace = workspace
         self.debug = debug
         self.name = name
-        self.team_color = team_color.lower()
-        self.team_color_rgb = (255, 0, 0) if self.team_color == "blue" else (0, 255, 255)
- 
-        # Diccionario central de percepción
+        self.team = team.lower()
+        self.running = True
+        self.actuators = None
+        self.env = Environment()
         self.info = {
             'ball': {'detected': False, 'offset_x': None, 'radius': 0},
             'ally_goal': {'detected': False, 'offset_x': None, 'radius': 0},
             'enemy_goal': {'detected': False, 'offset_x': None, 'radius': 0}
         }
+        color = (255, 255, 255)
 
-        self.env = Environment()
-        self.actuators = None
-        self.running = True
+        if self.team == "blue":
+            color = (255, 0, 0)
+            ally_seg_mask = self.workspace.masks["blue"]
+            enemy_seg_mask = self.workspace.masks["yellow"]
+        elif self.team == "yellow":
+            color = (0, 255, 255)
+            ally_seg_mask = self.workspace.masks["yellow"]
+            enemy_seg_mask = self.workspace.masks["blue"]
+        self.color = color
         
-        # Configurar colores según equipo
-        if self.team_color == "blue":
-            ally_l, ally_u = LOWER_GOAL1, UPPER_GOAL1
-            enemy_l, enemy_u = LOWER_GOAL2, UPPER_GOAL2
-        else:
-            ally_l, ally_u = LOWER_GOAL2, UPPER_GOAL2
-            enemy_l, enemy_u = LOWER_GOAL1, UPPER_GOAL1
- 
         # Inicializar Segmentadores
-        ball_seg = ColorSegmentator(LOWER_BALL, UPPER_BALL, BALL_AREA_MINT)
-        ally_seg = ColorSegmentator(ally_l, ally_u, GOAL_AREA_MIN)
-        enemy_seg = ColorSegmentator(enemy_l, enemy_u, GOAL_AREA_MIN)
+        ball_seg = ThresholdSegmentator(self.workspace.masks["ball"], 1)
+        ally_seg = ThresholdSegmentator(ally_seg_mask, 80)
+        enemy_seg = ThresholdSegmentator(enemy_seg_mask, 80)
  
         # Orquestador
-        self.vision = CVDetector(ball_seg, ally_seg, enemy_seg, center_tolerance=CENTER_TOLERANCE)
+        self.vision = CVDetector(center_tolerance=CENTER_TOLERANCE)
+        self.vision.add_segmentator(ball_seg, "ball")
+        self.vision.add_segmentator(ally_seg, "ally_goal")
+        self.vision.add_segmentator(enemy_seg, "enemy_goal")
 
     @property
     def state_label(self):
@@ -124,7 +132,7 @@ class Aluxe3Context(MContext):
                         (10, 40),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
             cv2.putText(frame, f"{self.name} ({window_name})", (10, 20),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.team_color_rgb, 2)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.color, 2)
             cv2.putText(frame, f"US (L/B/R): {self.env.us_left_dist:.1f} | {self.env.us_back_dist:.1f} | {self.env.us_right_dist:.1f}",
                         (10, 60),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)

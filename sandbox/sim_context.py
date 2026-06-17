@@ -1,5 +1,5 @@
 import cv2
-import robot.aluxe3.context as aluxe3
+from robot.aluxe3.context import *
 from robot.aluxe3.context import Aluxe3Context
 from robot.aluxe3.actuators import SimActuatorController
 from sandbox.virtual_camera import VirtualCamera
@@ -11,13 +11,13 @@ class SimContext(Aluxe3Context):
     Actúa únicamente como puente (MVC) entre el Robot físico simulado en 'game.py' y 
     los estados mentales del FSM (fsm.py).
     """
-    def __init__(self, debug: bool = True, name: str = 'robot', team_color: str = "blue"):
-        super().__init__(debug=debug, name=name ,team_color=team_color)
+    def __init__(self, model:Model, workspace:Workspace, debug:bool = True, name:str = 'robot', team:str = "blue"):
+        super().__init__(model=model, workspace=workspace, debug=debug, name=name ,team=team)
         self.actuators = SimActuatorController(self.model)
         
         self.env.state_label = "Processing..."
-        self.env.frame_width = int(aluxe3.CAMERA_W * aluxe3.SCALE_NORM)
-        self.env.frame_height = int(aluxe3.CAMERA_H * aluxe3.SCALE_NORM)
+        self.env.frame_width = int(CAMERA_W * SCALE_NORM)
+        self.env.frame_height = int(CAMERA_H * SCALE_NORM)
         
         # Enlace a la entidad cinemática
         self.robot = None

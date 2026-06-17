@@ -1,5 +1,5 @@
 """
-alux.py – Robot de fútbol con FSM
+alux.py - Robot de fútbol con FSM
 ==================================
 Para añadir un nuevo comportamiento:
   1. Crea un State en utils/r_states.py

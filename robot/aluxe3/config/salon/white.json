@@ -1,0 +1,5 @@
+{
+    "mask": "white",
+    "lower_bound": [0, 0, 230],
+    "upper_bound": [179, 255, 255]
+}

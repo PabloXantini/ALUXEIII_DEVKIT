@@ -1,13 +1,13 @@
-from utils.actuators import ActuatorFactory
+from utils.components import ComponentFactory
 from utils.resources.config import ConfigError
-from utils.resources.model import ModelNode
+from utils.resources.model import Model
 
 class ActuatorController:
     """Abstract interface for actuator controllers."""
-    def __init__(self, model:ModelNode) -> None:
+    def __init__(self, model:Model) -> None:
         if model is None:
             raise ConfigError("No model configuration found in the model config.")
-    def _init_components(self, factory:ActuatorFactory) -> None:
+    def _init_components(self, factory:ComponentFactory) -> None:
         self.motors = factory.create_motor_controller()
         self.us_left = factory.create_ultrasonic_sensor()
         self.us_right = factory.create_ultrasonic_sensor()

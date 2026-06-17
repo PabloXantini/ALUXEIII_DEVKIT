@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from utils.logging import logger
 from utils.fsm import State
-from utils.actuators import Speed
+from utils.components import Speed
 from utils.input import Key
 from robot.aluxe3.context.real import RobotContext
 import random

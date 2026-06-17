@@ -51,11 +51,25 @@ class MotorConfigNode(ConfigNode):
     def _build_calibration(self, data:dict) -> dict[str, tuple[float, ...]]:
         calibration = {}
         for label, content in data.items():
-            if len(self.motors) != len(content):
+            f = tuple(content)
+            if len(self.motors) != len(f):
                 logger.warn(f"[Motor ({self.model}:{self.label})] Calibration data size mismatch")
                 continue
-            calibration[label] = tuple(content)
+            f = self._validate_calibration(f)
+            if f is None:
+                continue
+            calibration[label] = f
         return calibration
+    def _validate_calibration(self, value:tuple) -> tuple[float, ...] | None:
+        f = []
+        for v in value:
+            if not isinstance(v, float):
+                logger.warn(f"[Motor ({self.model}:{self.label})] Calibration data type mismatch")
+                return None
+            f.append(v)
+        return tuple(f)
+        
+    
             
 class UltrasonicNode(PropertiesConfigNode):
     __slots__ = ("label", "model", "type", "properties")
@@ -71,7 +85,7 @@ class CompassNode(PropertiesConfigNode):
         res = self.check_attribute(data, "type", str)
         self.type = res.value if res.issuccess else "default"
 
-class ModelNode(ConfigNode):
+class Model(ConfigNode):
     __slots__ = ("name", "l_components")
     def __init__(self, cfg:dict):
         res = self.check_attribute(cfg, "model", str)
@@ -108,13 +122,14 @@ class ModelVisitor(ConfigVisitor):
     def __init__(self) -> None:
         super().__init__()
         self.dispatch_table = {
-            ModelNode: self._visit_model,
+            Model: self._visit_model,
+            CameraNode: self._visit_camera,
             MotorConfigNode: self._visit_motor_config,
             MotorNode: self._visit_motor,
             UltrasonicNode: self._visit_ultrasonic,
             CompassNode: self._visit_compass
         }
-    def _visit_model(self, node:ModelNode) -> None:
+    def _visit_model(self, node:Model) -> None:
         for component in node.l_components:
             component.accept(self)
     def _visit_camera(self, node:CameraNode) -> None:
@@ -128,7 +143,7 @@ class ModelVisitor(ConfigVisitor):
     def _visit_compass(self, node: CompassNode) -> None:
         pass
 
-def load_model(dir:Path, model:str) -> ModelNode:
+def load_model(dir:Path, model:str) -> Model:
     """
     Load and validate the hardware config for the given robot model name.
     Args:
@@ -147,7 +162,7 @@ def load_model(dir:Path, model:str) -> ModelNode:
             f"[{model}] Config file not found: '{file_path}'.\n"
             f"Available models: {available or ['(none)']}"
         )
-    logger.msg(f"Reading model {model} config from {file_path}")
+    logger.msg(f"Reading model '{model}' from {file_path}")
     with open(file_path, "r", encoding="utf-8") as f:
         try:
             cfg = json.load(f)
@@ -156,5 +171,5 @@ def load_model(dir:Path, model:str) -> ModelNode:
                 f"[{model}] Failed to parse JSON config file at '{file_path}'.\n"
                 f"Error: {exc}"
             ) from exc
-    model_node = ModelNode(cfg)
+    model_node = Model(cfg)
     return model_node

@@ -1,5 +1,7 @@
 from __future__ import annotations
 from utils.fsm import HState, Machine, MachineBuilder
+from utils.resources.model import Model
+from utils.resources.workspace import Workspace
 from robot.aluxe3.v1.states import (
     ManualControl,
     Wait,
@@ -29,13 +31,22 @@ from robot.aluxe3.v1.rules import (
 )
 
 class Aluxe3v1aBuilder(MachineBuilder):
-    def build_machine(self, debug: bool = False, sandbox: bool = False, name: str = "aluxe", team_color: str = "blue") -> tuple[Machine, object]:
+    def __init__(self, model:Model, workspace:Workspace):
+        super().__init__()
+        self.model = model
+        self.workspace = workspace
+    def build_machine(self, 
+        debug:bool = False, 
+        sandbox:bool = False, 
+        name:str = "aluxe", 
+        team:str = "blue") -> tuple[Machine, object]:
+        
         if sandbox:
             from sandbox.sim_context import SimContext
-            ctx = SimContext(debug=debug, name=name, team_color=team_color)
+            ctx = SimContext(model=self.model, workspace=self.workspace, debug=debug, name=name, team=team)
         else:
             from robot.aluxe3.context.real import RobotContext
-            ctx = RobotContext(debug=debug, name=name, team_color=team_color)
+            ctx = RobotContext(model=self.model, workspace=self.workspace, debug=debug, name=name, team=team)
 
         # ── Instanciar estados ────────────────────────────────────────────────────
         search = Search()
@@ -83,13 +94,22 @@ class Aluxe3v1aBuilder(MachineBuilder):
         return machine, ctx
 
 class Aluxe3v1bBuilder(MachineBuilder):
-    def build_machine(self, debug: bool = False, sandbox: bool = False, name: str = "aluxe", team_color: str = "blue") -> tuple[Machine, object]:
+    def __init__(self, model:Model, workspace:Workspace):
+        super().__init__()
+        self.model = model
+        self.workspace = workspace
+    def build_machine(self, 
+        debug:bool = False, 
+        sandbox: bool = False, 
+        name:str = "aluxe", 
+        team:str = "blue") -> tuple[Machine, object]:
+        
         if sandbox:
             from sandbox.sim_context import SimContext
-            ctx = SimContext(debug=debug, name=name, team_color=team_color)
+            ctx = SimContext(model=self.model, workspace=self.workspace, debug=debug, name=name, team=team)
         else:
             from robot.aluxe3.context.real import RobotContext
-            ctx = RobotContext(debug=debug, name=name, team_color=team_color)
+            ctx = RobotContext(model=self.model, workspace=self.workspace, debug=debug, name=name, team=team)
 
         # ===== Instanciar máquinas y estados ===== #
         
@@ -129,13 +149,23 @@ class Aluxe3v1bBuilder(MachineBuilder):
         return machine, ctx
 
 class Aluxe3v1TestBuilder(MachineBuilder):
-    def build_machine(self, debug: bool = False, sandbox: bool = False, name: str = "aluxe", team_color: str = "blue") -> tuple[Machine, object]:
+    def __init__(self, model:Model, workspace:Workspace):
+        super().__init__()
+        self.model = model
+        self.workspace = workspace
+
+    def build_machine(self, 
+        debug:bool = False, 
+        sandbox:bool = False, 
+        name:str = "aluxe", 
+        team:str = "blue") -> tuple[Machine, object]:
+        
         if sandbox:
             from sandbox.sim_context import SimContext
-            ctx = SimContext(debug=debug, name=name, team_color=team_color)
+            ctx = SimContext(model=self.model, workspace=self.workspace, debug=debug, name=name, team=team)
         else:
             from robot.aluxe3.context.real import RobotContext
-            ctx = RobotContext(debug=debug, name=name, team_color=team_color)
+            ctx = RobotContext(model=self.model, workspace=self.workspace, debug=debug, name=name, team=team)
         manual = ManualControl()
         machine = Machine(manual)
         return machine, ctx

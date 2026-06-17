@@ -1,13 +1,29 @@
+from __future__ import annotations
 import cv2
 import numpy as np
+from utils.resources.mask import Mask
 
 class ColorSegmentator:
     """
     Componente modular responsable de segmentar un color específico utilizando HSV.
     """
-    def __init__(self, lower, upper, min_area):
-        self.lower = lower
-        self.upper = upper
+    def __init__(self, mask:Mask):
+        self.min = np.array(mask.lower_bound, dtype=np.uint8)
+        self.max = np.array(mask.upper_bound, dtype=np.uint8)
+
+    def segment(self, hsv):
+        mask = cv2.inRange(hsv, self.min, self.max)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if not contours:
+            return None, None, mask
+        M = cv2.moments(max(contours, key=cv2.contourArea))
+        cx = int(M["m10"] / M["m00"])
+        cy = int(M["m01"] / M["m00"])
+        return (cx, cy), max(contours, key=cv2.contourArea), mask
+
+class ThresholdSegmentator(ColorSegmentator):
+    def __init__(self, mask:Mask, min_area:int):
+        super().__init__(mask)
         self.min_area = min_area
         self.kernel2 = np.ones((2, 2), np.uint8)
         self.kernel3 = np.ones((3, 3), np.uint8)
@@ -19,7 +35,7 @@ class ColorSegmentator:
         Retorna (centroid, contour, mask).
         """
         # 1. Crear máscara
-        mask = cv2.inRange(hsv, self.lower, self.upper)
+        mask = cv2.inRange(hsv, self.min, self.max)
         
         # 2. Operaciones morfológicas
         # Configuracion de lo que uno espera en la imagen, los parametros pueden variar 
@@ -53,11 +69,18 @@ class CVDetector:
     Orquestador de visión por computadora. Gestiona múltiples segmentadores
     y realiza cálculos geométricos de proximidad y alineación.
     """
-    def __init__(self, ball_segmenter, ally_goal_segmenter, enemy_goal_segmenter, center_tolerance=40):
-        self.ball_seg = ball_segmenter
-        self.ally_seg = ally_goal_segmenter
-        self.enemy_seg = enemy_goal_segmenter
+    def __init__(self, center_tolerance=40):
         self.center_tolerance = center_tolerance
+        self.segmentators:dict[str, ColorSegmentator] = {}
+
+    def add_segmentator(self, segmentator:ColorSegmentator, name:str = "segmentator") -> None:
+        """
+        Añade un segmentador al detector.
+        Args:
+            segmentator: Segmentador.
+            name: Nombre del segmentador.
+        """
+        self.segmentators[name] = segmentator
 
     def detect_proximity(self, contour, centroid, frame_width):
         """
@@ -79,7 +102,7 @@ class CVDetector:
             'radius': int(radius)
         }
 
-    def detect(self, frame, hsv, debug=False):
+    def detect(self, frame, hsv, debug=False, masked=False):
         """
         Ejecuta la detección completa de la escena y retorna un diccionario estructurado.
         """
@@ -88,20 +111,22 @@ class CVDetector:
         img_debug = frame.copy() if debug else None
         
         # 1. Ball Detection
-        b_centroid, b_contour, b_mask = self.ball_seg.segment(hsv)
+        b_centroid, b_contour, b_mask = self.segmentators["ball"].segment(hsv)
         ball_data = self.detect_proximity(b_contour, b_centroid, frame_width)
             
         # 2. Ally Goal Detection
-        ag_centroid, ag_contour, ag_mask = self.ally_seg.segment(hsv)
+        ag_centroid, ag_contour, ag_mask = self.segmentators["ally_goal"].segment(hsv)
         ally_data = self.detect_proximity(ag_contour, ag_centroid, frame_width)
             
         # 3. Enemy Goal Detection
-        eg_centroid, eg_contour, eg_mask = self.enemy_seg.segment(hsv)
+        eg_centroid, eg_contour, eg_mask = self.segmentators["enemy_goal"].segment(hsv)
         enemy_data = self.detect_proximity(eg_contour, eg_centroid, frame_width)
         
-        # img_debug = cv2.cvtColor(b_mask, cv2.COLOR_GRAY2BGR)
-        # img_debug = cv2.add(img_debug, cv2.cvtColor(ag_mask, cv2.COLOR_GRAY2BGR))
-        # img_debug = cv2.add(img_debug, cv2.cvtColor(eg_mask, cv2.COLOR_GRAY2BGR))
+        if masked:
+            img_debug = cv2.cvtColor(b_mask, cv2.COLOR_GRAY2BGR)
+            img_debug = cv2.add(img_debug, cv2.cvtColor(ag_mask, cv2.COLOR_GRAY2BGR))
+            img_debug = cv2.add(img_debug, cv2.cvtColor(eg_mask, cv2.COLOR_GRAY2BGR))
+
         # 4. Debug Overlays
         if debug and img_debug is not None:
             img_cx = frame_width >> 1

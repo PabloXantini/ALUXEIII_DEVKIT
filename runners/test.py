@@ -2,7 +2,7 @@ from __future__ import annotations
 import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
-from utils.actuators import Speed
+from utils.components import Speed
 from utils.logging import logger
 from tests.ui import RobotContextHUD
 from sandbox.game.game import GameController

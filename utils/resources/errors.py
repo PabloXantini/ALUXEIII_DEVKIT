@@ -23,12 +23,12 @@ class Result(Generic[T, E]):
     @property
     def issuccess(self) -> bool:
         return self._issuccess
-    @staticmethod
-    def success(value:T) -> Result[T, E]:
-        return Result(True, value, None)
-    @staticmethod
-    def fail(error:E) -> Result[T, E]:
-        return Result(False, None, error)
+    @classmethod
+    def success(cls, value:T) -> Result[T, E]:
+        return cls(True, value, None)
+    @classmethod
+    def fail(cls, error:E) -> Result[T, E]:
+        return cls(False, None, error)
 
 class ConfigError(Exception):
     """

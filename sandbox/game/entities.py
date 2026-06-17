@@ -148,7 +148,7 @@ class Robot(Entity):
         self.machine = machine
         self.context = context
         self.name = context.name
-        self.team = context.team_color
+        self.team = context.team
         self.context.link_robot(self)
 
     def update(self, game, robots=None):
