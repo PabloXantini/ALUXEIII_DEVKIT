@@ -35,9 +35,9 @@ class MotorController3W(MotorHController):
         # Standard 3-Omni wheel speed matrix (wheels at 60°, 180°, 300°)
         # w_k = vx * cos(rad) + vy * sin(rad) + w * R
 
-        w1 = 0.5 * vx + sqrt3_2 * vy
-        w2 = -vx
-        w3 = 0.5 * vx - sqrt3_2 * vy
+        w1 = sqrt3_2 * vx + 0.5 * vy
+        w2 = vy
+        w3 = -sqrt3_2 * vx - 0.5 * vy
 
         self.m1.run(w1, calib[0])
         self.m2.run(w2, calib[1])
