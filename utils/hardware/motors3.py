@@ -63,20 +63,22 @@ class OmniMotorHController3W(OmniMotorHController):
 
     def go_left(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("left", self.CALIBRATION_DEFAULT)
-        self.go_from_angle(90, vel, calib=c)
+        self.go_from_angle(angle=90, vel=vel, calib=c)
 
     def go_right(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("right", self.CALIBRATION_DEFAULT)
-        self.go_from_angle(270, vel, calib=c)
+        self.go_from_angle(angle=270, vel=vel, calib=c)
 
     def spin_left(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("turn_l", self.CALIBRATION_DEFAULT)
         self.m1.run(-vel, c[0])
         self.m2.run(-vel, c[1])
         self.m3.run(-vel, c[2])
+        print(f"w1: {-vel * c[0]}, w2: {-vel * c[1]}, w3: {-vel * c[2]}")
 
     def spin_right(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("turn_r", self.CALIBRATION_DEFAULT)
         self.m1.run(vel, c[0])  
         self.m2.run(vel, c[1])
         self.m3.run(vel, c[2])
+        print(f"w1: {vel * c[0]}, w2: {vel * c[1]}, w3: {vel * c[2]}")
