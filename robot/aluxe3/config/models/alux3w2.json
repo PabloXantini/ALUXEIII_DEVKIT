@@ -28,17 +28,7 @@
             "properties": {
               "in1": 5,
               "in2": 6,
-              "en": 12,
-              "label": "front-right"
-            }
-          },
-          {
-            "label": "M1",
-            "properties": {
-              "in1": 17,
-              "in2": 27,
-              "en": 18,
-              "label": "front-left"
+              "en": 12
             }
           },
           {
@@ -46,8 +36,15 @@
             "properties": {
               "in1": 16,
               "in2": 20,
-              "en": 13,
-              "label": "rear"
+              "en": 13
+            }
+          },
+          {
+            "label": "M1",
+            "properties": {
+              "in1": 17,
+              "in2": 27,
+              "en": 18
             }
           }
         ]
