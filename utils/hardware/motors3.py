@@ -50,20 +50,20 @@ class OmniMotorHController3W(OmniMotorHController):
     def go_forward(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("fwd", self.CALIBRATION_DEFAULT)
         self.m1.run(vel, c[0])
-        self.m3.run(-vel, c[1])
+        self.m3.run(-vel, c[2])
 
     def go_backward(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("bwd", self.CALIBRATION_DEFAULT)
         self.m1.run(-vel, c[0])
-        self.m3.run(vel, c[1])
-
-    def go_right(self, vel: float = Speed.DEFAULT.value) -> None:
-        c = self.calib.get("right", self.CALIBRATION_DEFAULT)
-        self.go_from_angle(270, vel, calib=c)
+        self.m3.run(vel, c[2])
 
     def go_left(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("left", self.CALIBRATION_DEFAULT)
         self.go_from_angle(90, vel, calib=c)
+
+    def go_right(self, vel: float = Speed.DEFAULT.value) -> None:
+        c = self.calib.get("right", self.CALIBRATION_DEFAULT)
+        self.go_from_angle(270, vel, calib=c)
 
     def spin_left(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("turn_l", self.CALIBRATION_DEFAULT)
