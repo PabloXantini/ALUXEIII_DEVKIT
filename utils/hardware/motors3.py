@@ -47,15 +47,19 @@ class OmniMotorHController3W(OmniMotorHController):
         self.m2.run(w2, calib[1])
         self.m3.run(w3, calib[2])
 
+        print(f"w1: {w1 * calib[0]}, w2: {w2 * calib[1]}, w3: {w3 * calib[2]}")
+
     def go_forward(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("fwd", self.CALIBRATION_DEFAULT)
         self.m1.run(vel, c[0])
         self.m3.run(-vel, c[2])
+        print(f"w1: {vel * c[0]}, w2: {0.0}, w3: {-vel * c[2]}")
 
     def go_backward(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("bwd", self.CALIBRATION_DEFAULT)
         self.m1.run(-vel, c[0])
         self.m3.run(vel, c[2])
+        print(f"w1: {-vel * c[0]}, w2: {0.0}, w3: {vel * c[2]}")
 
     def go_left(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("left", self.CALIBRATION_DEFAULT)
