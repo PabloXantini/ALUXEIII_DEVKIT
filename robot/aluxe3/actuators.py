@@ -15,7 +15,6 @@ class HardwareActuatorController(ActuatorController):
         factory = HardwareActuatorFactory(model)
         self._init_components(factory)
 
-
 class SimActuatorController(ActuatorController):
     """
     Simulated facade controller that unifies MockMotorController and MockCompass.

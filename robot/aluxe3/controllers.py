@@ -1,6 +1,8 @@
+from robot.aluxe3.context import Aluxe3Context
 from utils.components import ComponentFactory
 from utils.resources.config import ConfigError
 from utils.resources.model import Model
+from utils.pid import PIDController
 
 class ActuatorController:
     """Abstract interface for actuator controllers."""
@@ -19,3 +21,10 @@ class ActuatorController:
         if self.us_left: self.us_left.cleanup()
         if self.us_right: self.us_right.cleanup()
         if self.us_back: self.us_back.cleanup()
+
+class AnglePIDController(PIDController):
+    def __init__(self, src:Aluxe3Context, kp:float, ki:float, kd:float) -> None:
+        super().__init__(src, Kp=kp, Ki=ki, Kd=kd)
+
+    def capture(self, setpoint:float) -> float:
+        return self.src.env.heading

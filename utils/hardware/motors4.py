@@ -10,6 +10,7 @@ class OmniMotorHController4W(OmniMotorHController):
 
     def __init__(self, config:list[MotorNode] | None = None, calib:dict | None = None) -> None:
         super().__init__(config, calib)
+        self.radius = 20
         self.m1 = MotorH(config[0])
         self.m2 = MotorH(config[1])
         self.m3 = MotorH(config[2])
@@ -23,7 +24,8 @@ class OmniMotorHController4W(OmniMotorHController):
         
     def go_from_angle(self, 
         angle: float, 
-        vel: float = None,
+        vel: float = Speed.DEFAULT.value,
+        w: float = 0.0,
         calib_name:str = "default") -> None:
         """
         Move in an arbitrary direction using 4-wheel omnidirectional kinematics.
@@ -34,13 +36,16 @@ class OmniMotorHController4W(OmniMotorHController):
         vx = vel * math.sin(rad)   # x component
         vy = vel * math.cos(rad)   # y component
         sqrt2_2 = 0.70710678
+        vw = w * self.radius
 
         # Standard 4-Omni wheel speed matrix (wheels at 45°, 135°, 225°, 315°)
-        # w_k = vx * cos(rad) + vy * sin(rad) + w * R
-        w1 = sqrt2_2*(vx + vy)
-        w2 = sqrt2_2*(-vx + vy)
-        w3 = sqrt2_2*(-vx - vy)
-        w4 = sqrt2_2*(vx - vy)
+        # w_k = vx * cos(rad) + vy * sin(rad) + vw
+        # Where vw = w * R (w = angular velocity, R = radius of the wheel base)
+        
+        w1 = sqrt2_2*(vx - vy) + vw
+        w2 = sqrt2_2*(vx + vy) + vw
+        w3 = sqrt2_2*(-vx + vy) + vw
+        w4 = sqrt2_2*(-vx - vy) + vw
 
         self.m1.run(w1, c[0])
         self.m2.run(w2, c[1])
@@ -65,26 +70,26 @@ class OmniMotorHController4W(OmniMotorHController):
         c = self.calib["right"]
         self.m1.run(vel, c[0])
         self.m2.run(-vel, c[1])
-        self.m3.run(vel, c[2])
-        self.m4.run(-vel, c[3])
+        self.m3.run(-vel, c[2])
+        self.m4.run(vel, c[3])
 
     def go_left(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib["left"]
         self.m1.run(-vel, c[0])
         self.m2.run(vel, c[1])
-        self.m3.run(-vel, c[2])
-        self.m4.run(vel, c[3])
+        self.m3.run(vel, c[2])
+        self.m4.run(-vel, c[3])
 
     def spin_left(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib["turn_l"]
-        self.m1.run(vel, c[0])
-        self.m2.run(vel, c[1])
-        self.m3.run(vel, c[2])
-        self.m4.run(vel, c[3])
-
-    def spin_right(self, vel: float = Speed.DEFAULT.value) -> None:
-        c = self.calib["turn_r"]
         self.m1.run(-vel, c[0])
         self.m2.run(-vel, c[1])
         self.m3.run(-vel, c[2])
         self.m4.run(-vel, c[3])
+
+    def spin_right(self, vel: float = Speed.DEFAULT.value) -> None:
+        c = self.calib["turn_r"]
+        self.m1.run(vel, c[0])
+        self.m2.run(vel, c[1])
+        self.m3.run(vel, c[2])
+        self.m4.run(vel, c[3])

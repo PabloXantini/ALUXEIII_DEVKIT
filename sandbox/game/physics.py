@@ -13,23 +13,23 @@ class PhysicsEngine:
 
             if r.context:
                 v_turn = r.context.actuators.motors.v_turn
-                v_fwd = r.context.actuators.motors.v_x
-                v_lat = r.context.actuators.motors.v_y
+                v_x = r.context.actuators.motors.v_x
+                v_y = r.context.actuators.motors.v_y
                 # Sync current robot orientation into the physical sensor for heading readout
                 r.context.actuators.psensor.set_rangle(r.rangle)
             else:
-                v_turn = v_fwd = v_lat = 0.0
+                v_turn = v_x = v_y = 0.0
 
             f_x = math.cos(r.rangle)
             f_y = math.sin(r.rangle)
-            r_x = -f_y
-            r_y = f_x
+            r_x = f_y
+            r_y = -f_x
             
             r.rangle += v_turn
             r._last_x = r.x
             r._last_y = r.y
-            r.x += (f_x * v_fwd) + (r_x * v_lat)
-            r.y += (f_y * v_fwd) + (r_y * v_lat)
+            r.x += (f_x * v_x) + (r_x * v_y)
+            r.y += (f_y * v_x) + (r_y * v_y)
             
             r.x = max(r.radius, min(self.width - r.radius, r.x))
             r.y = max(r.radius, min(self.height - r.radius, r.y))

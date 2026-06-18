@@ -11,6 +11,7 @@ class OmniMotorHController3W(OmniMotorHController):
     CALIBRATION_DEFAULT = (1.0, 1.0, 1.0)
     def __init__(self, config:list[MotorNode], calib:dict = {}) -> None:
         super().__init__(config, calib)
+        self.radius = 20
         self.m1 = MotorH(config[0])
         self.m2 = MotorH(config[1])
         self.m3 = MotorH(config[2])
@@ -21,23 +22,26 @@ class OmniMotorHController3W(OmniMotorHController):
         self.m3.stop()
 
     def go_from_angle(self, 
-        angle: float, 
-        vel: float = None,
-        calib: tuple[float, float, float] = (1.0, 1.0, 1.0)) -> None:
+        angle:float,
+        w:float = 0.0,
+        vel:float = Speed.DEFAULT.value,
+        calib:tuple[float, float, float] = (1.0, 1.0, 1.0)) -> None:
         """
         Move in an arbitrary direction using 3-wheel omnidirectional kinematics.
         """
         rad = math.radians(angle)
         vx = vel * math.cos(rad) # x component
         vy = vel * math.sin(rad) # y component
+        vw = w * self.radius
         sqrt3_2 = 0.8660254
-        
-        # Standard 3-Omni wheel speed matrix (wheels at 60°, 180°, 300°)
-        # w_k = vx * cos(rad) + vy * sin(rad) + w * R
 
-        w1 = sqrt3_2 * vx + 0.5 * vy
-        w2 = vy
-        w3 = -sqrt3_2 * vx - 0.5 * vy
+        # Standard 3-Omni wheel speed matrix (wheels at 60°, 180°, 300°)
+        # w_k = vx * cos(rad) + vy * sin(rad) + vw
+        # Where vw = w * R (w = angular velocity, R = radius of the wheel base)
+        
+        w1 = sqrt3_2 * vx + 0.5 * vy + vw
+        w2 = vy + vw
+        w3 = -sqrt3_2 * vx - 0.5 * vy + vw
 
         self.m1.run(w1, calib[0])
         self.m2.run(w2, calib[1])
@@ -45,13 +49,13 @@ class OmniMotorHController3W(OmniMotorHController):
 
     def go_forward(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("fwd", self.CALIBRATION_DEFAULT)
-        self.m1.run(-vel, c[0])
-        self.m2.run(vel, c[1])
+        self.m1.run(vel, c[0])
+        self.m3.run(-vel, c[1])
 
     def go_backward(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("bwd", self.CALIBRATION_DEFAULT)
-        self.m1.run(vel, c[0])
-        self.m2.run(-vel, c[1])
+        self.m1.run(-vel, c[0])
+        self.m3.run(vel, c[1])
 
     def go_right(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("right", self.CALIBRATION_DEFAULT)
@@ -63,12 +67,12 @@ class OmniMotorHController3W(OmniMotorHController):
 
     def spin_left(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("turn_l", self.CALIBRATION_DEFAULT)
-        self.m1.run(vel, c[0])
-        self.m2.run(vel, c[1])
-        self.m3.run(vel, c[2])
+        self.m1.run(-vel, c[0])
+        self.m2.run(-vel, c[1])
+        self.m3.run(-vel, c[2])
 
     def spin_right(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("turn_r", self.CALIBRATION_DEFAULT)
-        self.m1.run(-vel, c[0])  
-        self.m2.run(-vel, c[1])
-        self.m3.run(-vel, c[2])
+        self.m1.run(vel, c[0])  
+        self.m2.run(vel, c[1])
+        self.m3.run(vel, c[2])

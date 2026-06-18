@@ -39,15 +39,16 @@ class SimMotorController(OmniWheelMotorController):
         self.reset_speeds()
         self.v_x = -v
 
+    def spin_left(self, vel=Speed.DEFAULT.value):
+        v = self.norm_vel(vel)
+        self.reset_speeds()
+        self.v_turn = - v / 40
+        
     def spin_right(self, vel=Speed.DEFAULT.value):
         v = self.norm_vel(vel)
         self.reset_speeds()
         self.v_turn = v / 40
 
-    def spin_left(self, vel=Speed.DEFAULT.value):
-        v = self.norm_vel(vel)
-        self.reset_speeds()
-        self.v_turn = - v / 40
 
     def stop(self):
         self.reset_speeds()

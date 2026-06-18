@@ -85,10 +85,11 @@ class IMotor(ABC):
     def run(self, vel: float) -> None:
         pass
 
-class IMotorController:
+class IMotorController(ABC):
     def __init__(self):
         pass
-    def attach_PID(self, pid:PIDController) -> None:
+    @abstractmethod
+    def cleanup(self) -> None:
         pass
 
 class OmniWheelMotorController(IMotorController):
@@ -101,7 +102,13 @@ class OmniWheelMotorController(IMotorController):
         pass
 
     @abstractmethod
-    def go_from_angle(self, angle: float, vel: float = Speed.DEFAULT.value, calib: str = "default") -> None:
+    def go_from_angle(
+        self, 
+        angle: float, 
+        vel: float = Speed.DEFAULT.value, 
+        w: float = 0.0,
+        calib: str = "default"
+    ) -> None:
         """Move in an arbitrary direction given a heading angle in degrees (0=forward, 90=right)."""
         pass
 
@@ -127,10 +134,6 @@ class OmniWheelMotorController(IMotorController):
 
     @abstractmethod
     def spin_left(self, vel: float = Speed.DEFAULT.value) -> None:
-        pass
-
-    @abstractmethod
-    def cleanup(self) -> None:
         pass
 
 

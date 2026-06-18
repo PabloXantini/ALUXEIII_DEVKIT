@@ -1,5 +1,5 @@
 from __future__ import annotations
-from utils.actuators import Speed
+from utils.components import Speed
 from utils.input import Key, InputManager
 
 class KeyboardListener:
