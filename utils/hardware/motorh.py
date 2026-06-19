@@ -65,8 +65,9 @@ class MotorH(IMotor):
         self.pwm.ChangeDutyCycle(0)
     
     def run(self, speed: float, calib:float = 1.0) -> None:
-        v = self.norm_vel(speed * calib)
         """Set the motor speed."""
+        v = self.norm_vel(speed * calib)
+        self.last_vel = v
         if v >= 0:
             self._fwd(self.in1, self.in2, self.pwm, v)
         else:

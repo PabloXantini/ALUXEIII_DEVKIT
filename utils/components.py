@@ -73,7 +73,7 @@ class ICamera(ABC):
     
 class IMotor(ABC):
     def __init__(self) -> None:
-        pass
+        self.last_vel = Speed.STOP.value
     
     def norm_vel(self, vel=Speed.DEFAULT.value, maxv=90.0):
         minv = -maxv
@@ -87,6 +87,8 @@ class IMotor(ABC):
 
 class IMotorController(ABC):
     def __init__(self):
+        pass
+    def get_speeds(self) -> None:
         pass
     @abstractmethod
     def cleanup(self) -> None:

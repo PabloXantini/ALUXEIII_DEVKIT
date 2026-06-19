@@ -10,7 +10,7 @@ class OmniMotorHController4W(OmniMotorHController):
 
     def __init__(self, config:list[MotorNode] | None = None, calib:dict | None = None) -> None:
         super().__init__(config, calib)
-        self.radius = 20
+        self.radius = 0.18
         self.m1 = MotorH(config[0])
         self.m2 = MotorH(config[1])
         self.m3 = MotorH(config[2])
@@ -93,3 +93,11 @@ class OmniMotorHController4W(OmniMotorHController):
         self.m2.run(vel, c[1])
         self.m3.run(vel, c[2])
         self.m4.run(vel, c[3])
+
+    def get_speeds(self) -> str:
+        return f"""
+        w1: {self.m1.last_vel:.2f}
+        w2: {self.m2.last_vel:.2f}
+        w3: {self.m3.last_vel:.2f}
+        w4: {self.m4.last_vel:.2f}
+        """

@@ -219,12 +219,20 @@ class ManualControl(State):
         if im.is_key_pressed(Key.K_3): self.speed = Speed.MEDIUM
         if im.is_key_pressed(Key.K_4): self.speed = Speed.MID_HIGH
         if im.is_key_pressed(Key.K_5): self.speed = Speed.HIGH
-        if im.is_key_pressed(Key.UP) or im.is_key_pressed(Key.W): logger.msg("FORWARD")
-        if im.is_key_pressed(Key.DOWN) or im.is_key_pressed(Key.S): logger.msg("BACKWARD")
-        if im.is_key_pressed(Key.LEFT) or im.is_key_pressed(Key.A): logger.msg("GO LEFT")
-        if im.is_key_pressed(Key.RIGHT) or im.is_key_pressed(Key.D): logger.msg("GO RIGHT")
-        if im.is_key_pressed(Key.Z): logger.msg("SPIN LEFT")
-        if im.is_key_pressed(Key.X): logger.msg("SPIN RIGHT")
+        if im.is_key_pressed(Key.UP) or im.is_key_pressed(Key.W): 
+            logger.msg(f"FORWARD: {ctx.actuators.motors.get_speeds()}")
+        if im.is_key_pressed(Key.DOWN) or im.is_key_pressed(Key.S): 
+            logger.msg(f"BACKWARD: {ctx.actuators.motors.get_speeds()}")
+        if im.is_key_pressed(Key.LEFT) or im.is_key_pressed(Key.A): 
+            logger.msg(f"GO LEFT: {ctx.actuators.motors.get_speeds()}")
+        if im.is_key_pressed(Key.RIGHT) or im.is_key_pressed(Key.D): 
+            logger.msg(f"GO RIGHT: {ctx.actuators.motors.get_speeds()}")
+        if im.is_key_pressed(Key.Z): 
+            logger.msg(f"SPIN LEFT: {ctx.actuators.motors.get_speeds()}")
+        if im.is_key_pressed(Key.X): 
+            logger.msg(f"SPIN RIGHT: {ctx.actuators.motors.get_speeds()}")
+        if im.is_key_pressed(Key.SPACE): 
+            logger.msg(f"STOP: {ctx.actuators.motors.get_speeds()}")
         
         # Movement
         v_val = self.speed.value

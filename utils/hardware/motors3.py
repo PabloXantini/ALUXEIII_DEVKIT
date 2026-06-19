@@ -11,7 +11,7 @@ class OmniMotorHController3W(OmniMotorHController):
     CALIBRATION_DEFAULT = (1.0, 1.0, 1.0)
     def __init__(self, config:list[MotorNode], calib:dict = {}) -> None:
         super().__init__(config, calib)
-        self.radius = 20
+        self.radius = 0.18 # m
         self.m1 = MotorH(config[0])
         self.m2 = MotorH(config[1])
         self.m3 = MotorH(config[2])
@@ -47,19 +47,15 @@ class OmniMotorHController3W(OmniMotorHController):
         self.m2.run(w2, calib[1])
         self.m3.run(w3, calib[2])
 
-        print(f"w1: {w1 * calib[0]}, w2: {w2 * calib[1]}, w3: {w3 * calib[2]}")
-
     def go_forward(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("fwd", self.CALIBRATION_DEFAULT)
         self.m1.run(vel, c[0])
         self.m3.run(-vel, c[2])
-        print(f"w1: {vel * c[0]}, w2: {0.0}, w3: {-vel * c[2]}")
 
     def go_backward(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("bwd", self.CALIBRATION_DEFAULT)
         self.m1.run(-vel, c[0])
         self.m3.run(vel, c[2])
-        print(f"w1: {-vel * c[0]}, w2: {0.0}, w3: {vel * c[2]}")
 
     def go_left(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("left", self.CALIBRATION_DEFAULT)
@@ -74,11 +70,16 @@ class OmniMotorHController3W(OmniMotorHController):
         self.m1.run(-vel, c[0])
         self.m2.run(-vel, c[1])
         self.m3.run(-vel, c[2])
-        print(f"w1: {-vel * c[0]}, w2: {-vel * c[1]}, w3: {-vel * c[2]}")
 
     def spin_right(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("turn_r", self.CALIBRATION_DEFAULT)
         self.m1.run(vel, c[0])  
         self.m2.run(vel, c[1])
         self.m3.run(vel, c[2])
-        print(f"w1: {vel * c[0]}, w2: {vel * c[1]}, w3: {vel * c[2]}")
+
+    def get_speeds(self) -> str:
+        return f"""
+        w1: {self.m1.last_vel:.2f}
+        w2: {self.m2.last_vel:.2f}
+        w3: {self.m3.last_vel:.2f}
+        """
