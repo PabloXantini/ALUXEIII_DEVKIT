@@ -20,9 +20,11 @@ class PropertiesConfigNode(ConfigNode):
         self.properties = res.value if res.issuccess else {}
         
 class CameraNode(PropertiesConfigNode):
-    __slots__ = ("label", "model", "properties")
+    __slots__ = ("label", "model", "type", "properties")
     def __init__(self, label:str, model:str, data:dict) -> None:
         super().__init__(label, model, data)
+        res = self.check_attribute(data, "type", str)
+        self.type = res.value if res.issuccess else "default"
 
 class MotorNode(PropertiesConfigNode):
     __slots__ = ("label", "model", "properties")

@@ -4,6 +4,7 @@
     "cameras": [
       {
         "label": "main",
+        "type": "default",
         "properties": {
           "src": 0,
           "width": 640,
