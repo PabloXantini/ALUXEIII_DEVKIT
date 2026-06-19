@@ -82,17 +82,17 @@ class OmniMotorHController4W(OmniMotorHController):
 
     def spin_left(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib["turn_l"]
-        self.m1.run(-vel, c[0])
-        self.m2.run(-vel, c[1])
-        self.m3.run(-vel, c[2])
-        self.m4.run(-vel, c[3])
-
-    def spin_right(self, vel: float = Speed.DEFAULT.value) -> None:
-        c = self.calib["turn_r"]
         self.m1.run(vel, c[0])
         self.m2.run(vel, c[1])
         self.m3.run(vel, c[2])
         self.m4.run(vel, c[3])
+
+    def spin_right(self, vel: float = Speed.DEFAULT.value) -> None:
+        c = self.calib["turn_r"]
+        self.m1.run(-vel, c[0])
+        self.m2.run(-vel, c[1])
+        self.m3.run(-vel, c[2])
+        self.m4.run(-vel, c[3])
 
     def get_speeds(self) -> str:
         return f"""

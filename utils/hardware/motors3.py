@@ -23,8 +23,8 @@ class OmniMotorHController3W(OmniMotorHController):
 
     def go_from_angle(self, 
         angle:float,
-        w:float = 0.0,
         vel:float = Speed.DEFAULT.value,
+        w:float = 0.0,
         calib:tuple[float, float, float] = (1.0, 1.0, 1.0)) -> None:
         """
         Move in an arbitrary direction using 3-wheel omnidirectional kinematics.
@@ -67,19 +67,18 @@ class OmniMotorHController3W(OmniMotorHController):
 
     def spin_left(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("turn_l", self.CALIBRATION_DEFAULT)
-        self.m1.run(-vel, c[0])
-        self.m2.run(-vel, c[1])
-        self.m3.run(-vel, c[2])
+        self.m1.run(vel, c[0])
+        self.m2.run(vel, c[1])
+        self.m3.run(vel, c[2])
 
     def spin_right(self, vel: float = Speed.DEFAULT.value) -> None:
         c = self.calib.get("turn_r", self.CALIBRATION_DEFAULT)
-        self.m1.run(vel, c[0])  
-        self.m2.run(vel, c[1])
-        self.m3.run(vel, c[2])
+        self.m1.run(-vel, c[0])  
+        self.m2.run(-vel, c[1])
+        self.m3.run(-vel, c[2])
 
     def get_speeds(self) -> str:
         return f"""
         w1: {self.m1.last_vel:.2f}
         w2: {self.m2.last_vel:.2f}
-        w3: {self.m3.last_vel:.2f}
-        """
+        w3: {self.m3.last_vel:.2f}"""

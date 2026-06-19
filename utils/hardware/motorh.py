@@ -60,6 +60,7 @@ class MotorH(IMotor):
 
     def stop(self):
         """Stop the motor."""
+        self.last_vel = 0.0
         GPIO.output(self.in1, GPIO.LOW)
         GPIO.output(self.in2, GPIO.LOW)
         self.pwm.ChangeDutyCycle(0)

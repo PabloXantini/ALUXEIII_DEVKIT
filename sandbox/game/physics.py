@@ -25,7 +25,7 @@ class PhysicsEngine:
             r_x = f_y
             r_y = -f_x
             
-            r.rangle += v_turn
+            r.rangle -= v_turn
             r._last_x = r.x
             r._last_y = r.y
             r.x += (f_x * v_x) + (r_x * v_y)
