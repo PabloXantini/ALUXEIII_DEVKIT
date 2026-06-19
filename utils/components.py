@@ -10,7 +10,7 @@ from utils.resources.model import (
     CompassNode,
     ModelVisitor
 )
-from utils.pid import PIDController
+import numpy as np
 
 class Speed(Enum):
     HIGH = 95
@@ -57,6 +57,9 @@ class ComponentFactory(ABC):
         if len(l) > 0: return l.pop(0)
         return None
     @abstractmethod
+    def create_camera(self)-> ICamera:
+        pass
+    @abstractmethod
     def create_motor_controller(self)-> IMotorController:
         pass
     @abstractmethod
@@ -67,9 +70,16 @@ class ComponentFactory(ABC):
         pass
 
 class ICamera(ABC):
-    def __init__(self, width:int, height:int):
+    def __init__(self, width:int, height:int, scale:float=1.0):
         self.width = width,
-        self.height = height
+        self.height = height,
+        self.scale = scale
+    @abstractmethod
+    def cap_frame(self) -> np.ndarray:
+        pass
+    @abstractmethod
+    def cleanup(self) -> None:
+        pass
     
 class IMotor(ABC):
     def __init__(self) -> None:
@@ -141,6 +151,8 @@ class OmniWheelMotorController(IMotorController):
 
 class ICompass(ABC):
     """Abstract interface for compass sensors."""
+    def __init__(self, declination_angle: float=0.0) -> None:
+        self.declination_angle = declination_angle
 
     @abstractmethod
     def get_heading(self) -> float:

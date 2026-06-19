@@ -1,22 +1,28 @@
+from __future__ import annotations
 import math
 
-from .vision_py.renderer import Renderer
+from sandbox.vision_py.renderer import Renderer
+from utils.components import ICamera
 
-class VirtualCamera:
+class VirtualCamera(ICamera):
     """ 
     Fachada para el sistema de visión.
     Encapsula la configuración de la cámara y delega el renderizado al Renderer.
     """
-    def __init__(self, width=320, height=240, fov_degrees=45, pitch=30.0, camera_height=15.0):
+    def __init__(self, width:int, height:int, scale:float = 100, fov_degrees=45, pitch=30.0, camera_height=15.0):
+        s = scale / 100.0
         self.width = width
         self.height = height
+        self.r_width = int(width * s)
+        self.r_height = int(height * s)
+
         self.fov_degrees = fov_degrees
         
         fov_rad = math.radians(fov_degrees)
-        self.focal_length = width / (2 * math.tan(fov_rad / 2))
+        self.focal_length = self.r_width / (2 * math.tan(fov_rad / 2))
             
-        self.cx = width // 2
-        self.cy = height // 2
+        self.cx = self.r_width // 2
+        self.cy = self.r_height // 2
         self.camera_height = camera_height
 
         self.pitch = math.radians(pitch)   
@@ -24,7 +30,7 @@ class VirtualCamera:
         self.roll = 0.0
         
         # El Renderer se encarga de elegir entre C++ (OpenGL) y Python (OpenCV)
-        self.renderer = Renderer(width, height)
+        self.renderer = Renderer(self.r_width, self.r_height)
 
     def set_light_level(self, ambient=0.4, diffuse=0.8, x=320, y=240, z=500):
         """ Ajusta la iluminación del escenario (solo C++) """
@@ -37,6 +43,14 @@ class VirtualCamera:
     def set_motion_blur(self, strength=0.5, samples=3):
         """ Ajusta el desenfoque de movimiento (solo C++) """
         self.renderer.set_motion_blur(strength, samples)
+
+    def cap_frame(self, observer, state):
+        if not observer or not state:
+            return None
+        return self.render(observer, state)
+
+    def cleanup(self) -> None:
+        pass
 
     def render(self, observer, state):
         """

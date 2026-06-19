@@ -42,7 +42,7 @@ class Aluxe3v1aBuilder(MachineBuilder):
         team:str = "blue") -> tuple[Machine, object]:
         
         if sandbox:
-            from sandbox.sim_context import SimContext
+            from robot.aluxe3.context.sim import SimContext
             ctx = SimContext(model=self.model, workspace=self.workspace, debug=debug, name=name, team=team)
         else:
             from robot.aluxe3.context.real import RobotContext
@@ -105,7 +105,7 @@ class Aluxe3v1bBuilder(MachineBuilder):
         team:str = "blue") -> tuple[Machine, object]:
         
         if sandbox:
-            from sandbox.sim_context import SimContext
+            from robot.aluxe3.context.sim import SimContext
             ctx = SimContext(model=self.model, workspace=self.workspace, debug=debug, name=name, team=team)
         else:
             from robot.aluxe3.context.real import RobotContext
@@ -161,7 +161,7 @@ class Aluxe3v1TestBuilder(MachineBuilder):
         team:str = "blue") -> tuple[Machine, object]:
         
         if sandbox:
-            from sandbox.sim_context import SimContext
+            from robot.aluxe3.context.sim import SimContext
             ctx = SimContext(model=self.model, workspace=self.workspace, debug=debug, name=name, team=team)
         else:
             from robot.aluxe3.context.real import RobotContext

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import math
 
 class SimCompass:
@@ -9,13 +10,14 @@ class SimCompass:
     Author: PabloXantini
     """
 
-    def __init__(self):
+    def __init__(self, declination_angle=0.0):
         # Heading in radians, updated each frame by SimContext or physics engine
         self._rangle: float = 0.0
+        self.declination_angle = declination_angle
 
     def set_rangle(self, rangle: float):
         """Update the current robot orientation angle (radians) from the simulator."""
-        self._rangle = rangle
+        self._rangle = rangle + self.declination_angle
 
     def get_acceleration(self):
         """

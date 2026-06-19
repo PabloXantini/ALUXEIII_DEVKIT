@@ -22,6 +22,16 @@ class ActuatorController:
         if self.us_right: self.us_right.cleanup()
         if self.us_back: self.us_back.cleanup()
 
+class CameraController:
+    def __init__(self, model:Model) -> None:
+        if model is None:
+            raise ConfigError("No source configuration found in the source config.")
+    def _init_components(self, factory:ComponentFactory) -> None:
+        self.front_cam = factory.create_camera()
+    def cleanup(self) -> None:
+        """Clean up resources for all child components."""
+        self.front_cam.cleanup()
+
 class AnglePIDController(PIDController):
     def __init__(self, src:Aluxe3Context, kp:float, ki:float, kd:float) -> None:
         super().__init__(src, Kp=kp, Ki=ki, Kd=kd)

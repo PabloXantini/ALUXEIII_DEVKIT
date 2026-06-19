@@ -5,7 +5,13 @@
       {
         "label": "main",
         "properties": {
-          "src": 0
+          "src": 0,
+          "width": 640,
+          "height": 480,
+          "scale": 40.0,
+          "fov": 120.0,
+          "pitch": 30.0,
+          "h": 18.0
         }
       }
     ],
@@ -81,6 +87,7 @@
         "label": "compass",
         "type": "default",
         "properties": {
+          "offset": 0.0,
           "bus_id": 1
         }
       }

@@ -5,28 +5,18 @@ import numpy as np
 from utils.fsm import MContext
 from utils.resources.model import Model
 from ..cv import (
-    ColorSegmentator,
     ThresholdSegmentator,
     CVDetector,
 )
 from ..manifest import *
 
-# CAMERA
-CAMERA_W = 640
-CAMERA_H = 480
-SCALE_PERCENT  = 40
-FLIP_FRAME     = True
+SCALE_PERCENT = 40
+SCALE_NORM = SCALE_PERCENT / 100
+FLIP_FRAME = True
 
-# ROBOT BEHAVIOR PARAMETERS
+# CONSTANT ROBOT BEHAVIOR PARAMETERS
 CENTER_TOLERANCE = 40   # píxeles de tolerancia lateral
 BALL_RADIUS_CLOSE_MIN = 18   # radio mínimo para considerar la pelota "cerca"
-
-# CAMERA SOURCE
-CAMERA_SOURCE  = 0
-CAP_BACKEND    = cv2.CAP_V4L2
-
-# Derived parameters
-SCALE_NORM = SCALE_PERCENT / 100
 
 class Environment:
     def __init__(self):
@@ -35,7 +25,7 @@ class Environment:
         self.frame_height: int = 0
         self.fps: float = 0.0
         self.last_time: float = time.time()
-        self.estado_label: str = "Processing..."
+        self.st_label: str = "Processing..."
         self.us_back_dist  = 0.0
         self.us_left_dist  = 0.0
         self.us_right_dist = 0.0
@@ -55,6 +45,7 @@ class Aluxe3Context(MContext):
         self.team = team.lower()
         self.running = True
         self.actuators = None
+        self.cameras = None
         self.env = Environment()
         self.info = {
             'ball': {'detected': False, 'offset_x': None, 'radius': 0},
@@ -86,11 +77,11 @@ class Aluxe3Context(MContext):
 
     @property
     def state_label(self):
-        return self.env.estado_label
+        return self.env.st_label
         
     @state_label.setter
     def state_label(self, value):
-        self.env.estado_label = value
+        self.env.st_label = value
 
     def track_fps(self):
         current_time = time.time()
@@ -112,7 +103,7 @@ class Aluxe3Context(MContext):
             cv2.putText(frame, f"US (L/B/R): {self.env.us_left_dist:.1f} | {self.env.us_back_dist:.1f} | {self.env.us_right_dist:.1f}",
                         (10, 60),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
-            cv2.putText(frame, f"E: {self.env.estado_label}",
+            cv2.putText(frame, f"E: {self.env.st_label}",
                         (10, self.env.frame_height - 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
             cv2.putText(frame, f"FPS: {int(self.env.fps)}",
@@ -125,6 +116,10 @@ class Aluxe3Context(MContext):
         frame = self.get_debug_frame(window_name)
         if frame is not None:
             cv2.imshow(f"{window_name} {self.name}", frame)
+
+    def process_frame(self, frame: np.ndarray):
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        self.info, self.env.frame_debug = self.vision.detect(frame, hsv, self.debug)
 
     def cleanup(self):
         self.running = False

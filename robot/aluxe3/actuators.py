@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from utils.resources.model import Model
-from utils.hardware import HardwareActuatorFactory
-from utils.sim import SimActuatorFactory
-from robot.aluxe3.controllers import ActuatorController
+from utils.hardware import HardwareFactory
+from utils.sim import SimComponentFactory
+from robot.aluxe3.controllers import ActuatorController, CameraController
 
 class HardwareActuatorController(ActuatorController):
     """
@@ -12,7 +12,13 @@ class HardwareActuatorController(ActuatorController):
     """
     def __init__(self, model:Model):
         super().__init__(model)
-        factory = HardwareActuatorFactory(model)
+        factory = HardwareFactory(model)
+        self._init_components(factory)
+
+class HardwareCameraController(CameraController):
+    def __init__(self, model:Model):
+        super().__init__(model)
+        factory = HardwareFactory(model)
         self._init_components(factory)
 
 class SimActuatorController(ActuatorController):
@@ -22,5 +28,11 @@ class SimActuatorController(ActuatorController):
     """
     def __init__(self, model:Model):
         super().__init__(model)
-        factory = SimActuatorFactory(model)
+        factory = SimComponentFactory(model)
+        self._init_components(factory)
+
+class SimCameraController(CameraController):
+    def __init__(self, model:Model):
+        super().__init__(model)
+        factory = SimComponentFactory(model)
         self._init_components(factory)

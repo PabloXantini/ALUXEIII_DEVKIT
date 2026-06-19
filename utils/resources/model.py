@@ -68,9 +68,7 @@ class MotorConfigNode(ConfigNode):
                 return None
             f.append(v)
         return tuple(f)
-        
     
-            
 class UltrasonicNode(PropertiesConfigNode):
     __slots__ = ("label", "model", "type", "properties")
     def __init__(self, label:str, model:str, data:dict) -> None:

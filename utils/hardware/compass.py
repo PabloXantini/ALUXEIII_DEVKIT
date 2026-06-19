@@ -35,7 +35,7 @@ class Compass(ICompass):
     Author: PabloXantini (Placeholder as per guidelines)
     """
 
-    def __init__(self, bus_id=1):
+    def __init__(self, declination_angle=0.0, bus_id=1):
         # TODO: Placeholders for RPi customization by PabloXantini:
         # 1. Ensure I2C is enabled on Raspberry Pi: run 'sudo raspi-config' -> Interface Options -> I2C.
         # 2. Verify GY-87 is connected and check I2C addresses with: 'sudo i2cdetect -y 1'.
@@ -129,16 +129,6 @@ class Compass(ICompass):
         except Exception:
             return 0.0, 0.0, 0.0
 
-    def get_rotation_w(self):
-        """
-        Gets the angular velocity / rotation speed around the Z-axis (yaw rate 'w' / omega).
-        Returns:
-            float: Rotation speed around Z-axis in degrees per second.
-        """
-        # Gyroscope Z-axis measures the rotation rate around Z (yaw rate 'w' / omega)
-        _, _, gz = self.get_gyro()
-        return gz
-
     def get_magnetometer(self):
         """
         Gets raw magnetometer X, Y, Z readings from HMC5883L.
@@ -157,6 +147,16 @@ class Compass(ICompass):
             return (raw_x / scale) * uT_factor, (raw_y / scale) * uT_factor, (raw_z / scale) * uT_factor
         except Exception:
             return 0.0, 0.0, 0.0
+
+    def get_angular_v(self):
+        """
+        Gets the angular velocity / rotation speed around the Z-axis (yaw rate 'w' / omega).
+        Returns:
+            float: Rotation speed around Z-axis in degrees per second.
+        """
+        # Gyroscope Z-axis measures the rotation rate around Z (yaw rate 'w' / omega)
+        _, _, gz = self.get_gyro()
+        return gz
 
     def get_heading(self):
         """

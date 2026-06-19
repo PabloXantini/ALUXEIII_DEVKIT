@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Tuple
+from typing import List
 import numpy as np
 
 class RenderType(Enum):
