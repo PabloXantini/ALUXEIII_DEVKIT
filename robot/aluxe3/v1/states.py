@@ -210,16 +210,13 @@ class ManualControl(State):
         if ctx.input_manager is None:
             ctx.estado_label = "Sin InputManager!"
             return
-
         im = ctx.input_manager
-
         # Speeds
-        if im.is_key_pressed(Key.K_1): self.speed = Speed.LOW
-        if im.is_key_pressed(Key.K_2): self.speed = Speed.MID_LOW
-        if im.is_key_pressed(Key.K_3): self.speed = Speed.MEDIUM
-        if im.is_key_pressed(Key.K_4): self.speed = Speed.MID_HIGH
-        if im.is_key_pressed(Key.K_5): self.speed = Speed.HIGH
-        
+        if im.is_key_held(Key.K_1): self.speed = Speed.LOW
+        if im.is_key_held(Key.K_2): self.speed = Speed.MID_LOW
+        if im.is_key_held(Key.K_3): self.speed = Speed.MEDIUM
+        if im.is_key_held(Key.K_4): self.speed = Speed.MID_HIGH
+        if im.is_key_held(Key.K_5): self.speed = Speed.HIGH
         # Movement
         v_val = self.speed.value
         if im.is_key_held(Key.SPACE):
@@ -238,19 +235,21 @@ class ManualControl(State):
             ctx.actuators.motors.spin_right(vel=v_val)
         else:
             ctx.actuators.motors.stop()
-
         # Movement test logging
         if im.is_key_pressed(Key.UP) or im.is_key_pressed(Key.W): 
             logger.msg(f"FORWARD: {ctx.actuators.motors.get_speeds()}")
-        if im.is_key_pressed(Key.DOWN) or im.is_key_pressed(Key.S): 
+        elif im.is_key_pressed(Key.DOWN) or im.is_key_pressed(Key.S): 
             logger.msg(f"BACKWARD: {ctx.actuators.motors.get_speeds()}")
-        if im.is_key_pressed(Key.LEFT) or im.is_key_pressed(Key.A): 
+        elif im.is_key_pressed(Key.LEFT) or im.is_key_pressed(Key.A): 
             logger.msg(f"GO LEFT: {ctx.actuators.motors.get_speeds()}")
-        if im.is_key_pressed(Key.RIGHT) or im.is_key_pressed(Key.D): 
+        elif im.is_key_pressed(Key.RIGHT) or im.is_key_pressed(Key.D): 
             logger.msg(f"GO RIGHT: {ctx.actuators.motors.get_speeds()}")
-        if im.is_key_pressed(Key.Z): 
+        elif im.is_key_pressed(Key.Z): 
             logger.msg(f"SPIN LEFT: {ctx.actuators.motors.get_speeds()}")
-        if im.is_key_pressed(Key.X): 
+        elif im.is_key_pressed(Key.X): 
             logger.msg(f"SPIN RIGHT: {ctx.actuators.motors.get_speeds()}")
-        if im.is_key_pressed(Key.SPACE): 
+        elif im.is_key_pressed(Key.SPACE): 
             logger.msg(f"STOP: {ctx.actuators.motors.get_speeds()}")
+        # Input for exit
+        if im.is_key_pressed(Key.ESC):
+            ctx.running = False
