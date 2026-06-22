@@ -45,7 +45,7 @@ class RobotContext(Aluxe3Context):
 
     def compute(self):
         """Captura y procesa un frame."""
-        res = self.backend.client.request("context")
+        res = self.backend.client.request("context", {})
         if res["status"] == "success":
             distances = res["content"]["enviroment"]["distances"]
             logger.msg(f"Sensores: sl->{distances['sl']} sr->{distances['sr']} sb->{distances['sb']}")
