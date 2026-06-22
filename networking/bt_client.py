@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from networking.bt_device import BTDevice
 from utils.data import IDataEncoder
+from utils.logging import logger
+import socket
 
 class BTClient(BTDevice):
     def __init__(self, encoder:IDataEncoder, host_server, port=1):
@@ -10,9 +12,19 @@ class BTClient(BTDevice):
     
     def request(self, header:str, content:dict):
         self.s = self.setup()
-        self.connect(self.host)
-        request = {"header": header, "content": content}
-        self.send(request)
-        response = self.receive()
-        self.close()
-        return response
+        self.s.settimeout(2.0)
+        try:
+            self.connect(self.host)
+            request = {"header": header, "content": content}
+            self.send(request)
+            response = self.receive()
+            return response
+        except (OSError, socket.timeout) as e:
+            logger.error(f"BlueTooth Client: Can't communicate with server: {e}")
+            return {
+                "header": "Error Connection", 
+                "status": "error", 
+                "content": {}
+            }
+        finally:
+            self.close()
