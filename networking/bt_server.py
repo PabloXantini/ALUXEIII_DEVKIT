@@ -59,6 +59,5 @@ class BTServer(BTDevice):
                 
             except json.JSONDecodeError as e:
                 logger.error(f"BlueTooth Server: JSON Decode Error: {e}")
-                continue
             self._send(client_s, response)
             client_s.close()
