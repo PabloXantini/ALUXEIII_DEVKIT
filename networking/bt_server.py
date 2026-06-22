@@ -30,7 +30,7 @@ class BTServer(BTDevice):
 
     def setup(self):
         self.s:socket.socket = super().setup()
-        self.s.bind(("", self.port))
+        self.s.bind(("00:00:00:00:00:00", self.port))
         self.s.listen(1)
 
     def _send(self, client:socket.socket, data):
