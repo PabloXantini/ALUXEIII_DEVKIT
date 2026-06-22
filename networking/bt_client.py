@@ -9,7 +9,7 @@ class BTClient(BTDevice):
         self.host = host_server
     
     def request(self, header:str, content:dict):
-        self.setup()
+        self.s = self.setup()
         self.connect(self.host)
         request = {"header": header, "content": content}
         self.send(request)
