@@ -18,13 +18,13 @@ class BTClient(BTDevice):
             request = {"header": header, "content": content}
             self.send(request)
             response = self.receive()
-            return response
         except (OSError, socket.timeout) as e:
             logger.error(f"BlueTooth Client: Can't communicate with server: {e}")
-            return {
+            response = {
                 "header": "Error Connection", 
                 "status": "error", 
                 "content": {}
             }
         finally:
             self.close()
+        return response
