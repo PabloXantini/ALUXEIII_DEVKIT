@@ -9,7 +9,7 @@ from utils.data import IDataEncoder
 from utils.logging import logger
 
 class BTServer(BTDevice):
-    def __init__(self, encoder:IDataEncoder, port=10):
+    def __init__(self, encoder:IDataEncoder, port=1):
         super().__init__(encoder, port)
         self.running = False
         self.services:dict[str, Service] = {}
@@ -18,7 +18,7 @@ class BTServer(BTDevice):
         self.running = True
         self.thread = threading.Thread(target=self.run, daemon=True)
         self.thread.start()
-        logger.msg(f"BlueTooth Server started on {self.address}")
+        logger.msg(f"BlueTooth Server started on port:{self.port}")
 
     def stop(self):
         self.running = False
