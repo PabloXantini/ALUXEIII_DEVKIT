@@ -9,8 +9,8 @@ from utils.data import IDataEncoder
 from utils.logging import logger
 
 class BTServer(BTDevice):
-    def __init__(self, encoder:IDataEncoder, host, port=10):
-        super().__init__(encoder, host, port)
+    def __init__(self, encoder:IDataEncoder, port=10):
+        super().__init__(encoder, port)
         self.running = False
         self.services:dict[str, Service] = {}
     

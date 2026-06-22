@@ -4,8 +4,7 @@ from utils.data import IDataEncoder
 import socket
 
 class BTDevice:
-    def __init__(self, encoder, host, port=1):
-        self.host = host
+    def __init__(self, encoder, port=1):
         self.port = port
         self.encoder:IDataEncoder = encoder
         self.s:socket.socket = None
@@ -18,15 +17,15 @@ class BTDevice:
         )
         return s
 
-    def connect(self):
-        self.s.connect((self.host, self.port))
+    def connect(self, host):
+        self.s.connect((host, self.port))
     
     def close(self):
         self.s.close()
 
     def send(self, data:dict):
         data = self.encoder.write(data)
-        self.socket.send(data)
+        self.s.sendall(data)
 
     def receive(self) -> dict:
         data = self.s.recv(1024).decode(self.encoder.format)

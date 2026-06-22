@@ -1,8 +1,8 @@
-from utils.data import IData
+from utils.data import IDataEncoder
 import json
-class JSONEncoder(IData):
-    def __init__(self):
-        pass
+class JSONEncoder(IDataEncoder):
+    def __init__(self, format):
+        super().__init__(format)
     def read(self, data):
         raw = json.loads(data)
     def write(self, data):
