@@ -51,6 +51,6 @@ class HardwareFactory(ComponentFactory):
         compass_node = self.advance(self.serializer.compasses)
         p = compass_node.properties
         if compass_node.type == "default":
-            return Compass(p['bus_id'])
+            return Compass(p.get('offset', 0.0), p.get('bus_id', 1))
         else:
             raise ConfigError(f"Unsupported compass type: {compass_node.type}")

@@ -1,11 +1,13 @@
 import threading
 import cv2
 import time
+from utils.logging import logger
 from robot.aluxe3.context import *
 from robot.aluxe3.actuators import (
     HardwareActuatorController, 
     HardwareCameraController
 )
+from robot.aluxe3.network.backend import Aluxe3NetBackend
 
 class RobotContext(Aluxe3Context):
     """
@@ -16,9 +18,11 @@ class RobotContext(Aluxe3Context):
         super().__init__(model=model, workspace=workspace, debug=debug, name=name, team=team)
         self.actuators = HardwareActuatorController(self.model)
         self.cameras = HardwareCameraController(self.model)
+        self.backend = Aluxe3NetBackend(self)
         self._last_frame = None
         
         # Start daemon threads for physical camera and sensors
+        self.backend.start()
         self.camera_thread = threading.Thread(target=self._camera_process, daemon=True)
         self.sensor_thread = threading.Thread(target=self._sensor_process, daemon=True)
         self.camera_thread.start()
@@ -30,6 +34,7 @@ class RobotContext(Aluxe3Context):
             if frame is not None:
                 self._last_frame = frame
             time.sleep(0.01)
+
     def _sensor_process(self):
         while self.running:
             self.env.us_back_dist = self.actuators.us_back.get_distance()
@@ -40,6 +45,10 @@ class RobotContext(Aluxe3Context):
 
     def compute(self):
         """Captura y procesa un frame."""
+        res = self.backend.client.request("context")
+        if res["status"] == "success":
+            distances = res["content"]["enviroment"]["distances"]
+            logger.msg(f"Sensores: sl->{distances['sl']} sr->{distances['sr']} sb->{distances['sb']}")
         if self._last_frame is None: return False
         frame = self._last_frame.copy()
         self.track_fps()

@@ -4,3 +4,4 @@ sandbox/vision_cpp/*.pyd
 sandbox/vision_cpp/*.txt
 __pycache__/
 !*.ico
+*.env
