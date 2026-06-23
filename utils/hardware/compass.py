@@ -41,6 +41,7 @@ class Compass(ICompass):
         # 3. Customize I2C bus number (default is 1) if using different RPi hardware.
         # 4. Calibration parameters for MPU6050 offset compensation can be adjusted here.
         self.bus_id = bus_id
+        self.declination_angle = declination_angle
         try:
             self.bus = smbus.SMBus(self.bus_id)
             self._init_mpu6050()
@@ -165,13 +166,7 @@ class Compass(ICompass):
         """
         mx, my, _ = self.get_magnetometer()
         heading_rad = math.atan2(my, mx)
-        
-        # TODO: Placeholder for customizing RPi compass declination angle by PabloXantini:
-        # Declination angle adjustment is required to convert Magnetic North to True North.
-        # Find declination angle for your location (e.g. from http://www.magnetic-declination.com/).
-        # Example: Declination = 0.08 radians
-        declination_angle = 0.0
-        heading_rad += declination_angle
+        heading_rad += self.declination_angle
         
         # Normalize to 0-360 degrees
         if heading_rad < 0:
