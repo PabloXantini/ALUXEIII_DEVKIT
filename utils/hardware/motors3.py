@@ -29,6 +29,8 @@ class OmniMotorHController3W(OmniMotorHController):
         """
         Move in an arbitrary direction using 3-wheel omnidirectional kinematics.
         """
+        if self.active_control:
+            vel = self.active_control.calculate(setpoint=angle)
         rad = math.radians(angle)
         vx = vel * math.cos(rad) # x component
         vy = vel * math.sin(rad) # y component
@@ -81,6 +83,7 @@ class OmniMotorHController3W(OmniMotorHController):
 
     def get_speeds(self) -> str:
         return f"""
+        error: {self.active_control.last_e:.2f}
         w1: {self.m1.last_vel:.2f}
         w2: {self.m2.last_vel:.2f}
         w3: {self.m3.last_vel:.2f}"""

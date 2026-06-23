@@ -86,16 +86,6 @@ class OmniMotorHController(OmniWheelMotorController):
             raise ConfigError("Motor configuration must be specified.")
         self.calib = calib
 
-    def go_from_angle(
-        self, 
-        angle: float, 
-        vel: float = Speed.DEFAULT.value, 
-        w: float = 0.0,
-        calib:str = "default"
-    ) -> None:
-        if self.active_control:
-            vel = self.active_control.calculate(setpoint=angle)
-
     def cleanup(self) -> None:
         """Clean up resources."""
         self.stop()

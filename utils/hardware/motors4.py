@@ -31,6 +31,8 @@ class OmniMotorHController4W(OmniMotorHController):
         Move in an arbitrary direction using 4-wheel omnidirectional kinematics.
         angle: heading in degrees (0=forward, 90=right, 180=backward, 270=left).
         """
+        if self.active_control:
+            vel = self.active_control.calculate(setpoint=angle)
         c = self.calib[calib_name]
         rad = math.radians(angle)
         vx = vel * math.sin(rad)   # x component
@@ -96,6 +98,7 @@ class OmniMotorHController4W(OmniMotorHController):
 
     def get_speeds(self) -> str:
         return f"""
+        error: {self.active_control.last_e:.2f}
         w1: {self.m1.last_vel:.2f}
         w2: {self.m2.last_vel:.2f}
         w3: {self.m3.last_vel:.2f}
