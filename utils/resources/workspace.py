@@ -14,7 +14,7 @@ import utils.resources.mask as mask
 import json
 
 class Workspace(ConfigNode):
-    __slots__ = ("dir", "name", "mask_dir", "masks")
+    __slots__ = ("dir", "name", "mask_dir", "masks", "o_offset")
     def __init__(self, dir:str, cfg:dict, config_dir:Path = None):
         if config_dir is None:
             config_dir = dir
@@ -32,6 +32,8 @@ class Workspace(ConfigNode):
         res = self.check_attribute(properties, "masks", list)
         masks = res.value if res.issuccess else []
         self.masks = self._build_masks(masks, self.mask_dir)
+        res = self.check_attribute(properties, "orientation", float)
+        self.o_offset = res.value if res.issuccess else 0.0
         
     def _build_masks(self, masks:list, masks_dir:Path) -> dict[str, Mask]:
         masks_dict = {}

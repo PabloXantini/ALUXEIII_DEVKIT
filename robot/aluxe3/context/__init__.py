@@ -19,12 +19,13 @@ CENTER_TOLERANCE = 40   # píxeles de tolerancia lateral
 BALL_RADIUS_CLOSE_MIN = 18   # radio mínimo para considerar la pelota "cerca"
 
 class Environment:
-    def __init__(self):
+    def __init__(self, workspace:Workspace):
         self.frame_debug = None
         self.frame_width: int = 0
         self.frame_height: int = 0
         self.fps: float = 0.0
         self.last_time: float = time.time()
+        self.orientation_offset = workspace.o_offset
         self.st_label: str = "Processing..."
         self.us_back_dist  = 0.0
         self.us_left_dist  = 0.0
@@ -46,7 +47,7 @@ class Aluxe3Context(MContext):
         self.running = True
         self.actuators = None
         self.cameras = None
-        self.env = Environment()
+        self.env = Environment(workspace)
         self.info = {
             'ball': {'detected': False, 'offset_x': None, 'radius': 0},
             'ally_goal': {'detected': False, 'offset_x': None, 'radius': 0},

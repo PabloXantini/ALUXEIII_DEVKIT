@@ -42,7 +42,7 @@ class RobotContext(Aluxe3Context):
             self.env.us_back_dist = self.actuators.us_back.get_distance()
             self.env.us_left_dist = self.actuators.us_left.get_distance()
             self.env.us_right_dist = self.actuators.us_right.get_distance()
-            self.env.heading = self.actuators.psensor.get_heading()
+            self.env.heading = self.actuators.psensor.get_heading() + self.env.orientation_offset
             time.sleep(0.05)
 
     def compute(self):
