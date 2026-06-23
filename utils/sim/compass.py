@@ -17,8 +17,8 @@ class SimCompass:
 
     def set_rangle(self, rangle: float):
         """Update the current robot orientation angle (radians) from the simulator."""
-        self._rangle = rangle + self.declination_angle
-
+        self._rangle = rangle
+        
     def get_acceleration(self):
         """
         Simulates acceleration values for X, Y, Z axes.
@@ -64,6 +64,7 @@ class SimCompass:
         """
         mx, my, _ = self.get_magnetometer()
         heading_rad = math.atan2(-my, mx)
+        heading_rad += self.declination_angle
 
         # Normalize to 0-360 degrees
         if heading_rad < 0:

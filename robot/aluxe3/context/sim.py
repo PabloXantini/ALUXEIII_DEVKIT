@@ -20,6 +20,7 @@ class SimContext(Aluxe3Context):
         super().__init__(model=model, workspace=workspace, debug=debug, name=name ,team=team)
         self.actuators = SimActuatorController(self.model)
         self.cameras = SimCameraController(self.model)
+        self.actuators.psensor.declination_angle = workspace.o_offset 
         
         # Enlace a la entidad cinemática
         self.robot = None
@@ -41,7 +42,7 @@ class SimContext(Aluxe3Context):
         self.track_fps()
 
         # Sync simulated states to the environment (for HUD/FSM)
-        self.env.heading       = self.actuators.psensor.get_heading() + self.env.orientation_offset
+        self.env.heading       = self.actuators.psensor.get_heading()
         self.env.us_left_dist  = self.actuators.us_left.get_distance()
         self.env.us_back_dist  = self.actuators.us_back.get_distance()
         self.env.us_right_dist = self.actuators.us_right.get_distance()

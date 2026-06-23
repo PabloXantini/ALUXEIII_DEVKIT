@@ -25,7 +25,6 @@ class Environment:
         self.frame_height: int = 0
         self.fps: float = 0.0
         self.last_time: float = time.time()
-        self.orientation_offset = workspace.o_offset
         self.st_label: str = "Processing..."
         self.us_back_dist  = 0.0
         self.us_left_dist  = 0.0

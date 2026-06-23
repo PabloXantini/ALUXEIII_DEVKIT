@@ -19,6 +19,7 @@ class RobotContext(Aluxe3Context):
         super().__init__(model=model, workspace=workspace, debug=debug, name=name, team=team)
         self.actuators = HardwareActuatorController(self.model)
         self.actuators.motors.use_control(AnglePIDController(self, 1.0, 0.05, 0.02))
+        self.actuators.psensor.declination_angle = workspace.o_offset
         self.cameras = HardwareCameraController(self.model)
         self.backend = Aluxe3NetBackend(self)
         self._last_frame = None
@@ -42,7 +43,8 @@ class RobotContext(Aluxe3Context):
             self.env.us_back_dist = self.actuators.us_back.get_distance()
             self.env.us_left_dist = self.actuators.us_left.get_distance()
             self.env.us_right_dist = self.actuators.us_right.get_distance()
-            self.env.heading = self.actuators.psensor.get_heading() + self.env.orientation_offset
+            angle = self.actuators.psensor.get_heading()
+            self.env.heading = (angle + 360) % 360
             time.sleep(0.05)
 
     def compute(self):
