@@ -23,7 +23,6 @@ HMC_CONFIG_B  = 0x01
 HMC_MODE      = 0x02
 HMC_DATA_X_H  = 0x03
 
-
 from utils.components import ICompass
 
 class Compass(ICompass):

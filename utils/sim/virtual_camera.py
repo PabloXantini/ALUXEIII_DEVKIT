@@ -9,28 +9,22 @@ class VirtualCamera(ICamera):
     Fachada para el sistema de visión.
     Encapsula la configuración de la cámara y delega el renderizado al Renderer.
     """
-    def __init__(self, width:int, height:int, scale:float = 100, fov_degrees=45, pitch=30.0, camera_height=15.0):
-        s = scale / 100.0
-        self.width = width
-        self.height = height
-        self.r_width = int(width * s)
-        self.r_height = int(height * s)
-
+    def __init__(self, width:int, height:int, scale:float = 100.0, fov_degrees=45, pitch=30.0, camera_height=15.0):
+        super().__init__(width, height, scale)
         self.fov_degrees = fov_degrees
         
         fov_rad = math.radians(fov_degrees)
-        self.focal_length = self.r_width / (2 * math.tan(fov_rad / 2))
+        self.focal_length = self.rw / (2 * math.tan(fov_rad / 2))
             
-        self.cx = self.r_width // 2
-        self.cy = self.r_height // 2
+        self.cx = self.rw // 2
+        self.cy = self.rh // 2
         self.camera_height = camera_height
 
         self.pitch = math.radians(pitch)   
         self.yaw_off = 0.0
         self.roll = 0.0
-        
         # El Renderer se encarga de elegir entre C++ (OpenGL) y Python (OpenCV)
-        self.renderer = Renderer(self.r_width, self.r_height)
+        self.renderer = Renderer(self.rw, self.rh)
 
     def set_light_level(self, ambient=0.4, diffuse=0.8, x=320, y=240, z=500):
         """ Ajusta la iluminación del escenario (solo C++) """

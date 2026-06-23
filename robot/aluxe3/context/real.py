@@ -7,6 +7,7 @@ from robot.aluxe3.actuators import (
     HardwareActuatorController, 
     HardwareCameraController
 )
+from robot.aluxe3.controllers import AnglePIDController
 from robot.aluxe3.network.backend import Aluxe3NetBackend
 
 class RobotContext(Aluxe3Context):
@@ -17,6 +18,7 @@ class RobotContext(Aluxe3Context):
     def __init__(self, model:Model, workspace:Workspace, debug:bool = False, name:str = 'robot', team:str = "blue"):
         super().__init__(model=model, workspace=workspace, debug=debug, name=name, team=team)
         self.actuators = HardwareActuatorController(self.model)
+        self.actuators.motors.use_control(AnglePIDController(self, 1.0, 0.05, 0.02))
         self.cameras = HardwareCameraController(self.model)
         self.backend = Aluxe3NetBackend(self)
         self._last_frame = None

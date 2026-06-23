@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from enum import Enum
 from utils.resources.model import (
@@ -10,6 +11,7 @@ from utils.resources.model import (
     CompassNode,
     ModelVisitor
 )
+from utils.pid import PIDController
 import numpy as np
 
 class Speed(Enum):
@@ -70,10 +72,13 @@ class ComponentFactory(ABC):
         pass
 
 class ICamera(ABC):
-    def __init__(self, width:int, height:int, scale:float=1.0):
+    def __init__(self, width:int, height:int, scale:float=100.0):
         self.width = width,
         self.height = height,
-        self.scale = scale
+        s = scale / 100.
+        self.rw = int(s*width)
+        self.rh = int(s*height)
+        
     @abstractmethod
     def cap_frame(self) -> np.ndarray:
         pass
@@ -96,8 +101,11 @@ class IMotor(ABC):
         pass
 
 class IMotorController(ABC):
+    """Interface for motor controller with PID via chassis"""
     def __init__(self):
-        pass
+        self.active_control:PIDController = None
+    def use_control(self, new_control:PIDController) -> None:
+        self.active_control = new_control
     def get_speeds(self) -> None:
         pass
     @abstractmethod

@@ -4,6 +4,8 @@ from utils.resources.config import ConfigError
 from utils.resources.model import Model
 from utils.pid import PIDController
 
+import numpy as np
+
 class ActuatorController:
     """Abstract interface for actuator controllers."""
     def __init__(self, model:Model) -> None:
@@ -33,8 +35,20 @@ class CameraController:
         self.front_cam.cleanup()
 
 class AnglePIDController(PIDController):
+    WINDOW_SIZE = 5
     def __init__(self, src:Aluxe3Context, kp:float, ki:float, kd:float) -> None:
         super().__init__(src, Kp=kp, Ki=ki, Kd=kd)
+        self._inited = False 
+        self._ptr = 0
+        self.history = np.zeros((self.WINDOW_SIZE,))
 
     def capture(self, setpoint:float) -> float:
-        return self.src.env.heading
+        error = (self.src.env.heading - setpoint + 180) % 360 - 180
+        if not self._inited:
+            self.history = np.full((self.WINDOW_SIZE,), error, np.float64)
+            self._inited = True
+        else:
+            self.history[self._ptr] = error
+            self._ptr = (self._ptr + 1) % self.WINDOW_SIZE
+        return np.median(self.history)
+        

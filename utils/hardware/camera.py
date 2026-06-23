@@ -4,17 +4,16 @@ from utils.components import ICamera
 import numpy as np
 import cv2
 
+PC_BACKEND = cv2.CAP_DSHOW
 BACKEND = cv2.CAP_V4L2
 
 class Camera(ICamera):
-    def __init__(self, src:int, width:int, height:int, scale:float = 1.0):
-        super().__init__(width, height)
-        self.cap = cv2.VideoCapture(src, BACKEND)
-        rw = int(width*scale)
-        rh = int(height*scale)
+    def __init__(self, src:int, width:int, height:int, scale:float = 100.0):
+        super().__init__(width, height, scale)
+        self.cap = cv2.VideoCapture(src, PC_BACKEND)
         self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, rw)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, rh)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.rw)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.rh)
     
     def cap_frame(self) -> np.ndarray:
         ret, frame = self.cap.read()

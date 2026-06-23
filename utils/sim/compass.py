@@ -63,7 +63,7 @@ class SimCompass:
             float: Heading angle in degrees [0, 360).
         """
         mx, my, _ = self.get_magnetometer()
-        heading_rad = math.atan2(my, mx)
+        heading_rad = math.atan2(-my, mx)
 
         # Normalize to 0-360 degrees
         if heading_rad < 0:

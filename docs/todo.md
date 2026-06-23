@@ -3,8 +3,8 @@ This section list the missing features and issues for this project, in order of 
 
 ## Robot Features
 - PID implementation on robot
-- UDP Communication Backend and simulation implementation
-- Change enviroment via file reading (include name on manifest)
+- UDP Communication Backend and simulation implementation (Real implementation are done by BlueTooth)
+- Change enviroment via file reading (include name on manifest) [Mostly Done]
 - Scene atributes via file reading (include name on manifest)
 - Improve simulation architecture (physics, match rules, etc...)
 - UI Observability

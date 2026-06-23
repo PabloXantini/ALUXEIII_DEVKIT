@@ -15,10 +15,9 @@ class PIDController(ABC):
         pass
 
     def calculate(self, setpoint:float) -> float:
-        measured = self.capture(setpoint)
-        error = setpoint - measured          # proportional
-        delta = error - self.last_e          # derivative
-        self.acc_e += error                  # integral accumulator
+        error = self.capture(setpoint)      # proportional
+        delta = error - self.last_e         # derivative
+        self.acc_e += error                 # integral accumulator
         self.last_e = error
         return self.Kp * error + self.Ki * self.acc_e + self.Kd * delta
 
